@@ -40,10 +40,6 @@ export default function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 text-sm text-gray-500">
-          <p>Phase 0: Setup Complete ✓</p>
-          <p className="mt-2">Next: Upload your Tarot card images to <code className="bg-gray-100 px-2 py-1 rounded">/public/images/cards/</code></p>
-        </div>
       </div>
     </main>
   );

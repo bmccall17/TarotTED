@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { BottomNav } from '@/components/layout/BottomNav';
 
 export const metadata: Metadata = {
   title: 'TarotTED - Tarot Cards Mapped to TED Talks',
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased">
         {children}
+        <BottomNav />
       </body>
     </html>
   );
