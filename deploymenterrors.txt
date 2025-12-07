@@ -1,0 +1,103 @@
+original error:
+12:55:25.613 
+12:55:25.613 
+142 packages are looking for funding
+12:55:25.613 
+  run `npm fund` for details
+12:55:25.648 
+Detected Next.js version: 15.5.7
+12:55:25.653 
+Running "npm run build"
+12:55:25.768 
+12:55:25.768 
+> tarotted@0.1.0 build
+12:55:25.769 
+> next build
+12:55:25.769 
+12:55:26.900 
+   ▲ Next.js 15.5.7
+12:55:26.901 
+12:55:26.933 
+   Creating an optimized production build ...
+12:55:35.533 
+ ✓ Compiled successfully in 5.9s
+12:55:35.536 
+   Linting and checking validity of types ...
+12:55:39.598 
+Failed to compile.
+12:55:39.599 
+12:55:39.599 
+app/cards/[slug]/page.tsx
+12:55:39.599 
+Type error: Type '{ params: { slug: string; }; }' does not satisfy the constraint 'PageProps'.
+12:55:39.600 
+  Types of property 'params' are incompatible.
+12:55:39.600 
+    Type '{ slug: string; }' is missing the following properties from type 'Promise<any>': then, catch, finally, [Symbol.toStringTag]
+12:55:39.600 
+12:55:39.635 
+Next.js build worker exited with code: 1 and signal: null
+12:55:39.659 
+Error: Command "npm run build" exited with 1
+
+---
+after turning off Linting & build error checks:
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+---
+
+13:44:42.491 Running build in Washington, D.C., USA (East) – iad1
+13:44:42.492 Build machine configuration: 2 cores, 8 GB
+13:44:42.700 Cloning github.com/bmccall17/TarotTED (Branch: main, Commit: 8259e60)
+13:44:43.804 Cloning completed: 1.104s
+13:44:44.207 Restored build cache from previous deployment (DBeXdCzkQYgnRA4Mme8iWqD2PRp3)
+13:44:45.151 Running "vercel build"
+13:44:45.558 Vercel CLI 49.0.0
+13:44:45.869 Installing dependencies...
+13:44:50.112 
+13:44:50.112 added 1 package in 4s
+13:44:50.112 
+13:44:50.113 142 packages are looking for funding
+13:44:50.113   run `npm fund` for details
+13:44:50.957 Detected Next.js version: 15.5.7
+13:44:50.982 Running "npm run build"
+13:44:51.107 
+13:44:51.107 > tarotted@0.1.0 build
+13:44:51.108 > next build
+13:44:51.108 
+13:44:52.203    ▲ Next.js 15.5.7
+13:44:52.203    - Environments: .env.local
+13:44:52.204 
+13:44:52.238    Creating an optimized production build ...
+13:45:01.321  ✓ Compiled successfully in 6.5s
+13:45:01.324    Skipping validation of types
+13:45:01.324    Skipping linting
+13:45:01.632    Collecting page data ...
+13:45:02.053 Error: Failed query: select "id", "slug", "name", "arcana_type", "suit", "number", "sequence_index", "image_url", "keywords", "summary" from "cards" order by "cards"."sequence_index"
+13:45:02.053 params: 
+13:45:02.053     at aC.queryWithCache (.next/server/chunks/728.js:8:36732)
+13:45:02.053     at async aC.execute (.next/server/chunks/728.js:8:39558)
+13:45:02.053     at async Object.m [as generateStaticParams] (.next/server/app/cards/[slug]/page.js:2:8090) {
+13:45:02.054   query: 'select "id", "slug", "name", "arcana_type", "suit", "number", "sequence_index", "image_url", "keywords", "summary" from "cards" order by "cards"."sequence_index"',
+13:45:02.054   params: [],
+13:45:02.054   [cause]: Error [VercelPostgresError]: VercelPostgresError - 'invalid_connection_string': This connection string is meant to be used with a direct connection. Make sure to use a pooled connection string or try `createClient()` instead.
+13:45:02.054       at bm (.next/server/chunks/728.js:23:5484)
+13:45:02.054       at Object.get (.next/server/chunks/728.js:23:6116)
+13:45:02.054       at <unknown> (.next/server/chunks/728.js:8:39610)
+13:45:02.054       at aC.queryWithCache (.next/server/chunks/728.js:8:36713)
+13:45:02.054       at aC.execute (.next/server/chunks/728.js:8:39569)
+13:45:02.055       at <unknown> (.next/server/chunks/728.js:8:20467)
+13:45:02.055       at Object.startActiveSpan (.next/server/chunks/728.js:8:44983)
+13:45:02.055       at ab.execute (.next/server/chunks/728.js:8:20411)
+13:45:02.055       at ab.then (.next/server/chunks/728.js:8:14200) {
+13:45:02.055     code: 'invalid_connection_string'
+13:45:02.055   }
+13:45:02.055 }
+13:45:02.057 
+13:45:02.058 > Build error occurred
+13:45:02.060 [Error: Failed to collect page data for /cards/[slug]] { type: 'Error' }
+13:45:02.086 Error: Command "npm run build" exited with 1

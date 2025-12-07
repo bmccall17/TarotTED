@@ -12,8 +12,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const talk = await getTalkWithMappedCards(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const talk = await getTalkWithMappedCards(slug);
 
   if (!talk) {
     return {
@@ -27,8 +28,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function TalkDetailPage({ params }: { params: { slug: string } }) {
-  const talk = await getTalkWithMappedCards(params.slug);
+export default async function TalkDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const talk = await getTalkWithMappedCards(slug);
 
   if (!talk) {
     notFound();

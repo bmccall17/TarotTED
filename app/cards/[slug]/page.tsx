@@ -12,8 +12,9 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const card = await getCardWithMappings(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const card = await getCardWithMappings(slug);
 
   if (!card) {
     return {
@@ -27,8 +28,9 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function CardDetailPage({ params }: { params: { slug: string } }) {
-  const card = await getCardWithMappings(params.slug);
+export default async function CardDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const card = await getCardWithMappings(slug);
 
   if (!card) {
     notFound();
