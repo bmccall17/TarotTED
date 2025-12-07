@@ -4,7 +4,9 @@
       "Bash(find:*)",
       "Bash(ls:*)",
       "Bash(npx create-next-app:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(chmod:*)",
+      "Bash(/mnt/c/Users/brett/Documents/GitHub/TarotTED/rename-cards.sh)"
     ],
     "deny": [],
     "ask": []
