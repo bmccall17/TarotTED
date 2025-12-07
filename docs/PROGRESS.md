@@ -22,36 +22,58 @@
 - Number 13 = Queen
 - Number 14 = King
 
-## 🚧 Phase 1: Core Data Layer - IN PROGRESS
+## ✅ Phase 1: Core Data Layer - COMPLETE
 
 ### Completed
 - [x] Helper utilities created (`helpers.ts`)
-  - `getCardImageUrl()` - Generates correct image paths
+  - `getCardImageUrl()` - Generates correct image paths for actual filenames
   - `generateSlug()` - Creates URL-friendly slugs
   - `extractTalkInfo()` - Parses TED talk data from CSV
-- [x] All 78 Tarot cards seed data created
-  - 22 Major Arcana cards with meanings
+- [x] **All 78 Tarot cards seed data created**
+  - 22 Major Arcana cards with full meanings
   - 56 Minor Arcana cards (14 each of Wands, Cups, Swords, Pentacles)
   - All cards include: name, slug, arcana type, suit, number, image URL, keywords, summary, upright/reversed meanings
+- [x] **Talks seed data created** (`talks.ts`)
+  - 25+ unique TED talks from CSV files
+  - Includes: title, speaker, URL, description, year
+  - Deduplicated (same talk doesn't appear twice)
+- [x] **Card-talk mappings created** (`mappings.ts`)
+  - Primary mappings for all Major Arcana
+  - Key Minor Arcana mappings
+  - Includes strength ratings (1-5) and rationale notes
+- [x] **Themes seed data created** (`themes.ts`)
+  - 11 curated themes across categories:
+    - Emotions: Grief & Gratitude, Joy & Celebration, Fear & Courage
+    - Life Phases: New Beginnings, Endings & Transitions, Transformation
+    - Roles: Leadership, Creativity & Calling, Relationships
+    - Other: Resilience, Wisdom & Introspection
+  - Card-theme and talk-theme assignments
+- [x] **Main seed script created** (`lib/db/seed.ts`)
+  - Clears existing data
+  - Inserts all cards, talks, themes
+  - Creates mappings and theme assignments
+  - Full logging and error handling
 
-### Next Steps
-1. **Parse CSV Data for Talks** - Extract unique TED talks from all CSV files
-2. **Create Talks Seed Data** - Build talks.ts with:
-   - Talk titles and speakers
-   - TED/YouTube URLs
-   - Descriptions
-   - Duration (to be added)
-3. **Create Mappings Seed Data** - Link cards to talks with:
-   - Primary mapping flags
-   - Strength ratings (1-5)
-   - Rationale short (from CSV)
-   - Rationale long (optional)
-4. **Create Themes Seed Data** - Initial themes:
-   - Emotions (grief, joy, etc.)
-   - Life phases (beginnings, endings, transitions)
-   - Roles (leader, artist, parent)
-5. **Main Seed Script** - Tie everything together
-6. **Test Seeding** - Run `npm run db:seed` and verify in Drizzle Studio
+### ⚠️ Blocker: Database Connection
+
+The seed data is ready, but we need to fix the Vercel Postgres connection first.
+
+**Current Issue**: The `DATABASE_URL` in `.env.local` is pointing to `db.prisma.io` which returns a 404 error.
+
+**Solution Required**:
+1. Go to Vercel Dashboard → Your Project → Storage → Postgres Database
+2. Click the **.env.local** tab
+3. Copy ALL environment variables (not just DATABASE_URL)
+4. Replace the contents of your local `.env.local` file
+5. The correct URL should look like: `postgres://default:xxx@ep-xxx.us-east-1.postgres.vercel-storage.com:5432/verceldb`
+
+### Ready to Run
+Once database connection is fixed:
+```bash
+npm run db:push    # Create tables
+npm run db:seed    # Populate with all data
+npm run db:studio  # Verify in GUI
+```
 
 ## 📊 Data Status
 
