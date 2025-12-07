@@ -1,9 +1,12 @@
-import { drizzle } from 'drizzle-orm/vercel-postgres';
-import { createPool } from '@vercel/postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema';
 
-const pool = createPool({
-  connectionString: process.env.POSTGRES_URL,
-});
+const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
 
-export const db = drizzle(pool, { schema });
+if (!connectionString) {
+  throw new Error('POSTGRES_URL or DATABASE_URL environment variable is required');
+}
+
+const client = postgres(connectionString, { prepare: false });
+export const db = drizzle(client, { schema });
