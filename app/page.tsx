@@ -16,7 +16,7 @@ export default function HomePage() {
         </div>
         <h1 className="text-3xl font-bold text-gray-100">Tarot of TED</h1>
         <p className="text-gray-400 max-w-md mx-auto">
-          Where ancient wisdom meets modern insight. Find talks that speak to your journey.
+          Discover wisdom through the intersection of ancient Tarot archetypes and modern TED insights.
         </p>
       </div>
 
