@@ -2,10 +2,36 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Shuffle, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
   const [showAbout, setShowAbout] = useState(false);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const router = useRouter();
+
+  const handleDrawCard = async () => {
+    setIsDrawing(true);
+    try {
+      const response = await fetch('/api/random-card');
+      const data = await response.json();
+      if (data.slug) {
+        router.push(`/cards/${data.slug}`);
+      }
+    } catch (error) {
+      console.error('Error drawing card:', error);
+    } finally {
+      setIsDrawing(false);
+    }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <div className="px-4 py-6 pb-24 space-y-6 max-w-7xl mx-auto">
@@ -21,24 +47,27 @@ export default function HomePage() {
       </div>
 
       {/* Search Bar */}
-      <div className="relative">
+      <form onSubmit={handleSearch} className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
         <input
           type="text"
           placeholder="Search cards, talks, or themes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-gray-100 placeholder-gray-500"
         />
-      </div>
+      </form>
 
       {/* Primary Actions */}
       <div className="space-y-3">
-        <Link
-          href="/cards"
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow"
+        <button
+          onClick={handleDrawCard}
+          disabled={isDrawing}
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Shuffle className="w-5 h-5" />
-          <span className="font-medium">Draw a Card & Talk</span>
-        </Link>
+          <Shuffle className={`w-5 h-5 ${isDrawing ? 'animate-spin' : ''}`} />
+          <span className="font-medium">{isDrawing ? 'Drawing...' : 'Draw a Card & Talk'}</span>
+        </button>
 
         <div className="grid grid-cols-2 gap-3">
           <Link
