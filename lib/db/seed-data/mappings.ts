@@ -40,7 +40,7 @@ export const mappingsSeedData = [
   // THE EMPRESS (3)
   {
     cardSlug: 'the-empress',
-    talkSlug: 'brené-brown-the-power-of-vulnerability',
+    talkSlug: 'bren-brown-the-power-of-vulnerability',
     isPrimary: true,
     strength: 5,
     rationaleShort: 'The Empress nurtures through vulnerability and creativity. Brené Brown shows how opening our hearts creates abundance in relationships and life.',
@@ -378,7 +378,7 @@ export const mappingsSeedData = [
   // ACE OF CUPS
   {
     cardSlug: 'ace-of-cups',
-    talkSlug: 'brené-brown-the-power-of-vulnerability',
+    talkSlug: 'bren-brown-the-power-of-vulnerability',
     isPrimary: true,
     strength: 5,
     rationaleShort: 'The Ace of Cups overflows with new love and emotional fulfillment. Brené Brown shows how compassion begins with vulnerability.',
@@ -612,7 +612,7 @@ export const mappingsSeedData = [
   // TEN OF SWORDS
   {
     cardSlug: 'ten-of-swords',
-    talkSlug: 'brené-brown-listening-to-shame',
+    talkSlug: 'bren-brown-listening-to-shame',
     isPrimary: true,
     strength: 5,
     rationaleShort: 'The Ten of Swords marks endings and surrender. Brené Brown examines the collapse that comes before rising again.',
