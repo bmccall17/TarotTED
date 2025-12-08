@@ -62,13 +62,13 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
 
       <div className="px-4 py-6 space-y-6 max-w-4xl mx-auto">
         {/* Card Hero */}
-        <div className="aspect-[2/3] max-w-xs mx-auto rounded-2xl overflow-hidden shadow-lg border-2 border-gray-700">
+        <div className="aspect-[5/7] max-w-xs mx-auto rounded-2xl overflow-hidden shadow-lg border-2 border-gray-700 bg-gray-900">
           <div className="relative w-full h-full">
             <Image
               src={card.imageUrl}
               alt={card.name}
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>

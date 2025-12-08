@@ -27,12 +27,12 @@ export function CardListItem({
   return (
     <Link href={`/cards/${slug}`}>
       <div className="flex items-start gap-4 p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-        <div className="relative w-20 h-32 flex-shrink-0 rounded overflow-hidden shadow-sm">
+        <div className="relative w-20 h-32 flex-shrink-0 rounded overflow-hidden shadow-sm bg-gray-900">
           <Image
             src={imageUrl}
             alt={name}
             fill
-            className="object-cover"
+            className="object-contain"
           />
         </div>
         <div className="flex-1 min-w-0">

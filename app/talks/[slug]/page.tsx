@@ -120,12 +120,12 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                     }`}
                   >
                     <div className="flex gap-4">
-                      <div className="relative w-20 h-32 flex-shrink-0 rounded-lg overflow-hidden shadow-sm">
+                      <div className="relative w-20 h-32 flex-shrink-0 rounded-lg overflow-hidden shadow-sm bg-gray-900">
                         <Image
                           src={item.card.imageUrl}
                           alt={item.card.name}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

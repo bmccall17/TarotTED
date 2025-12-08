@@ -156,12 +156,12 @@ function SearchContent() {
                       href={`/cards/${card.slug}`}
                       className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all text-left group"
                     >
-                      <div className="aspect-[2/3] rounded-lg mb-3 overflow-hidden relative group-hover:scale-105 transition-transform">
+                      <div className="aspect-[5/7] rounded-lg mb-3 overflow-hidden relative group-hover:scale-105 transition-transform bg-gray-900">
                         <Image
                           src={card.imageUrl}
                           alt={card.name}
                           fill
-                          className="object-cover"
+                          className="object-contain"
                           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       </div>
