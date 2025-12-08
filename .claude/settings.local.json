@@ -19,7 +19,9 @@
       "Bash(powershell.exe -Command \"Expand-Archive -Path ''Prototype for Lookup Instrument.zip'' -DestinationPath ''prototype_temp'' -Force\")",
       "Bash(cd:*)",
       "Bash(cd /mnt/c/Users/Brett A McCall/Documents/GitHub/TarotTED && dotenv -e .env.local -- npx tsx scripts/fetch-talk-metadata.ts:*)",
-      "Bash(cd /mnt/c/Users/Brett\\ A\\ McCall/Documents/GitHub/TarotTED && dotenv -e .env.local -- npx tsx scripts/fetch-talk-metadata.ts:*)"
+      "Bash(cd /mnt/c/Users/Brett\\ A\\ McCall/Documents/GitHub/TarotTED && dotenv -e .env.local -- npx tsx scripts/fetch-talk-metadata.ts:*)",
+      "WebFetch(domain:www.dungeon.church)",
+      "Bash(cd /mnt/c/Users/Brett\\ A\\ McCall/Documents/GitHub/TarotTED && npx dotenv -e .env.local -- tsx scripts/download-hires-images.ts:*)"
     ],
     "deny": [],
     "ask": []
