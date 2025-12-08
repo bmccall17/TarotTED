@@ -1,46 +1,108 @@
+'use client';
+
 import Link from 'next/link';
+import { useState } from 'react';
+import { Search, Shuffle, Sparkles } from 'lucide-react';
 
 export default function HomePage() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-6 md:p-24">
-      <div className="max-w-2xl w-full text-center">
-        <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-          TarotTED
-        </h1>
-        <p className="text-xl md:text-2xl text-gray-600 mb-8">
-          Mapping the Tarot deck to TED talks
-        </p>
-        <p className="text-lg text-gray-700 mb-12 max-w-xl mx-auto">
-          Discover wisdom through the intersection of ancient Tarot archetypes and modern TED insights.
-        </p>
+  const [showAbout, setShowAbout] = useState(false);
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+  return (
+    <div className="px-4 py-6 pb-24 space-y-6 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Sparkles className="w-8 h-8 text-indigo-400" />
+        </div>
+        <h1 className="text-3xl font-bold text-gray-100">Tarot of TED</h1>
+        <p className="text-gray-400 max-w-md mx-auto">
+          Where ancient wisdom meets modern insight. Find talks that speak to your journey.
+        </p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+        <input
+          type="text"
+          placeholder="Search cards, talks, or themes..."
+          className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-gray-100 placeholder-gray-500"
+        />
+      </div>
+
+      {/* Primary Actions */}
+      <div className="space-y-3">
+        <Link
+          href="/cards"
+          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow"
+        >
+          <Shuffle className="w-5 h-5" />
+          <span className="font-medium">Draw a Card & Talk</span>
+        </Link>
+
+        <div className="grid grid-cols-2 gap-3">
           <Link
             href="/cards"
-            className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-200 rounded-lg hover:shadow-lg transition-all duration-200"
+            className="bg-gray-800 border-2 border-indigo-500/30 text-indigo-300 py-3 px-4 rounded-xl hover:bg-gray-700 transition-colors text-center font-medium"
           >
-            <h2 className="text-xl font-semibold mb-2 text-purple-900">Browse Cards</h2>
-            <p className="text-gray-600 text-sm">Explore all 78 Tarot cards</p>
+            Browse Cards
           </Link>
-
           <Link
             href="/talks"
-            className="p-6 bg-gradient-to-br from-red-50 to-orange-50 border border-red-200 rounded-lg hover:shadow-lg transition-all duration-200"
+            className="bg-gray-800 border-2 border-purple-500/30 text-purple-300 py-3 px-4 rounded-xl hover:bg-gray-700 transition-colors text-center font-medium"
           >
-            <h2 className="text-xl font-semibold mb-2 text-red-900">Discover Talks</h2>
-            <p className="text-gray-600 text-sm">Watch TED talks by archetype</p>
-          </Link>
-
-          <Link
-            href="/themes"
-            className="p-6 bg-gradient-to-br from-green-50 to-teal-50 border border-green-200 rounded-lg hover:shadow-lg transition-all duration-200"
-          >
-            <h2 className="text-xl font-semibold mb-2 text-green-900">Explore Themes</h2>
-            <p className="text-gray-600 text-sm">Curated collections for life's moments</p>
+            Browse Talks
           </Link>
         </div>
-
       </div>
-    </main>
+
+      {/* Featured Theme */}
+      <div className="bg-gray-800/50 rounded-xl p-5 shadow-sm border border-gray-700">
+        <div className="flex items-start gap-3 mb-3">
+          <div className="w-1 h-16 rounded-full bg-green-500" />
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="w-4 h-4 text-indigo-400" />
+              <span className="text-xs text-indigo-400 uppercase tracking-wide">Featured Theme</span>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-100 mb-1">New Beginnings</h3>
+            <p className="text-gray-400 text-sm">Talks and cards for stepping into the unknown and starting fresh.</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-4 text-xs text-gray-500">
+            <span>8 cards</span>
+            <span>6 talks</span>
+          </div>
+          <Link
+            href="/themes/new-beginnings"
+            className="text-indigo-400 text-sm hover:text-indigo-300 font-medium"
+          >
+            Explore →
+          </Link>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div className="bg-gray-800/50 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
+        <button
+          onClick={() => setShowAbout(!showAbout)}
+          className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-700/50 transition-colors"
+        >
+          <span className="text-gray-300 font-medium">How this works</span>
+          <span className="text-gray-500 text-xl">{showAbout ? '−' : '+'}</span>
+        </button>
+        {showAbout && (
+          <div className="px-5 pb-5 space-y-3 text-sm text-gray-400 border-t border-gray-700 pt-4">
+            <p>
+              Each tarot card is paired with TED talks that echo its wisdom. Whether you&apos;re drawing cards for guidance or exploring themes, you&apos;ll find talks that deepen your understanding.
+            </p>
+            <p>
+              Start by drawing a random card, browse by theme, or search for something specific. Each connection is thoughtfully curated to bridge timeless archetypes with contemporary insight.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

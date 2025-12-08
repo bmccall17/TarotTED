@@ -14,7 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 antialiased">
         {children}
         <BottomNav />
       </body>

@@ -14,7 +14,9 @@
       "Bash(npm run dev:*)",
       "Bash(npm run db:seed:*)",
       "Bash(npm run build:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(unzip:*)",
+      "Bash(powershell.exe -Command \"Expand-Archive -Path ''Prototype for Lookup Instrument.zip'' -DestinationPath ''prototype_temp'' -Force\")"
     ],
     "deny": [],
     "ask": []

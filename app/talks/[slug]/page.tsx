@@ -2,8 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
-import { Badge } from '@/components/ui/Badge';
-import { ExternalLink, Clock, Calendar } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Clock, Calendar, Play } from 'lucide-react';
 
 export async function generateStaticParams() {
   const talks = await getAllTalks();
@@ -39,17 +38,36 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
   const durationMinutes = talk.durationSeconds ? Math.floor(talk.durationSeconds / 60) : null;
 
   return (
-    <div className="min-h-screen pb-20 md:pb-0 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Talk Header */}
-        <section className="mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
-            <div className="mb-4">
-              <h1 className="text-3xl md:text-4xl font-bold mb-3">{talk.title}</h1>
-              <p className="text-xl text-gray-700 mb-2">
+    <div className="min-h-screen pb-24">
+      {/* Sticky Header */}
+      <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
+        <div className="px-4 py-4 flex items-center gap-3 max-w-7xl mx-auto">
+          <Link
+            href="/talks"
+            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-400" />
+          </Link>
+          <div className="flex-1 min-w-0">
+            <h2 className="font-semibold text-gray-100 truncate">{talk.title}</h2>
+            <p className="text-sm text-gray-500">{talk.speakerName}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 py-6 space-y-6 max-w-4xl mx-auto">
+        {/* Talk Hero */}
+        <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl p-6 border border-indigo-500/30">
+          <div className="flex items-start gap-4 mb-4">
+            <div className="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Play className="w-8 h-8 text-white" />
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-100 mb-2">{talk.title}</h1>
+              <p className="text-lg text-gray-300 mb-2">
                 by <span className="font-semibold">{talk.speakerName}</span>
               </p>
-              <div className="flex flex-wrap gap-3 text-sm text-gray-600 mb-4">
+              <div className="flex flex-wrap gap-3 text-sm text-gray-400">
                 {talk.year && (
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
@@ -64,28 +82,28 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                 )}
               </div>
             </div>
-
-            {talk.description && (
-              <p className="text-gray-700 mb-6 leading-relaxed">{talk.description}</p>
-            )}
-
-            <a
-              href={talk.tedUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
-            >
-              Watch on TED
-              <ExternalLink className="w-4 h-4" />
-            </a>
           </div>
-        </section>
+
+          {talk.description && (
+            <p className="text-gray-300 mb-6 leading-relaxed">{talk.description}</p>
+          )}
+
+          <a
+            href={talk.tedUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          >
+            Watch on TED
+            <ExternalLink className="w-4 h-4" />
+          </a>
+        </div>
 
         {/* Mapped Cards */}
         {talk.mappedCards.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4">Related Tarot Cards</h2>
-            <p className="text-gray-600 mb-4">
+          <div className="space-y-4">
+            <h2 className="text-xl font-bold text-gray-100">Related Tarot Cards</h2>
+            <p className="text-gray-400">
               This talk resonates with the following Tarot cards:
             </p>
             <div className="grid gap-4 md:grid-cols-2">
@@ -97,12 +115,12 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                   <Link
                     key={item.card.id}
                     href={`/cards/${item.card.slug}`}
-                    className={`block bg-white border rounded-lg p-4 hover:shadow-md transition-shadow ${
-                      isPrimary ? 'border-purple-300 bg-purple-50/30' : 'border-gray-200'
+                    className={`block bg-gray-800/50 border rounded-xl p-4 hover:shadow-md hover:border-gray-600 transition-all ${
+                      isPrimary ? 'border-indigo-500/50' : 'border-gray-700'
                     }`}
                   >
                     <div className="flex gap-4">
-                      <div className="relative w-20 h-32 flex-shrink-0 rounded overflow-hidden shadow-sm">
+                      <div className="relative w-20 h-32 flex-shrink-0 rounded-lg overflow-hidden shadow-sm">
                         <Image
                           src={item.card.imageUrl}
                           alt={item.card.name}
@@ -112,30 +130,30 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="font-semibold text-lg text-gray-900">
+                          <h3 className="font-semibold text-gray-100">
                             {item.card.name}
                           </h3>
                           {isPrimary && (
-                            <Badge variant="primary">Primary</Badge>
+                            <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">
+                              Primary
+                            </span>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mb-2">
+                        <p className="text-sm text-gray-400 mb-2 line-clamp-2">
                           {item.card.summary}
                         </p>
-                        <p className="text-sm text-gray-700 italic mb-2">
-                          "{item.mapping.rationaleShort}"
+                        <p className="text-sm text-gray-300 italic mb-2 line-clamp-2">
+                          &ldquo;{item.mapping.rationaleShort}&rdquo;
                         </p>
                         <div className="flex flex-wrap gap-1">
                           {keywords.slice(0, 3).map((keyword: string) => (
-                            <Badge key={keyword} variant="default">
+                            <span
+                              key={keyword}
+                              className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30"
+                            >
                               {keyword}
-                            </Badge>
+                            </span>
                           ))}
-                        </div>
-                        <div className="mt-2">
-                          <Badge variant="secondary">
-                            Strength: {item.mapping.strength}/5
-                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -143,14 +161,14 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                 );
               })}
             </div>
-          </section>
+          </div>
         )}
 
-        {/* Back to all talks */}
-        <div className="text-center">
+        {/* Back Link */}
+        <div className="text-center pt-4">
           <Link
             href="/talks"
-            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-medium"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
             ← Back to all talks
           </Link>
