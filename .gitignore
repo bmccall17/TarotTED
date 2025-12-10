@@ -62,6 +62,7 @@ deploymenterrors.txt
 
 # Large CSV data files (used for seeding only)
 docs/*.csv
+docs/
 
 # Backup files
 *.bak
