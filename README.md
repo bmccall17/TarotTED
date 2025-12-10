@@ -16,18 +16,18 @@ by late 2025, i realized this was no longer just a personal healing practice. it
 at its core, Tarot of TED is about the art of noticing, pattern recognition, meaning-making, and learning to see your life through multiple lenses at once: ancient and contemporary, symbolic and scientific, internal and external. it is an experiment in learning through symbols, story, and the unexpected conversations between them, and a reminder that sometimes the things we build to save ourselves become things we can offer to others.
 
 ---
-## Card Images
+## card images
 the tarot card images are from the beautifully preserved **Pamela A (1909) Rider–Waite–Smith** scans:
 [https://www.dungeon.church/rider-waite-smith-tarot-pamela-a-1909/](https://www.dungeon.church/rider-waite-smith-tarot-pamela-a-1909/)
 
 *“Pamela A (1909) Rider–Waite–Smith card scans originally archived by Dungeon Church, from scans of a Japanese collector’s deck.”*
 
 ---
-## Books & Resources
+## books & resources
 these works informed the historical grounding and interpretive depth of the project:
 * **Llewellyn's Complete Book of the Rider–Waite–Smith Tarot: A Journey Through the History, Meaning, and Use of the World's Most Famous Deck**
 * **Secrets of the Waite–Smith Tarot: The True Story of the World’s Most Popular Tarot**
 
 ---
-## Notes
+## notes
 there are no license restrictions on the application code. please feel free to fork, modify, or build upon the project. if you use the card images, be sure to follow the attribution guidelines from Dungeon Church.
