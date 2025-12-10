@@ -5,10 +5,10 @@ import { eq } from 'drizzle-orm';
 async function verify() {
   const result = await db.select().from(cards).where(eq(cards.name, 'Ace of Cups'));
   console.log('Ace of Cups:');
-  console.log('  Has upright_meaning:', !!result[0]?.upright_meaning);
-  console.log('  Has astrological:', !!result[0]?.astrological_correspondence);
-  if (result[0]?.astrological_correspondence) {
-    console.log('  Astrological value:', result[0].astrological_correspondence);
+  console.log('  Has uprightMeaning:', !!result[0]?.uprightMeaning);
+  console.log('  Has astrologicalCorrespondence:', !!result[0]?.astrologicalCorrespondence);
+  if (result[0]?.astrologicalCorrespondence) {
+    console.log('  Astrological value:', result[0].astrologicalCorrespondence);
   }
   process.exit(0);
 }

@@ -5,8 +5,8 @@ import { like } from 'drizzle-orm';
 async function check() {
   const results = await db.select({
     name: cards.name,
-    upright: cards.upright_meaning,
-    astrological: cards.astrological_correspondence
+    upright: cards.uprightMeaning,
+    astrological: cards.astrologicalCorrespondence
   }).from(cards).where(like(cards.name, '%Wands%'));
 
   console.log(`Found ${results.length} Wands cards`);

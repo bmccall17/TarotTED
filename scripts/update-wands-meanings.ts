@@ -172,7 +172,7 @@ async function updateWandsMeanings() {
             reversedMeaning: card.reversedMeaning,
             symbolism: card.symbolism,
             adviceWhenDrawn: card.adviceWhenDrawn,
-            journalingPrompts: card.journalingPrompts,
+            journalingPrompts: JSON.stringify(card.journalingPrompts),
             astrologicalCorrespondence: card.astrologicalCorrespondence,
             numerologicalSignificance: card.numerologicalSignificance
           })

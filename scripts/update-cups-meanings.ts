@@ -120,7 +120,7 @@ async function updateCardMeanings() {
             reversedMeaning: meaning.reversedMeaning,
             symbolism: meaning.symbolism,
             adviceWhenDrawn: meaning.adviceWhenDrawn,
-            journalingPrompts: meaning.journalingPrompts,
+            journalingPrompts: JSON.stringify(meaning.journalingPrompts),
             astrologicalCorrespondence: meaning.astrologicalCorrespondence,
             numerologicalSignificance: meaning.numerologicalSignificance,
             updatedAt: new Date(),

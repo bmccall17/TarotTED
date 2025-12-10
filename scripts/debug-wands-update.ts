@@ -22,7 +22,7 @@ async function debugUpdate() {
     if (found.length > 0) {
       console.log('Card ID:', found[0].id);
       console.log('Card name:', found[0].name);
-      console.log('Current upright_meaning:', found[0].upright_meaning?.substring(0, 50) || 'NULL');
+      console.log('Current uprightMeaning:', found[0].uprightMeaning?.substring(0, 50) || 'NULL');
     }
 
     // Try to update
@@ -30,24 +30,24 @@ async function debugUpdate() {
     const result = await db
       .update(cards)
       .set({
-        upright_meaning: 'TEST UPRIGHT MEANING',
-        astrological_correspondence: 'TEST ASTRO'
+        uprightMeaning: 'TEST UPRIGHT MEANING',
+        astrologicalCorrespondence: 'TEST ASTRO'
       })
       .where(eq(cards.name, 'Ace of Wands'))
       .returning();
 
     console.log('Update returned:', result.length, 'rows');
     if (result.length > 0) {
-      console.log('Updated upright_meaning:', result[0].upright_meaning);
-      console.log('Updated astrological:', result[0].astrological_correspondence);
+      console.log('Updated uprightMeaning:', result[0].uprightMeaning);
+      console.log('Updated astrological:', result[0].astrologicalCorrespondence);
     }
 
     // Verify the update
     console.log('\nVerifying update...');
     const verified = await db.select().from(cards).where(eq(cards.name, 'Ace of Wands'));
     if (verified.length > 0) {
-      console.log('Verified upright_meaning:', verified[0].upright_meaning?.substring(0, 50) || 'NULL');
-      console.log('Verified astrological:', verified[0].astrological_correspondence || 'NULL');
+      console.log('Verified uprightMeaning:', verified[0].uprightMeaning?.substring(0, 50) || 'NULL');
+      console.log('Verified astrological:', verified[0].astrologicalCorrespondence || 'NULL');
     }
   } finally {
     await client.end();
