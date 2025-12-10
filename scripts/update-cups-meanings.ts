@@ -1,9 +1,18 @@
-import { db } from '../lib/db';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import { cards } from '../lib/db/schema';
 import { eq } from 'drizzle-orm';
 import * as fs from 'fs';
 import * as path from 'path';
 import { generateSlug } from '../lib/db/seed-data/helpers';
+
+const getConnectionString = () => {
+  const connectionString = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('POSTGRES_URL or DATABASE_URL environment variable is required');
+  }
+  return connectionString;
+};
 
 interface CardMeaningJSON {
   Card: string;
@@ -87,6 +96,9 @@ function cleanAndParseJSON(filePath: string): CardMeaningJSON[] {
 }
 
 async function updateCardMeanings() {
+  const client = postgres(getConnectionString(), { prepare: false });
+  const db = drizzle(client);
+
   const jsonlPath = path.join(__dirname, '../docs/fullmeaning_Cups.jsonl');
 
   console.log('Parsing and cleaning Cups JSON file...');
@@ -96,42 +108,44 @@ async function updateCardMeanings() {
   let updated = 0;
   let notFound = 0;
 
-  for (const meaning of cardMeanings) {
-    const cardSlug = generateSlug(meaning.Card);
+  try {
+    for (const meaning of cardMeanings) {
+      const cardSlug = generateSlug(meaning.Card);
 
-    try {
-      const result = await db
-        .update(cards)
-        .set({
-          uprightMeaning: meaning.uprightMeaning,
-          reversedMeaning: meaning.reversedMeaning,
-          symbolism: meaning.symbolism,
-          adviceWhenDrawn: meaning.adviceWhenDrawn,
-          journalingPrompts: JSON.stringify(meaning.journalingPrompts),
-          astrologicalCorrespondence: meaning.astrologicalCorrespondence,
-          numerologicalSignificance: meaning.numerologicalSignificance,
-          updatedAt: new Date(),
-        })
-        .where(eq(cards.slug, cardSlug))
-        .returning({ id: cards.id });
+      try {
+        const result = await db
+          .update(cards)
+          .set({
+            uprightMeaning: meaning.uprightMeaning,
+            reversedMeaning: meaning.reversedMeaning,
+            symbolism: meaning.symbolism,
+            adviceWhenDrawn: meaning.adviceWhenDrawn,
+            journalingPrompts: meaning.journalingPrompts,
+            astrologicalCorrespondence: meaning.astrologicalCorrespondence,
+            numerologicalSignificance: meaning.numerologicalSignificance,
+            updatedAt: new Date(),
+          })
+          .where(eq(cards.slug, cardSlug))
+          .returning({ id: cards.id });
 
-      if (result.length > 0) {
-        console.log(`✓ Updated: ${meaning.Card}`);
-        updated++;
-      } else {
-        console.log(`✗ Not found: ${meaning.Card} (slug: ${cardSlug})`);
-        notFound++;
+        if (result.length > 0) {
+          console.log(`✓ Updated: ${meaning.Card}`);
+          updated++;
+        } else {
+          console.log(`✗ Not found: ${meaning.Card} (slug: ${cardSlug})`);
+          notFound++;
+        }
+      } catch (error) {
+        console.error(`Error updating ${meaning.Card}:`, error);
       }
-    } catch (error) {
-      console.error(`Error updating ${meaning.Card}:`, error);
     }
+
+    console.log('\n--- Summary ---');
+    console.log(`Updated: ${updated} cards`);
+    console.log(`Not found: ${notFound} cards`);
+  } finally {
+    await client.end();
   }
-
-  console.log('\n--- Summary ---');
-  console.log(`Updated: ${updated} cards`);
-  console.log(`Not found: ${notFound} cards`);
-
-  process.exit(0);
 }
 
 updateCardMeanings().catch((error) => {
