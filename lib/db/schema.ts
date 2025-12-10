@@ -19,6 +19,11 @@ export const cards = pgTable('cards', {
   summary: text('summary').notNull(),
   uprightMeaning: text('upright_meaning'),
   reversedMeaning: text('reversed_meaning'),
+  symbolism: text('symbolism'),
+  adviceWhenDrawn: text('advice_when_drawn'),
+  journalingPrompts: text('journaling_prompts'), // JSON array as string
+  astrologicalCorrespondence: text('astrological_correspondence'),
+  numerologicalSignificance: text('numerological_significance'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

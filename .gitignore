@@ -42,3 +42,27 @@ next-env.d.ts
 
 # drizzle
 drizzle/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Claude Desktop
+.claude/
+
+# Temporary and error files
+deploymenterrors.txt
+*.log
+*.tmp
+
+# Large CSV data files (used for seeding only)
+docs/*.csv
+
+# Backup files
+*.bak
+*.backup

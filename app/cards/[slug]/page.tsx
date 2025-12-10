@@ -161,6 +161,11 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
         <CardDetailClient
           uprightMeaning={card.uprightMeaning}
           reversedMeaning={card.reversedMeaning}
+          symbolism={card.symbolism}
+          adviceWhenDrawn={card.adviceWhenDrawn}
+          journalingPrompts={card.journalingPrompts}
+          astrologicalCorrespondence={card.astrologicalCorrespondence}
+          numerologicalSignificance={card.numerologicalSignificance}
           cardName={card.name}
         />
 
