@@ -3,6 +3,18 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
+// Helper function to render text with basic markdown (bold)
+function renderMarkdown(text: string) {
+  // Split by ** and toggle bold formatting
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={index} className="font-semibold text-gray-100">{part.slice(2, -2)}</strong>;
+    }
+    return <span key={index}>{part}</span>;
+  });
+}
+
 interface CardDetailClientProps {
   uprightMeaning: string | null;
   reversedMeaning: string | null;
@@ -61,13 +73,13 @@ export function CardDetailClient({
               {uprightMeaning && (
                 <div>
                   <p className="text-indigo-300 font-semibold mb-2">Upright</p>
-                  <p className="leading-relaxed">{uprightMeaning}</p>
+                  <p className="leading-relaxed">{renderMarkdown(uprightMeaning)}</p>
                 </div>
               )}
               {reversedMeaning && (
                 <div>
                   <p className="text-indigo-300 font-semibold mb-2">Reversed</p>
-                  <p className="leading-relaxed">{reversedMeaning}</p>
+                  <p className="leading-relaxed">{renderMarkdown(reversedMeaning)}</p>
                 </div>
               )}
             </div>
@@ -91,7 +103,7 @@ export function CardDetailClient({
           </button>
           {showSymbolism && (
             <div className="px-4 pb-4 border-t border-gray-700 pt-4 text-sm text-gray-300 leading-relaxed">
-              {symbolism}
+              {renderMarkdown(symbolism)}
             </div>
           )}
         </div>
@@ -113,7 +125,7 @@ export function CardDetailClient({
           </button>
           {showAdvice && (
             <div className="px-4 pb-4 border-t border-gray-700 pt-4 text-sm text-gray-300 leading-relaxed">
-              {adviceWhenDrawn}
+              {renderMarkdown(adviceWhenDrawn)}
             </div>
           )}
         </div>
@@ -139,8 +151,8 @@ export function CardDetailClient({
               <ul className="space-y-3">
                 {prompts.map((prompt, index) => (
                   <li key={index} className="flex gap-3">
-                    <span className="text-indigo-400 font-semibold">{index + 1}.</span>
-                    <span className="leading-relaxed">{prompt}</span>
+                    <span className="text-indigo-400 font-semibold flex-shrink-0">{index + 1}.</span>
+                    <span className="leading-relaxed">{renderMarkdown(prompt)}</span>
                   </li>
                 ))}
               </ul>
@@ -168,13 +180,13 @@ export function CardDetailClient({
               {astrologicalCorrespondence && (
                 <div>
                   <p className="text-indigo-300 font-semibold mb-1">Astrological</p>
-                  <p className="leading-relaxed">{astrologicalCorrespondence}</p>
+                  <p className="leading-relaxed">{renderMarkdown(astrologicalCorrespondence)}</p>
                 </div>
               )}
               {numerologicalSignificance && (
                 <div>
                   <p className="text-indigo-300 font-semibold mb-1">Numerological</p>
-                  <p className="leading-relaxed">{numerologicalSignificance}</p>
+                  <p className="leading-relaxed">{renderMarkdown(numerologicalSignificance)}</p>
                 </div>
               )}
             </div>
