@@ -12,6 +12,7 @@ interface Talk {
   tedUrl: string;
   durationSeconds: number | null;
   year: number | null;
+  thumbnailUrl: string | null;
 }
 
 interface TalksGridProps {
@@ -90,8 +91,28 @@ export function TalksGrid({ talks }: TalksGridProps) {
             className="block bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
           >
             <div className="flex gap-4">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
-                <Play className="w-8 h-8 text-indigo-400" />
+              <div className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 overflow-hidden relative">
+                {talk.thumbnailUrl ? (
+                  <>
+                    <img
+                      src={talk.thumbnailUrl}
+                      alt={talk.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        // Fallback to placeholder if image fails to load
+                        e.currentTarget.style.display = 'none';
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          const icon = parent.querySelector('.play-icon');
+                          if (icon) (icon as HTMLElement).style.display = 'block';
+                        }
+                      }}
+                    />
+                    <Play className="play-icon absolute w-8 h-8 text-white/80 drop-shadow-lg hidden" />
+                  </>
+                ) : (
+                  <Play className="w-8 h-8 text-indigo-400" />
+                )}
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{talk.title}</h3>

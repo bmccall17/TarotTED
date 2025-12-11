@@ -57,12 +57,27 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
 
       <div className="px-4 py-6 space-y-6 max-w-4xl mx-auto">
         {/* Talk Hero */}
-        <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl p-6 border border-indigo-500/30">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Play className="w-8 h-8 text-white" />
+        <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl overflow-hidden border border-indigo-500/30">
+          {/* Thumbnail Banner */}
+          {talk.thumbnailUrl && (
+            <div className="relative h-64 w-full bg-gray-900">
+              <img
+                src={talk.thumbnailUrl}
+                alt={talk.title}
+                className="w-full h-full object-cover opacity-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
             </div>
-            <div className="flex-1">
+          )}
+
+          <div className="p-6">
+            <div className="flex items-start gap-4 mb-4">
+              {!talk.thumbnailUrl && (
+                <div className="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Play className="w-8 h-8 text-white" />
+                </div>
+              )}
+              <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-100 mb-2">{talk.title}</h1>
               <p className="text-lg text-gray-300 mb-2">
                 by <span className="font-semibold">{talk.speakerName}</span>
@@ -82,21 +97,21 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                 )}
               </div>
             </div>
+
+            {talk.description && (
+              <p className="text-gray-300 mb-6 leading-relaxed">{talk.description}</p>
+            )}
+
+            <a
+              href={talk.tedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+            >
+              Watch on TED
+              <ExternalLink className="w-4 h-4" />
+            </a>
           </div>
-
-          {talk.description && (
-            <p className="text-gray-300 mb-6 leading-relaxed">{talk.description}</p>
-          )}
-
-          <a
-            href={talk.tedUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-          >
-            Watch on TED
-            <ExternalLink className="w-4 h-4" />
-          </a>
         </div>
 
         {/* Mapped Cards */}

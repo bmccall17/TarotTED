@@ -133,8 +133,16 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                   className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
                 >
                   <div className="flex gap-4">
-                    <div className="w-20 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30">
-                      <Play className="w-6 h-6 text-indigo-400" />
+                    <div className="w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 overflow-hidden relative">
+                      {talk.thumbnailUrl ? (
+                        <img
+                          src={talk.thumbnailUrl}
+                          alt={talk.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <Play className="w-6 h-6 text-indigo-400" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-gray-100 mb-1">{talk.title}</h3>
