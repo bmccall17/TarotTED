@@ -96,6 +96,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                   </span>
                 )}
               </div>
+              </div>
             </div>
 
             {talk.description && (
