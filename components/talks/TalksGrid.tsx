@@ -85,13 +85,19 @@ export function TalksGrid({ talks }: TalksGridProps) {
       {/* Talks List */}
       <div className="space-y-3">
         {filteredTalks.map((talk) => (
-          <Link
+          <div
             key={talk.id}
-            href={`/talks/${talk.slug}`}
-            className="block bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
+            className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
           >
             <div className="flex gap-4">
-              <div className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 overflow-hidden relative">
+              {/* Clickable Thumbnail - Opens video */}
+              <a
+                href={talk.tedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
+              >
                 {talk.thumbnailUrl ? (
                   <>
                     <img
@@ -108,13 +114,17 @@ export function TalksGrid({ talks }: TalksGridProps) {
                         }
                       }}
                     />
-                    <Play className="play-icon absolute w-8 h-8 text-white/80 drop-shadow-lg hidden" />
+                    <div className="play-icon absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                      <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
+                    </div>
                   </>
                 ) : (
                   <Play className="w-8 h-8 text-indigo-400" />
                 )}
-              </div>
-              <div className="flex-1 min-w-0">
+              </a>
+
+              {/* Content - Links to talk detail page */}
+              <Link href={`/talks/${talk.slug}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
                 <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{talk.title}</h3>
                 <p className="text-sm text-gray-400 mb-2">
                   {talk.speakerName}
@@ -123,9 +133,9 @@ export function TalksGrid({ talks }: TalksGridProps) {
                   )}
                   {talk.year && <> • {talk.year}</>}
                 </p>
-              </div>
+              </Link>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 

@@ -60,14 +60,24 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
         <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl overflow-hidden border border-indigo-500/30">
           {/* Thumbnail Banner */}
           {talk.thumbnailUrl && (
-            <div className="relative h-64 w-full bg-gray-900">
+            <a
+              href={talk.tedUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block relative h-64 w-full bg-gray-900 group cursor-pointer"
+            >
               <img
                 src={talk.thumbnailUrl}
                 alt={talk.title}
-                className="w-full h-full object-cover opacity-90"
+                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
-            </div>
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="bg-indigo-600 rounded-full p-4 shadow-lg">
+                  <Play className="w-10 h-10 text-white" fill="white" />
+                </div>
+              </div>
+            </a>
           )}
 
           <div className="p-6">
