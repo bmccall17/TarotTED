@@ -64,17 +64,19 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
               href={talk.tedUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block relative h-64 w-full bg-gray-900 group cursor-pointer"
+              className="block relative w-full bg-gray-900 group cursor-pointer"
             >
-              <img
-                src={talk.thumbnailUrl}
-                alt={talk.title}
-                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent" />
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <div className="bg-indigo-600 rounded-full p-4 shadow-lg">
-                  <Play className="w-10 h-10 text-white" fill="white" />
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <img
+                  src={talk.thumbnailUrl}
+                  alt={talk.title}
+                  className="absolute inset-0 w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="bg-indigo-600 rounded-full p-4 shadow-lg">
+                    <Play className="w-10 h-10 text-white" fill="white" />
+                  </div>
                 </div>
               </div>
             </a>
@@ -125,68 +127,62 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
           </div>
         </div>
 
-        {/* Mapped Cards */}
+        {/* Tarot Mapping */}
         {talk.mappedCards.length > 0 && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-100">Related Tarot Cards</h2>
-            <p className="text-gray-400">
-              This talk resonates with the following Tarot cards:
-            </p>
-            <div className="grid gap-4 md:grid-cols-2">
-              {talk.mappedCards.map((item) => {
-                const keywords = JSON.parse(item.card.keywords);
-                const isPrimary = item.mapping.isPrimary;
+            <h2 className="text-xl font-bold text-gray-100">Tarot Mapping</h2>
+            {talk.mappedCards.map((item) => {
+              const keywords = JSON.parse(item.card.keywords);
 
-                return (
+              return (
+                <div
+                  key={item.card.id}
+                  className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border border-purple-500/30 rounded-xl p-6 space-y-4"
+                >
                   <Link
-                    key={item.card.id}
                     href={`/cards/${item.card.slug}`}
-                    className={`block bg-gray-800/50 border rounded-xl p-4 hover:shadow-md hover:border-gray-600 transition-all ${
-                      isPrimary ? 'border-indigo-500/50' : 'border-gray-700'
-                    }`}
+                    className="flex gap-6 items-start group"
                   >
-                    <div className="flex gap-4">
-                      <div className="relative w-20 h-32 flex-shrink-0 rounded-lg overflow-hidden shadow-sm bg-gray-900">
-                        <Image
-                          src={item.card.imageUrl}
-                          alt={item.card.name}
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-100">
-                            {item.card.name}
-                          </h3>
-                          {isPrimary && (
-                            <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">
-                              Primary
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                          {item.card.summary}
-                        </p>
-                        <p className="text-sm text-gray-300 italic mb-2 line-clamp-2">
-                          &ldquo;{item.mapping.rationaleShort}&rdquo;
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {keywords.slice(0, 3).map((keyword: string) => (
-                            <span
-                              key={keyword}
-                              className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30"
-                            >
-                              {keyword}
-                            </span>
-                          ))}
-                        </div>
+                    <div className="relative w-24 h-40 md:w-32 md:h-52 flex-shrink-0 rounded-lg overflow-hidden shadow-lg bg-gray-900 group-hover:shadow-xl transition-shadow">
+                      <Image
+                        src={item.card.imageUrl}
+                        alt={item.card.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-2xl font-bold text-gray-100 mb-2 group-hover:text-indigo-300 transition-colors">
+                        {item.card.name}
+                      </h3>
+                      <p className="text-gray-400 mb-3">
+                        {item.card.summary}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {keywords.map((keyword: string) => (
+                          <span
+                            key={keyword}
+                            className="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-purple-500/30"
+                          >
+                            {keyword}
+                          </span>
+                        ))}
                       </div>
                     </div>
                   </Link>
-                );
-              })}
-            </div>
+
+                  {/* Rationale - More prominent */}
+                  <div className="border-t border-purple-500/20 pt-4">
+                    <h4 className="text-sm font-semibold text-purple-300 mb-2 uppercase tracking-wide">
+                      Why This Mapping?
+                    </h4>
+                    <p className="text-gray-300 leading-relaxed">
+                      {item.mapping.rationaleShort}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
