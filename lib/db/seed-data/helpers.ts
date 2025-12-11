@@ -1,16 +1,40 @@
 // Helper functions for generating image URLs and slugs
 
 export function getCardImageUrl(cardName: string, suit: string | null, number: number | null): string {
-  // Major Arcana: /images/cards/major-arcana/00-The-Fool.jpg
+  // All high-res images are in /images/cards/ with kebab-case filenames matching the slug
+  // e.g., /images/cards/the-fool.jpg, /images/cards/ace-of-cups.jpg
+
+  let slug: string;
+
   if (suit === null) {
-    const paddedNumber = String(number).padStart(2, '0');
-    return `/images/cards/major-arcana/${paddedNumber}-${cardName}.jpg`;
+    // Major Arcana: "The Fool" -> "the-fool"
+    slug = generateSlug(cardName);
+  } else {
+    // Minor Arcana: construct the full name first
+    // e.g., "Wands" + 1 -> "Ace of Wands" -> "ace-of-wands"
+    const numberNames: Record<number, string> = {
+      1: 'Ace',
+      2: 'Two',
+      3: 'Three',
+      4: 'Four',
+      5: 'Five',
+      6: 'Six',
+      7: 'Seven',
+      8: 'Eight',
+      9: 'Nine',
+      10: 'Ten',
+      11: 'Page',
+      12: 'Knight',
+      13: 'Queen',
+      14: 'King',
+    };
+
+    const numberName = number !== null ? numberNames[number] : '';
+    const fullName = `${numberName} of ${suit}`;
+    slug = generateSlug(fullName);
   }
 
-  // Minor Arcana: /images/cards/cups/Cups1.jpg (1-14)
-  const suitLower = suit.toLowerCase();
-  const suitCap = suit.charAt(0).toUpperCase() + suit.slice(1);
-  return `/images/cards/${suitLower}/${suitCap}${number}.jpg`;
+  return `/images/cards/${slug}.jpg`;
 }
 
 export function generateSlug(text: string): string {
