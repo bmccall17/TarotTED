@@ -3,55 +3,58 @@ import { cards } from '../lib/db/schema';
 import { eq } from 'drizzle-orm';
 import * as fs from 'fs';
 import * as path from 'path';
-import { parse } from 'csv-parse/sync';
 import { generateSlug } from '../lib/db/seed-data/helpers';
 
-interface CardMeaningCSV {
+interface CardMeaningJSON {
   Card: string;
   uprightMeaning: string;
   reversedMeaning: string;
   symbolism: string;
   adviceWhenDrawn: string;
-  journalingPrompts: string; // JSON array string
+  journalingPrompts: string[];
   astrologicalCorrespondence: string;
   numerologicalSignificance: string;
 }
 
-// Remove citations in brackets like [1, 2, 3] or [6]
-function removeCitations(text: string): string {
-  return text.replace(/\s*\[[\d,\s]+\]/g, '').trim();
-}
+function parseJSONL(filePath: string): CardMeaningJSON[] {
+  let fileContent = fs.readFileSync(filePath, 'utf-8');
 
-function parseCSV(filePath: string): CardMeaningCSV[] {
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  // Remove markdown code fences
+  fileContent = fileContent.replace(/```jsonl\s*/g, '').replace(/```\s*/g, '');
 
-  const records = parse(fileContent, {
-    columns: true,
-    skip_empty_lines: true,
-    relax_column_count: true,
-    relax_quotes: true,
-    escape: '"',
-    quote: '"',
-  });
+  // Remove array brackets if wrapped
+  fileContent = fileContent.trim().replace(/^\[\s*/, '').replace(/\s*\]$/, '');
 
-  return records.map((record: any) => ({
-    Card: record.Card,
-    uprightMeaning: removeCitations(record.uprightMeaning || ''),
-    reversedMeaning: removeCitations(record.reversedMeaning || ''),
-    symbolism: removeCitations(record.symbolism || ''),
-    adviceWhenDrawn: removeCitations(record.adviceWhenDrawn || ''),
-    journalingPrompts: record.journalingPrompts || '[]',
-    astrologicalCorrespondence: removeCitations(record.astrologicalCorrespondence || ''),
-    numerologicalSignificance: removeCitations(record.numerologicalSignificance || ''),
-  }));
+  // Parse each line
+  const lines = fileContent.split('\n').filter(line => line.trim());
+  return lines.map(line => {
+    try {
+      // Remove trailing comma if present
+      const cleanLine = line.trim().replace(/,\s*$/, '');
+      const parsed = JSON.parse(cleanLine);
+      return {
+        Card: parsed.Card,
+        uprightMeaning: parsed.uprightMeaning || '',
+        reversedMeaning: parsed.reversedMeaning || '',
+        symbolism: parsed.symbolism || '',
+        adviceWhenDrawn: parsed.adviceWhenDrawn || '',
+        journalingPrompts: parsed.journalingPrompts || [],
+        astrologicalCorrespondence: parsed.astrologicalCorrespondence || '',
+        numerologicalSignificance: parsed.numerologicalSignificance || '',
+      };
+    } catch (e) {
+      console.error(`Failed to parse: ${line.substring(0, 50)}...`);
+      return null;
+    }
+  }).filter(item => item !== null) as CardMeaningJSON[];
 }
 
 async function updateCardMeanings() {
-  const csvPath = path.join(__dirname, '../docs/newFullCardMeaning_MajorArcana.csv');
+  const jsonlPath = path.join(__dirname, '../docs/archive/fullmeaning_MajorArcana.jsonl');
 
-  console.log('Parsing CSV file...');
-  const cardMeanings = parseCSV(csvPath);
-  console.log(`Found ${cardMeanings.length} cards in CSV`);
+  console.log('Parsing Major Arcana JSONL file...');
+  const cardMeanings = parseJSONL(jsonlPath);
+  console.log(`Found ${cardMeanings.length} cards in JSONL`);
 
   let updated = 0;
   let notFound = 0;
@@ -67,7 +70,7 @@ async function updateCardMeanings() {
           reversedMeaning: meaning.reversedMeaning,
           symbolism: meaning.symbolism,
           adviceWhenDrawn: meaning.adviceWhenDrawn,
-          journalingPrompts: meaning.journalingPrompts,
+          journalingPrompts: JSON.stringify(meaning.journalingPrompts),
           astrologicalCorrespondence: meaning.astrologicalCorrespondence,
           numerologicalSignificance: meaning.numerologicalSignificance,
           updatedAt: new Date(),
