@@ -24,7 +24,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/david_blaine_how_i_held_my_breath_for_17_minutes.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/9ed8ff36f60c73ba894de8370b2ee4182a3aeece_1920x1080.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -36,7 +36,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: 2008,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/jill_bolte_taylor_my_stroke_of_insight.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/eefe30d20338d800bdc70a09dc0f6007e7355a74_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -48,7 +48,7 @@ export const talksSeedData = [
     durationSeconds: 1223,
     eventName: 'TEDxHouston',
     year: 2010,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/brene_brown_the_power_of_vulnerability.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/9595cdc1-fd8e-4aa1-863a-2c6641ae3cbb/BreneBrown_2010X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -72,7 +72,7 @@ export const talksSeedData = [
     durationSeconds: 366,
     eventName: 'TED Talks Education',
     year: 2013,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/angela_lee_duckworth_grit_the_power_of_passion_and_perseverance.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/49490c34-ef8e-45b1-8037-a4958efc2609/AngelaDuckworth_2013S-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -84,7 +84,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: 2008,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/helen_fisher_the_brain_in_love.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/dfda28474d713d1de50dd1cc5f67c299c8b6eb80_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -96,7 +96,7 @@ export const talksSeedData = [
     durationSeconds: 720,
     eventName: 'TED',
     year: 2014,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/simon_sinek_why_good_leaders_make_you_feel_safe.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/b6cccc7593928f4861601289b937d19dac95bed9_1600x1200.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -108,7 +108,7 @@ export const talksSeedData = [
     durationSeconds: 917,
     eventName: 'TED',
     year: 2014,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/pico_iyer_the_art_of_stillness.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/bd619eb8f9002797413fb4e886808df331e00608_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -120,7 +120,7 @@ export const talksSeedData = [
     durationSeconds: 1422,
     eventName: 'TED',
     year: 2012,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/bryan_stevenson_we_need_to_talk_about_an_injustice.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/1798fc73-fe80-474c-a63b-4f427ab241b7/BryanStevenson_2012-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -144,7 +144,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: 2015,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/bill_gates_the_next_outbreak_we_re_not_ready.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/2c60223169fd66d3962f9f3c354081824d2914c5_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -156,7 +156,7 @@ export const talksSeedData = [
     durationSeconds: 885,
     eventName: 'TEDGlobal',
     year: 2015,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/johann_hari_everything_you_think_you_know_about_addiction_is_wrong.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/1d2235a94dda9257b3a8feaf486b82aa1ca1e479_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -168,7 +168,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/dan_buettner_how_to_live_to_be_100.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/139726_800x600.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -180,7 +180,7 @@ export const talksSeedData = [
     durationSeconds: 1146,
     eventName: 'TEDMED',
     year: 2015,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/bj_miller_what_really_matters_at_the_end_of_life.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/629930bb607d58f65c9b70beab410660a9afd904_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -192,7 +192,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/elizabeth_loftus_how_reliable_is_your_memory.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/dc329a10500b9d309ad41cfd6f43e417a472b4c5_1600x1200.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -204,7 +204,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/caroline_casey_looking_past_limits.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/2408c227c2e651234d417caf1b48fad0c1a66a1e_800x600.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -216,7 +216,7 @@ export const talksSeedData = [
     durationSeconds: 758,
     eventName: 'TEDxMidAtlantic',
     year: 2013,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/sam_berns_my_philosophy_for_a_happy_life.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/dceb97aa-e320-4f5d-905f-14375f6d2a07/Sam+Berns.jpeg?h=315&w=560',
     language: 'en',
   },
   {
@@ -228,7 +228,7 @@ export const talksSeedData = [
     durationSeconds: 1096,
     eventName: 'TED',
     year: 2014,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/elizabeth_gilbert_success_failure_and_the_drive_to_keep_creating.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/aa39c73bae9d19372ed2059e7c8b0b7eb9099865_1600x1200.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -240,7 +240,7 @@ export const talksSeedData = [
     durationSeconds: 744,
     eventName: 'TEDxBloomington',
     year: 2011,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/shawn_achor_the_happy_secret_to_better_work.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/e02ed13dcc2684221ce59429a722479dd13661fb_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -252,7 +252,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/beau_lotto_optical_illusions_show_how_we_see.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/7a1363b0-1079-4b25-abd9-609420d6c0b9/BeauLotto_2009G-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -264,7 +264,7 @@ export const talksSeedData = [
     durationSeconds: 1145,
     eventName: 'TED',
     year: 2009,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/elizabeth_gilbert_your_elusive_creative_genius.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/f2f6d094758c36a61b3ee7992a9b197eb4c07979_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -276,7 +276,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/hannah_fry_the_mathematics_of_love.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/eddcaad25cf331e34d366d9ae3edaaaf3989a275_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -288,7 +288,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/carla_harris_how_to_find_the_person_who_can_help_you_get_ahead_at_work.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/90354933-011a-4692-ab14-5326c7b40bfe/CarlaHarris_2018W-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -312,7 +312,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/derek_sivers_how_to_start_a_movement.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/6a9cdd2f78fe58b1214125365612fae20bf8b3c5_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -324,7 +324,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/tim_ferriss_why_you_should_define_your_fears_instead_of_your_goals.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/6b784c62-b4d0-4b3a-a1de-89de39b002bc/TimFerriss_2017-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -336,7 +336,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/adam_galinsky_how_to_speak_up_for_yourself.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/20d6d96c-e0a3-4a74-ab27-092603dbee9b/AdamGalinsky_2016X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -348,7 +348,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/dan_pink_the_puzzle_of_motivation.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/110884_800x600.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -384,7 +384,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/jason_fried_why_work_doesn_t_happen_at_work.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/be91c8b5f3a0798ddca31c761674bfac9e06c970_800x600.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -396,7 +396,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/emilie_wapnick_why_some_of_us_don_t_have_one_true_calling.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/11e3541d75d4afba6badc2c3c058b8cb4bfe5863_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -408,7 +408,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/jia_jiang_what_i_learned_from_100_days_of_rejection.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/c4a42ee3-cf78-419d-88a0-cd5194b4432a/JiaJiang_2015X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -420,7 +420,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/kelly_mcgonigal_how_to_make_stress_your_friend.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/4ebfc94d-c426-4019-9060-20edc54dcec8/KellyMcGonigal_2013G-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -444,7 +444,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/sheryl_sandberg_why_we_have_too_few_women_leaders.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/8b324338-3caa-4cda-af41-4a0010b2b65e/SherylSandberg_2010W-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -456,7 +456,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/simon_sinek_how_great_leaders_inspire_action.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/04916ee6e81065c8333e6546184af512eee37bbe_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -468,7 +468,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/megan_phelps_roper_i_grew_up_in_the_westboro_baptist_church_here_s_why_i_left.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/a797a8a0-a6ea-44c7-876c-0423df616f86/MeganPhelpsRoper_2017S-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -480,7 +480,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/steve_jobs_how_to_live_before_you_die.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/912a4076-571a-4d8c-b182-69e7383ceb18/SteveJobs_StanfordUniv-embed.jpg?h=315&w=560',
     language: 'en',
   },
   {
@@ -504,7 +504,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/ingrid_fetell_lee_where_joy_hides_and_how_to_find_it.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/e39fce18-6b1a-4e85-baec-e70d9541b653/IngridFetellLee_2018-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -516,7 +516,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/dan_gilbert_the_surprising_science_of_happiness.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/016a827cc0757092a0439ab2a63feca8655b6c29_1600x1200.jpg?h=421&w=560',
     language: 'en',
   },
   {
@@ -540,7 +540,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/esther_perel_the_secret_to_desire_in_a_long_term_relationship.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/f0420115a72f8b4ce1f54bdf96dd3dc700fee0aa_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -552,7 +552,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/eliza_lay_ryan_sparking_curiosity_connection_and_creativity.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/763bfe42-50b2-482d-81e9-fb90b3a1a654/mqdefault.jpg?h=315&w=560',
     language: 'en',
   },
   {
@@ -564,7 +564,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/rose_cain_ignite_your_curiosity.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/61b03fec-d848-409f-bc85-b1c91cfdf179/mqdefault.jpg?h=315&w=560',
     language: 'en',
   },
   {
@@ -576,7 +576,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/daniel_goleman_why_aren_t_we_more_compassionate.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/a4c517bc935478a8ceb64b5697971d3e0dac08c4_1600x1200.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -588,7 +588,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/celeste_headlee_10_ways_to_have_a_better_conversation.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/42293f27-ad85-4999-a72b-96b6d5d2c398/CelesteHeadlee_2015X_embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -600,7 +600,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/ruth_chang_how_to_make_hard_choices.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/a74696f0bf766d304840d03388d4234145fed6f1_2400x1800.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -612,7 +612,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/esther_perel_rethinking_infidelity_a_talk_for_anyone_who_has_ever_loved.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/374906e7e2a0f3970763c48ce8e7cc28614444a0_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -636,7 +636,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/nora_mcinerny_we_don_t_move_on_from_grief_we_move_forward_with_it.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/637dd322-4f72-4749-b74f-26431096e50c/NoraMcInerny_2018W-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -648,7 +648,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/andy_puddicombe_all_it_takes_is_10_mindful_minutes.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/fc646047-513d-40cd-b610-b70f9e582a02/AndyPuddicombe_2012S-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -660,7 +660,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/margaret_heffernan_the_dangers_of_willful_blindness.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/15f3e40a-7f70-4588-bf3b-931030222f7b/MargaretHeffernan_2013X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -672,7 +672,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/pamela_meyer_how_to_spot_a_liar.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/40c841c7-43c2-4386-a885-9600f528ea55/PamelaMeyer_2011G-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -684,7 +684,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/brene_brown_listening_to_shame.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/0d835846-74a5-49d5-b246-7cfc5d3c984e/BreneBrown_2012-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -696,7 +696,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/steven_johnson_where_good_ideas_come_from.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/c8244a05-ac8e-45c6-9b06-ac22113031db/StevenJohnson-2010G-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -708,7 +708,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/d5d00454-d7aa-434c-8fae-ff2bc97c5f02/TimUrban_2016-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -720,7 +720,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/sam_harris_can_we_build_ai_without_losing_control_over_it.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/51c9b741-275c-4ea0-bb9d-11b9aa8d1165/SamHarris_2016T-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -744,7 +744,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/michael_norton_how_to_buy_happiness.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/dac773c5-9c88-4502-a01b-454fb89c5d56/MichaelNorton_2011X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -756,7 +756,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/tom_wujec_build_a_tower_build_a_team.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/2d39c28c-132c-48a4-bce5-eb29c6be862a/TomWujec_2010U-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -780,7 +780,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/mandy_len_catron_a_better_way_to_talk_about_love.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/13ca89ec-6bca-4488-b6be-0f5ccae19b45/MandyLenCatron_SFU_2015X-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -792,7 +792,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/al_vernacchio_sex_needs_a_new_metaphor_here_s_one.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/c4e17623-f27b-4165-a85f-854b54f4958e/AlVernacchio_2012-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -804,7 +804,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/adam_grant_the_surprising_habits_of_original_thinkers.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/93b0a599-6bd5-44fb-b61f-61556ed9d413/AdamGrant_2016-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -816,7 +816,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/peter_singer_the_why_and_how_of_effective_altruism.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/b00280c9-dc2e-4abb-b15b-3eef4e357798/PeterSinger_2013-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -840,7 +840,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/paul_piff_does_money_make_you_mean.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/6306acdec9c120286bec64b6514715f16ee5516d_1600x1200.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -852,7 +852,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/bill_gross_the_single_biggest_reason_why_startups_succeed.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/55c617f514a04f27d3ac75bde232665257c64326_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -864,7 +864,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/carol_dweck_the_power_of_believing_that_you_can_improve.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/85582d553035da22504c315ba5ec7ed727f16354_2880x1620.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -876,7 +876,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/chip_conley_what_baby_boomers_can_learn_from_millennials_at_work_and_vice_versa.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/928a3362-6bef-4127-b36e-e0387843529f/ChipConley_2018S-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
@@ -888,7 +888,7 @@ export const talksSeedData = [
     durationSeconds: null,
     eventName: null,
     year: null,
-    thumbnailUrl: 'https://embed-ssl.ted.com/talks/ray_dalio_how_to_build_a_company_where_the_best_ideas_win.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/59742aeb-aee5-41bc-ba7e-d30e7f94a172/RayDalio_2017-embed.jpg?h=316&w=560',
     language: 'en',
   },
   {
