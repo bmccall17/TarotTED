@@ -95,9 +95,34 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
         {/* Primary Talk */}
         {primaryMapping && (
           <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl p-5 border border-indigo-500/30">
-            <div className="flex items-start gap-2 mb-3">
-              <Play className="w-5 h-5 text-indigo-400 mt-1 flex-shrink-0" />
-              <div className="flex-1">
+            <div className="flex items-start gap-4 mb-3">
+              {/* Thumbnail */}
+              <Link
+                href={`/talks/${primaryMapping.talk.slug}`}
+                className="flex-shrink-0 group"
+              >
+                <div className="relative w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg overflow-hidden border border-indigo-500/30 group-hover:border-indigo-400/50 transition-all">
+                  {primaryMapping.talk.thumbnailUrl ? (
+                    <>
+                      <img
+                        src={primaryMapping.talk.thumbnailUrl}
+                        alt={primaryMapping.talk.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                        <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Play className="w-8 h-8 text-indigo-400" />
+                    </div>
+                  )}
+                </div>
+              </Link>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
                 <div className="text-xs text-indigo-400 uppercase tracking-wide mb-1">Featured Talk</div>
                 <h3 className="text-xl font-semibold text-gray-100 mb-1">{primaryMapping.talk.title}</h3>
                 <div className="text-sm text-gray-400 mb-2">
