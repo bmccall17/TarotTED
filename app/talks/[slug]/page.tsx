@@ -91,23 +91,25 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
               )}
               <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-100 mb-2">{talk.title}</h1>
-              <p className="text-lg text-gray-300 mb-2">
+              <p className="text-lg text-gray-300 mb-3">
                 by <span className="font-semibold">{talk.speakerName}</span>
               </p>
-              <div className="flex flex-wrap gap-3 text-sm text-gray-400">
-                {talk.year && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    {talk.year}
-                  </span>
-                )}
-                {durationMinutes && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="w-4 h-4" />
-                    {durationMinutes} minutes
-                  </span>
-                )}
-              </div>
+              {(talk.year || durationMinutes) && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {talk.year && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">
+                      <Calendar className="w-4 h-4" />
+                      <span className="font-medium">{talk.year}</span>
+                    </span>
+                  )}
+                  {durationMinutes && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-500/20 text-purple-300 rounded-lg border border-purple-500/30">
+                      <Clock className="w-4 h-4" />
+                      <span className="font-medium">{durationMinutes} min</span>
+                    </span>
+                  )}
+                </div>
+              )}
               </div>
             </div>
 
@@ -180,6 +182,33 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                       {item.mapping.rationaleShort}
                     </p>
                   </div>
+
+                  {/* Reflection Questions */}
+                  {item.card.journalingPrompts && (() => {
+                    try {
+                      const prompts = JSON.parse(item.card.journalingPrompts);
+                      if (prompts && prompts.length > 0) {
+                        return (
+                          <div className="border-t border-purple-500/20 pt-4">
+                            <h4 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wide">
+                              Reflection Questions
+                            </h4>
+                            <ul className="space-y-2">
+                              {prompts.map((prompt: string, idx: number) => (
+                                <li key={idx} className="text-gray-300 flex gap-2">
+                                  <span className="text-purple-400 flex-shrink-0">•</span>
+                                  <span>{prompt}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        );
+                      }
+                    } catch (e) {
+                      return null;
+                    }
+                    return null;
+                  })()}
                 </div>
               );
             })}
