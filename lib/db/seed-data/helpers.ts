@@ -1,5 +1,47 @@
 // Helper functions for generating image URLs and slugs
 
+export function extractTalkInfo(tedTalkField: string): { title: string; url: string | null; speaker: string | null } {
+  const lines = tedTalkField.trim().split('\n').filter(line => line.trim());
+
+  let url: string | null = null;
+  let title = '';
+  let speaker: string | null = null;
+
+  for (const line of lines) {
+    if (line.startsWith('http')) {
+      url = line.trim();
+    } else if (line.includes(':')) {
+      // Format: "Speaker Name: Talk Title" or "Title"
+      const parts = line.split(':');
+      if (parts.length >= 2) {
+        speaker = parts[0].trim();
+        title = parts.slice(1).join(':').trim();
+      } else {
+        title = line.trim();
+      }
+    } else if (!line.startsWith('alt')) {
+      title = line.trim();
+    }
+  }
+
+  // Extract speaker from title if not already extracted
+  if (!speaker && title.includes(':')) {
+    const parts = title.split(':');
+    speaker = parts[0].trim();
+    title = parts.slice(1).join(':').trim();
+  }
+
+  return { title, url, speaker };
+}
+
+/*
+  //
+  // manually disabled on 2025-12-12.
+  // the cards should never change in this application. 
+  // the slugs are good and the image files are correctly connected. 
+  // preserved for reference during refactor.
+  //
+
 export function getCardImageUrl(cardName: string, suit: string | null, number: number | null): string {
   // All high-res images are in /images/cards/ with kebab-case filenames matching the slug
   // e.g., /images/cards/the-fool.jpg, /images/cards/ace-of-cups.jpg
@@ -83,37 +125,4 @@ export function getCardNumber(cardName: string): number | null {
 
   return null;
 }
-
-export function extractTalkInfo(tedTalkField: string): { title: string; url: string | null; speaker: string | null } {
-  const lines = tedTalkField.trim().split('\n').filter(line => line.trim());
-
-  let url: string | null = null;
-  let title = '';
-  let speaker: string | null = null;
-
-  for (const line of lines) {
-    if (line.startsWith('http')) {
-      url = line.trim();
-    } else if (line.includes(':')) {
-      // Format: "Speaker Name: Talk Title" or "Title"
-      const parts = line.split(':');
-      if (parts.length >= 2) {
-        speaker = parts[0].trim();
-        title = parts.slice(1).join(':').trim();
-      } else {
-        title = line.trim();
-      }
-    } else if (!line.startsWith('alt')) {
-      title = line.trim();
-    }
-  }
-
-  // Extract speaker from title if not already extracted
-  if (!speaker && title.includes(':')) {
-    const parts = title.split(':');
-    speaker = parts[0].trim();
-    title = parts.slice(1).join(':').trim();
-  }
-
-  return { title, url, speaker };
-}
+*/

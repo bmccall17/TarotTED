@@ -28,18 +28,33 @@ async function restoreCardMeanings(jsonlPath: string, suitName: string) {
   let skipped = 0;
 
   for (const line of lines) {
+    // Skip empty lines and markdown code fences
+    if (!line.trim() || line.trim().startsWith('```') || line.trim() === ']') {
+      continue;
+    }
+
     try {
-      const cardData: CardMeaning = JSON.parse(line);
+      const rawData = JSON.parse(line);
+
+      // Convert "Card" field to slug
+      const cardName = rawData.Card || rawData.slug;
+      if (!cardName) {
+        console.log(`  ⏭️  Skipped: No card name found`);
+        skipped++;
+        continue;
+      }
+
+      const slug = cardName.toLowerCase().replace(/\s+/g, '-');
 
       // Find the card by slug
       const [card] = await db
         .select()
         .from(cards)
-        .where(eq(cards.slug, cardData.slug))
+        .where(eq(cards.slug, slug))
         .limit(1);
 
       if (!card) {
-        console.log(`  ⏭️  Skipped: ${cardData.slug} (not found)`);
+        console.log(`  ⏭️  Skipped: ${slug} (not found)`);
         skipped++;
         continue;
       }
@@ -48,11 +63,11 @@ async function restoreCardMeanings(jsonlPath: string, suitName: string) {
       await db
         .update(cards)
         .set({
-          symbolism: cardData.symbolism || null,
-          adviceWhenDrawn: cardData.adviceWhenDrawn || null,
-          journalingPrompts: cardData.journalingPrompts ? JSON.stringify(cardData.journalingPrompts) : null,
-          astrologicalCorrespondence: cardData.astrologicalCorrespondence || null,
-          numerologicalSignificance: cardData.numerologicalSignificance || null,
+          symbolism: rawData.symbolism || null,
+          adviceWhenDrawn: rawData.adviceWhenDrawn || null,
+          journalingPrompts: rawData.journalingPrompts ? JSON.stringify(rawData.journalingPrompts) : null,
+          astrologicalCorrespondence: rawData.astrologicalCorrespondence || null,
+          numerologicalSignificance: rawData.numerologicalSignificance || null,
           updatedAt: new Date(),
         })
         .where(eq(cards.id, card.id));

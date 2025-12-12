@@ -1,3 +1,10 @@
+/* 
+  //
+  // manually disabled on 2025-12-12.
+  // the cards.ts file should contain ALL 78 cards and not a separate file for the minors.
+  // preserved for reference during refactor.
+  //
+
 import { getCardImageUrl } from './helpers';
 
 // Cups (36-49), Swords (50-63), Pentacles (64-77)
@@ -554,3 +561,5 @@ export const minorArcanaCards = [
     reversedMeaning: 'Greed, corruption, or being controlling.',
   },
 ];
+
+*/
