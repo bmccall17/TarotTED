@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
-import { ArrowLeft, ExternalLink, Clock, Calendar, Play } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
 
 export async function generateStaticParams() {
   const talks = await getAllTalks();
@@ -94,8 +94,14 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
               <p className="text-lg text-gray-300 mb-3">
                 by <span className="font-semibold">{talk.speakerName}</span>
               </p>
-              {(talk.year || durationMinutes) && (
+              {(talk.eventName || talk.year || durationMinutes) && (
                 <div className="flex flex-wrap gap-2 mb-2">
+                  {talk.eventName && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-pink-500/20 text-pink-300 rounded-lg border border-pink-500/30">
+                      <Mic2 className="w-4 h-4" />
+                      <span className="font-medium">{talk.eventName}</span>
+                    </span>
+                  )}
                   {talk.year && (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/20 text-indigo-300 rounded-lg border border-indigo-500/30">
                       <Calendar className="w-4 h-4" />
