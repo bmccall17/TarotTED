@@ -1,5 +1,15 @@
 // Helper functions for generating image URLs and slugs
 
+// re-added this one manually because we will need it for new talks!
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove special chars except dash and space
+    .replace(/\s+/g, '-')      // Replace spaces with dash
+    .replace(/-+/g, '-')       // Replace multiple dashes with single
+    .trim();
+}
+
 export function extractTalkInfo(tedTalkField: string): { title: string; url: string | null; speaker: string | null } {
   const lines = tedTalkField.trim().split('\n').filter(line => line.trim());
 
@@ -77,15 +87,6 @@ export function getCardImageUrl(cardName: string, suit: string | null, number: n
   }
 
   return `/images/cards/${slug}.jpg`;
-}
-
-export function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove special chars except dash and space
-    .replace(/\s+/g, '-')      // Replace spaces with dash
-    .replace(/-+/g, '-')       // Replace multiple dashes with single
-    .trim();
 }
 
 export function getCardNumber(cardName: string): number | null {
