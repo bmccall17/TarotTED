@@ -277,7 +277,7 @@ export const talksSeedData = [
     youtubeVideoId: 'rrkrvAUbU9Y',
   },
   {
-    slug: generateSlug('Jason Fried Why Work Doesn't Happen at Work'),
+    slug: generateSlug('Jason Fried Why Work Doesn\'t Happen at Work'),
     title: 'Why Work Doesn\'t Happen at Work',
     speakerName: 'Jason Fried',
     tedUrl: 'https://www.ted.com/talks/jason_fried_why_work_doesn_t_happen_at_work',
@@ -290,7 +290,7 @@ export const talksSeedData = [
     youtubeVideoId: '5XD2kNopsUs',
   },
   {
-    slug: generateSlug('Emilie Wapnick Why Some of Us Don't Have One True Calling'),
+    slug: generateSlug('Emilie Wapnick Why Some of Us Don\'t Have One True Calling'),
     title: 'Why Some of Us Don\'t Have One True Calling',
     speakerName: 'Emilie Wapnick',
     tedUrl: 'https://www.ted.com/talks/emilie_wapnick_why_some_of_us_don_t_have_one_true_calling',
@@ -459,7 +459,7 @@ export const talksSeedData = [
     youtubeVideoId: 'E9HZyIT6Z-4',
   },
   {
-    slug: generateSlug('Daniel Goleman Why Aren't We More Compassionate?'),
+    slug: generateSlug('Daniel Goleman Why Aren\'t We More Compassionate?'),
     title: 'Why Aren\'t We More Compassionate?',
     speakerName: 'Daniel Goleman',
     tedUrl: 'https://www.ted.com/talks/daniel_goleman_why_aren_t_we_more_compassionate',
@@ -511,7 +511,7 @@ export const talksSeedData = [
     youtubeVideoId: 'P2AUat93a8Q',
   },
   {
-    slug: generateSlug('Nora McInerny We Don't Move On from Grief. We Move Forward with It'),
+    slug: generateSlug('Nora McInerny We Don\'t Move On from Grief. We Move Forward with It'),
     title: 'We Don\'t Move On from Grief. We Move Forward with It',
     speakerName: 'Nora McInerny',
     tedUrl: 'https://www.ted.com/talks/nora_mcinerny_we_don_t_move_on_from_grief_we_move_forward_with_it',
@@ -797,7 +797,7 @@ export const talksSeedData = [
     youtubeVideoId: 'cRC0Kvrn93Q',
   },
   {
-    slug: generateSlug('Megan Phelps-Roper I Grew Up in the Westboro Baptist Church. Here's Why I Left'),
+    slug: generateSlug('Megan Phelps-Roper I Grew Up in the Westboro Baptist Church. Here\'s Why I Left'),
     title: 'I Grew Up in the Westboro Baptist Church. Here\'s Why I Left',
     speakerName: 'Megan Phelps-Roper',
     tedUrl: 'https://www.ted.com/talks/megan_phelps_roper_i_grew_up_in_the_westboro_baptist_church_here_s_why_i_left',
@@ -862,7 +862,7 @@ export const talksSeedData = [
     youtubeVideoId: 'zMWYQRKuc5M',
   },
   {
-    slug: generateSlug('Al Vernacchio Sex Needs a New Metaphor. Here's One'),
+    slug: generateSlug('Al Vernacchio Sex Needs a New Metaphor. Here\'s One'),
     title: 'Sex Needs a New Metaphor. Here\'s One',
     speakerName: 'Al Vernacchio',
     tedUrl: 'https://www.ted.com/talks/al_vernacchio_sex_needs_a_new_metaphor_here_s_one',
