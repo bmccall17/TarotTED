@@ -115,20 +115,36 @@ async function updateAllTalksMetadata() {
 
     // Update the talk
     try {
+      // Only update thumbnail if it's missing or it's already a YouTube thumbnail
+      // Preserve TED.com thumbnails (pi.tedcdn.com, pe.tedcdn.com)
+      const shouldUpdateThumbnail = !talk.thumbnailUrl ||
+        talk.thumbnailUrl.includes('youtube.com') ||
+        talk.thumbnailUrl.includes('ytimg.com');
+
+      const updateData: any = {
+        durationSeconds: metadata.durationSeconds,
+        year: metadata.year,
+        updatedAt: new Date(),
+      };
+
+      // Only include thumbnail if we should update it
+      if (shouldUpdateThumbnail) {
+        updateData.thumbnailUrl = metadata.thumbnailUrl;
+      }
+
       await db
         .update(talks)
-        .set({
-          durationSeconds: metadata.durationSeconds,
-          year: metadata.year,
-          thumbnailUrl: metadata.thumbnailUrl,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(talks.id, talk.id));
 
       console.log(`   ✅ Updated:`);
       console.log(`      Duration: ${Math.floor(metadata.durationSeconds / 60)} min ${metadata.durationSeconds % 60} sec`);
       console.log(`      Year: ${metadata.year}`);
-      console.log(`      Thumbnail: ${metadata.thumbnailUrl.substring(0, 60)}...`);
+      if (shouldUpdateThumbnail) {
+        console.log(`      Thumbnail: ${metadata.thumbnailUrl.substring(0, 60)}... (YouTube)`);
+      } else {
+        console.log(`      Thumbnail: Preserved TED.com thumbnail`);
+      }
       console.log('');
 
       updated++;
