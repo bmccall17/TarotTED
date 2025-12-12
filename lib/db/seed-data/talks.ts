@@ -56,7 +56,7 @@ export const talksSeedData = [
     youtubeVideoId: 'c2tOp7OxyQ8',
   },
   {
-    slug: generateSlug('Bill Gates The Next Outbreak? We're Not Ready'),
+    slug: generateSlug('Bill Gates The Next Outbreak? We\'re Not Ready'),
     title: 'The Next Outbreak? We\'re Not Ready',
     speakerName: 'Bill Gates',
     tedUrl: 'https://www.ted.com/talks/bill_gates_the_next_outbreak_we_re_not_ready',
