@@ -413,7 +413,7 @@ export const talksSeedData = [
     tedUrl: 'https://www.ted.com/talks/steve_jobs_how_to_live_before_you_die',
     description: 'Steve Jobs shares his personal story about connecting the dots, love and loss, and living each day with the knowledge it could be your last.',
     durationSeconds: 906,
-    eventName: Stanford University commencement,
+    eventName: 'Stanford University commencement',
     year: 2005,
     thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/912a4076-571a-4d8c-b182-69e7383ceb18/SteveJobs_StanfordUniv-embed.jpg?h=315&w=560',
     language: 'en',
