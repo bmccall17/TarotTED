@@ -40,11 +40,7 @@ async function exportTalksToSeedFile() {
     fileContent += `    year: ${talk.year || 'null'},\n`;
     fileContent += `    thumbnailUrl: ${talk.thumbnailUrl ? `'${talk.thumbnailUrl}'` : 'null'},\n`;
     fileContent += `    language: '${talk.language || 'en'}',\n`;
-
-    // Add youtubeVideoId if it exists
-    if (talk.youtubeVideoId) {
-      fileContent += `    youtubeVideoId: '${talk.youtubeVideoId}',\n`;
-    }
+    fileContent += `    youtubeVideoId: ${talk.youtubeVideoId ? `'${talk.youtubeVideoId}'` : 'null'},\n`;
 
     fileContent += `  }${index < allTalks.length - 1 ? ',' : ''}\n`;
   });
@@ -57,15 +53,10 @@ async function exportTalksToSeedFile() {
 
   console.log('✅ Successfully exported talks to lib/db/seed-data/talks.ts');
   console.log(`   Total talks: ${allTalks.length}`);
-  console.log(`   With YouTube metadata: ${allTalks.filter(t => t.youtubeVideoId).length}`);
+  console.log(`   With YouTube video ID: ${allTalks.filter(t => t.youtubeVideoId).length}`);
   console.log(`   With duration: ${allTalks.filter(t => t.durationSeconds).length}`);
-  console.log(`   With year: ${allTalks.filter(t => t.year).length}\n`);
-
-  console.log('🎯 Next steps:');
-  console.log('   1. Review the updated talks.ts file');
-  console.log('   2. Add Shonda Rhimes talk to talks.ts (or it may already be there)');
-  console.log('   3. Update the Queen of Pentacles mapping in mappings.ts');
-  console.log('   4. Run npm run db:seed safely!\n');
+  console.log(`   With year: ${allTalks.filter(t => t.year).length}`);
+  console.log(`   With thumbnails: ${allTalks.filter(t => t.thumbnailUrl).length}\n`);
 
   process.exit(0);
 }
