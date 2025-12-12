@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCardWithMappings, getAllCards } from '@/lib/db/queries/cards';
 import { CardDetailClient } from '@/components/cards/CardDetailClient';
-import { ArrowLeft, Play, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 
 export async function generateStaticParams() {
   const cards = await getAllCards();
@@ -127,10 +127,23 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 <h3 className="text-xl font-semibold text-gray-100 mb-1">{primaryMapping.talk.title}</h3>
                 <div className="text-sm text-gray-400 mb-2">
                   {primaryMapping.talk.speakerName}
-                  {primaryMapping.talk.durationSeconds && (
-                    <> • {Math.floor(primaryMapping.talk.durationSeconds / 60)} min</>
-                  )}
                 </div>
+                {(primaryMapping.talk.year || primaryMapping.talk.durationSeconds) && (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {primaryMapping.talk.year && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">
+                        <Calendar className="w-3 h-3" />
+                        <span>{primaryMapping.talk.year}</span>
+                      </span>
+                    )}
+                    {primaryMapping.talk.durationSeconds && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                        <Clock className="w-3 h-3" />
+                        <span>{Math.floor(primaryMapping.talk.durationSeconds / 60)} min</span>
+                      </span>
+                    )}
+                  </div>
+                )}
                 <p className="text-sm text-gray-300 italic mb-4">
                   &ldquo;{primaryMapping.mapping.rationaleShort}&rdquo;
                 </p>
@@ -169,11 +182,22 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-100 mb-1">{mapping.talk.title}</h4>
-                    <p className="text-sm text-gray-400">{mapping.talk.speakerName}</p>
-                  </div>
-                  <div className="text-xs text-gray-500 whitespace-nowrap">
-                    {mapping.talk.durationSeconds && (
-                      <>{Math.floor(mapping.talk.durationSeconds / 60)} min</>
+                    <p className="text-sm text-gray-400 mb-2">{mapping.talk.speakerName}</p>
+                    {(mapping.talk.year || mapping.talk.durationSeconds) && (
+                      <div className="flex flex-wrap gap-2">
+                        {mapping.talk.year && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">
+                            <Calendar className="w-3 h-3" />
+                            <span>{mapping.talk.year}</span>
+                          </span>
+                        )}
+                        {mapping.talk.durationSeconds && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                            <Clock className="w-3 h-3" />
+                            <span>{Math.floor(mapping.talk.durationSeconds / 60)} min</span>
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
