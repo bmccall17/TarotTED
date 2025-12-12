@@ -786,10 +786,10 @@ export const mappingsSeedData = [
   // QUEEN OF PENTACLES
   {
     cardSlug: 'queen-of-pentacles',
-    talkSlug: 'laura-vanderkam-how-to-gain-control-of-your-free-time',
+    talkSlug: 'shonda-rhimes-my-year-of-saying-yes-to-everything',
     isPrimary: true,
     strength: 5,
-    rationaleShort: 'The Queen of Pentacles nurtures with practicality and security. Laura Vanderkam shows how managing resources creates abundance.',
+    rationaleShort: 'The Queen of Pentacles embodies abundance through nurturing action and grounded presence. Shonda Rhimes reveals how saying yes transforms work into play and brings joy back to creative mastery.',
     rationaleLong: null,
   },
 

@@ -892,6 +892,18 @@ export const talksSeedData = [
     language: 'en',
   },
   {
+    slug: generateSlug('Shonda Rhimes My Year of Saying Yes to Everything'),
+    title: 'My Year of Saying Yes to Everything',
+    speakerName: 'Shonda Rhimes',
+    tedUrl: 'https://www.ted.com/talks/shonda_rhimes_my_year_of_saying_yes_to_everything',
+    description: 'Shonda Rhimes, the titan behind Grey\'s Anatomy, Scandal and How to Get Away With Murder, shares how saying yes to the things that scare her transformed her life and work.',
+    durationSeconds: null,
+    eventName: 'TED2016',
+    year: 2016,
+    thumbnailUrl: null,
+    language: 'en',
+  },
+  {
     slug: generateSlug('Laura Vanderkam How to Gain Control of Your Free Time'),
     title: 'How to Gain Control of Your Free Time',
     speakerName: 'Laura Vanderkam',

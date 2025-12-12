@@ -35,6 +35,7 @@ export const talks = pgTable('talks', {
   title: varchar('title', { length: 300 }).notNull(),
   speakerName: varchar('speaker_name', { length: 200 }).notNull(),
   tedUrl: text('ted_url').notNull(),
+  youtubeVideoId: varchar('youtube_video_id', { length: 20 }), // For metadata fetching
   description: text('description'),
   durationSeconds: integer('duration_seconds'),
   eventName: varchar('event_name', { length: 200 }),

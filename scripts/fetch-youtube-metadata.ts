@@ -90,10 +90,14 @@ async function updateAllTalksMetadata() {
   let errors = 0;
 
   for (const talk of allTalks) {
-    const videoId = extractVideoId(talk.tedUrl);
+    // Use youtubeVideoId if available, otherwise try to extract from tedUrl
+    let videoId = talk.youtubeVideoId;
+    if (!videoId) {
+      videoId = extractVideoId(talk.tedUrl);
+    }
 
     if (!videoId) {
-      console.log(`⏭️  Skipped: ${talk.title} (not a YouTube URL)`);
+      console.log(`⏭️  Skipped: ${talk.title} (no YouTube video ID)`);
       skipped++;
       continue;
     }
