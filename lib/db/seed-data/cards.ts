@@ -1,4 +1,4 @@
-import { generateSlug } from './helpers';
+// commenting out cause we no longer need: import { generateSlug } from './helpers';
 
 // Major Arcana (0-21)
 const majorArcanaCards = [
