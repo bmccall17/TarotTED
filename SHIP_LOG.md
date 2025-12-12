@@ -485,4 +485,238 @@ This release establishes a mature data management workflow that:
 
 ---
 
+## v1.3.0 - Complete Metadata & Upsert Workflows
+**Release Date:** December 12, 2025
+
+Completed YouTube metadata for all talks, implemented comprehensive upsert workflows for safe data management, and enhanced UI with metadata badges. Established TED.com thumbnail prioritization strategy.
+
+### 🎬 Complete Talk Metadata
+
+#### YouTube Integration
+- **75/76 talks with YouTube video IDs** (98.7% coverage)
+  - Auto-populated using YouTube Search API
+  - Matched by speaker name and title
+  - Filtered for official TED/TEDx channels
+  - Only 1 talk without YouTube ID (Steve Jobs)
+
+#### Rich Metadata
+- **76/76 talks with duration** (100% coverage)
+  - Fetched from YouTube API
+  - Displayed as human-readable minutes
+  - Powers duration filtering on talks page
+
+- **76/76 talks with year** (100% coverage)
+  - YouTube publish dates for timing
+  - Displayed prominently in UI
+  - Essential for historical context
+
+- **76/76 talks with thumbnails** (100% coverage)
+  - **Priority: TED.com thumbnails** (high-quality, 560x316+)
+  - **Fallback: YouTube thumbnails** (for non-TED.com talks)
+  - 61 TED.com thumbnails restored after initial YouTube overwrite
+
+#### Event Names
+- Event metadata preserved (TED2016, TEDx, etc.)
+- Displayed with distinctive pink badge on talk detail pages
+- Helps users identify official TED vs TEDx vs other formats
+
+### 🔄 Upsert Workflow Infrastructure
+
+#### New Scripts Created
+All upsert scripts follow safe, repeatable pattern:
+- Lookup by slug (cards, talks, themes)
+- Check for existing records
+- Update if exists, create if doesn't
+- Safe to run multiple times (idempotent)
+
+**`scripts/upsert-talks.ts`**
+- Updates or creates talks from seed file
+- Preserves all metadata fields
+- Primary use case: updating talk metadata after YouTube API fetch
+
+**`scripts/upsert-mappings.ts`**
+- Updates or creates card-to-talk mappings
+- Preserves curatorial rationale and strength ratings
+- Used to add new talk mappings for existing cards
+
+**`scripts/upsert-card-themes.ts`** ✨ New
+- Populates card-to-theme relationships
+- 68 mappings created across 16 themes
+- Enables thematic card browsing
+
+#### Metadata Fetching Scripts
+
+**`scripts/auto-populate-youtube-ids.ts`**
+- Searches YouTube for matching videos
+- Filters for TED/TEDx official channels
+- Added 62 new YouTube IDs in this release
+
+**`scripts/fetch-youtube-metadata.ts`** (Updated)
+- Fetches duration, year, thumbnails from YouTube API
+- **Now preserves TED.com thumbnails** (won't overwrite)
+- Only updates thumbnails if missing or already YouTube
+
+**`scripts/restore-ted-thumbnails.ts`** ✨ New
+- Fetches high-quality thumbnails from TED.com oEmbed API
+- Restored 61 TED.com thumbnails
+- Ensures best visual quality for user experience
+
+**`scripts/export-db-to-seed-files.ts`** (Updated)
+- Always includes `youtubeVideoId` field (even if null)
+- Preserves all metadata when exporting
+- Essential for maintaining seed file completeness
+
+### 🎨 UI Enhancements
+
+#### Metadata Badges
+Consistent badge design across all pages:
+
+**Event Name Badge** ✨ New
+- 🎤 Mic icon (pink theme)
+- Shows event name (TED2016, TEDxHouston, etc.)
+- Only on talk detail pages
+- Helps distinguish talk formats
+
+**Year Badge**
+- 📅 Calendar icon (indigo theme)
+- Shows publication year
+- On talks list, talk detail, and card detail pages
+
+**Duration Badge**
+- ⏱️ Clock icon (purple theme)
+- Shows duration in minutes
+- On talks list, talk detail, and card detail pages
+- Powers duration filtering
+
+#### Badge Locations
+- ✅ Talks browse page (year + duration)
+- ✅ Talk detail page (event + year + duration)
+- ✅ Card detail - Featured talk (year + duration)
+- ✅ Card detail - More talks (year + duration)
+
+### 📸 Thumbnail Priority Strategy
+
+Established clear priority for talk thumbnails:
+
+**1st Priority: TED.com Thumbnails**
+- High-quality images (560x316 or better)
+- Hosted on `pi.tedcdn.com`, `pe.tedcdn.com`
+- Fetched from TED's oEmbed API
+- **Always preserved** - never overwritten by YouTube metadata
+
+**2nd Priority: YouTube Thumbnails**
+- Used only when no TED.com URL exists
+- Lower quality (480x360 hqdefault)
+- Hosted on `i.ytimg.com`
+
+**Implementation:**
+- `fetch-youtube-metadata.ts` now checks before overwriting
+- `restore-ted-thumbnails.ts` restores from TED.com oEmbed
+- Pattern documented for future metadata operations
+
+### 🛠️ Technical Fixes
+
+#### TypeScript Syntax Errors (7 Fixed)
+- Unescaped apostrophes in `generateSlug()` calls
+- Affected talks: "We're Not Ready", "Doesn't Happen", "Don't Have", "Aren't We", "Don't Move", "Here's Why" (2 instances)
+- All apostrophes now properly escaped in talks.ts
+
+#### Type Safety Improvements
+- Fixed `suit` field typing with `as const` (from v1.2.0)
+- Proper literal types for enum fields
+- All TypeScript strict mode compliance
+
+### 🗂️ Data Hygiene
+
+#### Complete Seed Files
+- `talks.ts` now includes all metadata fields
+- `youtubeVideoId` field always present (null if missing)
+- All 76 talks with complete metadata structure
+
+#### Card-Theme Relationships Populated
+- **68 card-theme mappings** created
+- Cards now organized into 16 thematic collections
+- Enables discovery by emotion, life phase, role, or archetype
+
+#### Database as Source of Truth
+- Metadata fetched into database first
+- Then exported to seed files
+- Seed files maintain version-controlled backup
+- Upsert scripts sync seed files → database safely
+
+### 📊 Coverage Statistics
+
+```
+Talks:          76/76 (100%)
+  - YouTube IDs:     75/76 (98.7%)
+  - Duration:        76/76 (100%)
+  - Year:            76/76 (100%)
+  - Thumbnails:      76/76 (100%)
+    - TED.com:       61 talks
+    - YouTube:       14 talks
+    - Other:         1 talk
+
+Cards:          78/78 (100% with full meanings)
+Card-Talk Maps: 78/78 (every card mapped)
+Card-Themes:    68 mappings across 16 themes
+Talk-Themes:    88 mappings (from v1.0.0)
+```
+
+### 🚀 Workflow Improvements
+
+#### Safe Metadata Updates
+Previous approach (destructive):
+```
+1. Edit seed file manually
+2. Run full database seed (deletes everything!)
+3. Hope nothing breaks
+```
+
+New approach (safe):
+```
+1. Fetch metadata to database (auto-populate, fetch-youtube-metadata)
+2. Export database to seed files (export-db-to-seed-files)
+3. Review and commit seed file changes
+4. Upsert from seed files when deploying (upsert-talks, upsert-mappings)
+```
+
+#### Adding New Content
+**New Talk:**
+1. Add to `talks.ts` seed file
+2. Run `upsert-talks.ts`
+3. Add mapping to `mappings.ts`
+4. Run `upsert-mappings.ts`
+
+**New Theme Assignment:**
+1. Add to `themes.ts` (cardThemeAssignments or talkThemeAssignments)
+2. Run `upsert-card-themes.ts` or similar
+
+**No data loss, no duplicates, safe to repeat** ✅
+
+### 🎯 Impact
+
+This release establishes TarotTED as a metadata-complete platform with:
+- **Rich metadata** for every talk (duration, year, event, thumbnail)
+- **Beautiful visuals** with prioritized TED.com thumbnails
+- **Safe workflows** for adding/updating content
+- **Thematic organization** via card-theme relationships
+- **Professional UI** with consistent metadata badges
+
+Users can now:
+- Filter talks by duration
+- See historical context (year, event)
+- Browse cards by theme
+- Experience high-quality thumbnails
+- Trust that talk metadata is accurate and complete
+
+### 🔮 Foundation for Growth
+
+The upsert infrastructure enables:
+- Easy addition of new talks (just edit seed file + upsert)
+- Safe metadata updates (fetch → export → upsert)
+- Thematic curation (card-theme, talk-theme assignments)
+- Future features (user collections, talk playlists, etc.)
+
+---
+
 **Built with ❤️ by the TarotTED team**
