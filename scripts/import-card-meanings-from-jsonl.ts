@@ -170,7 +170,8 @@ async function importFromJsonl(jsonlPath: string, suitName: string) {
         if (match) cardHint = ` (${match[1]})`;
       } catch {}
 
-      console.log(`  ❌ Line ${i + 1}${cardHint}: Parse error - ${error.message}`);
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      console.log(`  ❌ Line ${i + 1}${cardHint}: Parse error - ${errorMsg}`);
       errors++;
     }
   }
