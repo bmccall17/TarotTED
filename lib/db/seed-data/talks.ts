@@ -511,7 +511,7 @@ export const talksSeedData = [
     youtubeVideoId: 'qzR62JJCMBQ',
   },
   {
-    slug: generateSlug('Margaret Heffernan The Dangers of 'Willful Blindness''),
+    slug: generateSlug('Margaret Heffernan The Dangers of \'Willful Blindness\''),
     title: 'The Dangers of \'Willful Blindness\'',
     speakerName: 'Margaret Heffernan',
     tedUrl: 'https://www.ted.com/talks/margaret_heffernan_the_dangers_of_willful_blindness',
