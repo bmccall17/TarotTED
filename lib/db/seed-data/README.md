@@ -6,7 +6,6 @@ This directory contains all the seed data for the TarotTED database.
 
 - **helpers.ts** - Utility functions for generating slugs and image URLs
 - **cards.ts** - All 78 Tarot cards (22 Major + 14 Wands + 14 Cups + 14 Swords + 14 Pentacles)
-- **cards-minor.ts** - Minor Arcana ()
 - **talks.ts** - Unique TED talks (deduplicated from CSVs)
 - **mappings.ts** - Card-to-talk relationships with curatorial notes
 - **themes.ts** - Curated theme collections

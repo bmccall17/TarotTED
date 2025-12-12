@@ -76,7 +76,7 @@ async function updateCardsSeed() {
     card += `    slug: '${slug}',\n`;
     card += `    name: '${name}',\n`;
     card += `    arcanaType: '${arcanaType}' as const,\n`;
-    card += `    suit: ${suit ? `'${suit}'` : 'null'},\n`;
+    card += `    suit: ${suit ? `'${suit}' as const` : 'null'},\n`;
     card += `    number: ${number},\n`;
     card += `    sequenceIndex: ${sequenceIndex},\n`;
     card += `    imageUrl: '${imageUrl}',\n`;
