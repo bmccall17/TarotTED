@@ -10,10 +10,10 @@ export const mappingsSeedData = [
   // THE FOOL (0)
   {
     cardSlug: 'the-fool',
-    talkSlug: 'stuart-brown-play-is-more-than-just-fun',
+    talkSlug: 'charlie-mackesy-abandon-the-idea-of-being-good-and-just-try',
     isPrimary: true,
     strength: 5,
-    rationaleShort: 'The Fool embodies spontaneous play and new beginnings. Stuart Brown reveals how play is essential for innovation, adaptation, and embracing life with a free spirit.',
+    rationaleShort: 'The Fool leaps without needing to be perfect. Charlie Mackesy invites us to abandon the need to be good and simply try - embracing the journey with courage and wonder.',
     rationaleLong: null,
   },
 
