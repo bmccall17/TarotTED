@@ -3,10 +3,32 @@ import { talks, cardTalkMappings, cards } from '../schema';
 import { eq, desc } from 'drizzle-orm';
 
 export async function getAllTalks() {
-  return db
+  const allTalks = await db
     .select()
     .from(talks)
     .orderBy(desc(talks.year), talks.title);
+
+  // For each talk, get its primary mapped card
+  const talksWithCards = await Promise.all(
+    allTalks.map(async (talk) => {
+      const [primaryCard] = await db
+        .select({
+          card: cards,
+        })
+        .from(cardTalkMappings)
+        .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+        .where(eq(cardTalkMappings.talkId, talk.id))
+        .orderBy(desc(cardTalkMappings.strength))
+        .limit(1);
+
+      return {
+        ...talk,
+        primaryCard: primaryCard?.card || null,
+      };
+    })
+  );
+
+  return talksWithCards;
 }
 
 export async function getTalkBySlug(slug: string) {

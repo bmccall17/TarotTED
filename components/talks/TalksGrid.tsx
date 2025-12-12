@@ -2,7 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Search, Play } from 'lucide-react';
+import Image from 'next/image';
+import { Search, Play, Clock, Calendar } from 'lucide-react';
+
+interface Card {
+  id: string;
+  slug: string;
+  name: string;
+  imageUrl: string;
+  suit: string | null;
+  number: number | null;
+}
 
 interface Talk {
   id: string;
@@ -13,6 +23,7 @@ interface Talk {
   durationSeconds: number | null;
   year: number | null;
   thumbnailUrl: string | null;
+  primaryCard: Card | null;
 }
 
 interface TalksGridProps {
@@ -84,59 +95,93 @@ export function TalksGrid({ talks }: TalksGridProps) {
 
       {/* Talks List */}
       <div className="space-y-3">
-        {filteredTalks.map((talk) => (
-          <div
-            key={talk.id}
-            className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
-          >
-            <div className="flex gap-4">
-              {/* Clickable Thumbnail - Opens video */}
-              <a
-                href={talk.tedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
-              >
-                {talk.thumbnailUrl ? (
-                  <>
-                    <img
-                      src={talk.thumbnailUrl}
-                      alt={talk.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        // Fallback to placeholder if image fails to load
-                        e.currentTarget.style.display = 'none';
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                          const icon = parent.querySelector('.play-icon');
-                          if (icon) (icon as HTMLElement).style.display = 'block';
-                        }
-                      }}
-                    />
-                    <div className="play-icon absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
-                      <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
-                    </div>
-                  </>
-                ) : (
-                  <Play className="w-8 h-8 text-indigo-400" />
-                )}
-              </a>
+        {filteredTalks.map((talk) => {
+          const durationMinutes = talk.durationSeconds ? Math.floor(talk.durationSeconds / 60) : null;
 
-              {/* Content - Links to talk detail page */}
-              <Link href={`/talks/${talk.slug}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
-                <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{talk.title}</h3>
-                <p className="text-sm text-gray-400 mb-2">
-                  {talk.speakerName}
-                  {talk.durationSeconds && (
-                    <> • {Math.floor(talk.durationSeconds / 60)} min</>
+          return (
+            <div
+              key={talk.id}
+              className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
+            >
+              <div className="flex gap-4 items-center">
+                {/* Clickable Thumbnail - Opens video */}
+                <a
+                  href={talk.tedUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
+                >
+                  {talk.thumbnailUrl ? (
+                    <>
+                      <img
+                        src={talk.thumbnailUrl}
+                        alt={talk.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder if image fails to load
+                          e.currentTarget.style.display = 'none';
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            const icon = parent.querySelector('.play-icon');
+                            if (icon) (icon as HTMLElement).style.display = 'block';
+                          }
+                        }}
+                      />
+                      <div className="play-icon absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                        <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
+                      </div>
+                    </>
+                  ) : (
+                    <Play className="w-8 h-8 text-indigo-400" />
                   )}
-                  {talk.year && <> • {talk.year}</>}
-                </p>
-              </Link>
+                </a>
+
+                {/* Content - Links to talk detail page */}
+                <Link href={`/talks/${talk.slug}`} className="flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                  <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{talk.title}</h3>
+                  <p className="text-sm text-gray-400 mb-2">{talk.speakerName}</p>
+
+                  {/* Duration and Year Badges */}
+                  {(talk.year || durationMinutes) && (
+                    <div className="flex flex-wrap gap-2">
+                      {talk.year && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded text-xs border border-indigo-500/30">
+                          <Calendar className="w-3 h-3" />
+                          <span>{talk.year}</span>
+                        </span>
+                      )}
+                      {durationMinutes && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded text-xs border border-purple-500/30">
+                          <Clock className="w-3 h-3" />
+                          <span>{durationMinutes} min</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </Link>
+
+                {/* Card Thumbnail */}
+                {talk.primaryCard && (
+                  <Link
+                    href={`/cards/${talk.primaryCard.slug}`}
+                    className="flex-shrink-0 hover:opacity-80 transition-opacity"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="relative w-16 h-24 rounded-lg overflow-hidden shadow-lg border border-purple-500/30">
+                      <Image
+                        src={talk.primaryCard.imageUrl}
+                        alt={talk.primaryCard.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </Link>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Count */}
