@@ -166,7 +166,7 @@ async function importFromJsonl(jsonlPath: string, suitName: string) {
       // Try to extract card name from the line for better error reporting
       let cardHint = '';
       try {
-        const match = cleanedLine.match(/"Card"\s*:\s*"([^"]+)"/);
+        const match = jsonStr.match(/"Card"\s*:\s*"([^"]+)"/);
         if (match) cardHint = ` (${match[1]})`;
       } catch {}
 
