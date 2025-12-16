@@ -264,10 +264,10 @@ export const mappingsSeedData = [
   // FOUR OF WANDS
   {
     cardSlug: 'four-of-wands',
-    talkSlug: 'mel-robbins-how-to-stop-screwing-yourself-over',
+    talkSlug: 'priya-parker-3-steps-to-turn-everyday-get-togethers-into-transformative-gatherings',
     isPrimary: true,
     strength: 5,
-    rationaleShort: 'The Four of Wands celebrates community and harmony. Mel Robbins shows how celebration and stability come from taking action.',
+    rationaleShort: 'The Four of Wands celebrates joyful gatherings and community harmony. Priya Parker reveals how to transform everyday get-togethers into meaningful celebrations that bring people together.',
     rationaleLong: null,
   },
 
@@ -498,10 +498,10 @@ export const mappingsSeedData = [
   // QUEEN OF CUPS
   {
     cardSlug: 'queen-of-cups',
-    talkSlug: 'priya-parker-3-steps-to-turn-everyday-get-togethers-into-transformative-gatherings',
+    talkSlug: 'brene-brown-the-power-of-vulnerability',
     isPrimary: true,
     strength: 5,
-    rationaleShort: 'The Queen of Cups nurtures with compassion and intuition. Priya Parker demonstrates how emotional wisdom creates meaningful connection.',
+    rationaleShort: 'The Queen of Cups nurtures with compassion and intuition. Brené Brown demonstrates how emotional wisdom and vulnerability create meaningful connection.',
     rationaleLong: null,
   },
 
