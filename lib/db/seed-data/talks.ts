@@ -532,7 +532,7 @@ export const talksSeedData = [
     durationSeconds: 856,
     eventName: 'TEDGlobal',
     year: 2013,
-    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/02722e8404d9e8dd2ec003b249db0ce3d05bda19_1600x1200.jpg',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/pe.tedcdn.com/images/ted/02722e8404d9e8dd2ec003b249db0ce3d05bda19_1600x1200.jpg?h=316&w=560',
     language: 'en',
     youtubeVideoId: 'YyBk55G7Keo',
   },
