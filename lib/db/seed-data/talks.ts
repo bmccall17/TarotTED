@@ -649,7 +649,7 @@ export const talksSeedData = [
     durationSeconds: 1145,
     eventName: 'TED',
     year: 2019,
-    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/a7a0390f-5c0b-4d73-b89c-18bf8bbd6fb3/PriyaParker_2019-embed.jpg?h=316&w=560',
+    thumbnailUrl: 'https://pi.tedcdn.com/r/talkstar-photos.s3.amazonaws.com/uploads/11f545c2-da19-470f-96c3-1730d8d48628/PriyaParker_2019-embed.jpg?h=316&w=560',
     language: 'en',
     youtubeVideoId: 'c0KYU2j0TM4',
   },
