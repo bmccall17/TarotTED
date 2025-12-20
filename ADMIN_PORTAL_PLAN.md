@@ -1,13 +1,28 @@
-# TarotTED Admin Portal Implementation Plan
+# TarotTED Admin Portal Implementation Plan (v3)
 
 ## Overview
-Build an admin portal at `/admin` to manage TED talks and card-talk mappings, with a data validation dashboard to fix quality issues. No authentication initially.
+Build an admin portal at `/admin` to manage TED talks and card-talk mappings, with a data validation dashboard to fix quality issues. Lightweight token-based protection from day one.
 
 ## User Requirements
 - ✅ Build admin portal FIRST (data fixes through UI, not scripts)
-- ✅ No authentication initially
+- ✅ Lightweight token protection (ADMIN_TOKEN env var)
 - ✅ Let user decide per-talk whether to use TED.com vs YouTube URLs
 - ✅ Features: Add/edit/delete talks, manage card-talk mappings, data validation dashboard
+
+## Mental Model: Two Modes
+
+The admin portal is organized into two distinct modes:
+
+### 🎨 Curation Mode
+- **Talks**: Add/edit/delete TED talks with metadata
+- **Mappings**: Assign talks to cards with rationale
+- **Themes**: Manage curated collections (future)
+
+### 🔧 Repair Mode
+- **Validation Dashboard**: View all data quality issues
+- **Guided Fixes**: Step-by-step workflows to resolve problems
+
+---
 
 ## Current Data Issues (76 talks)
 - **Duplicate YouTube IDs**: 4 talks affected (Angela Duckworth has Gretchen Rubin's ID, Shonda Rhimes has Laura Vanderkam's ID)
@@ -16,7 +31,180 @@ Build an admin portal at `/admin` to manage TED talks and card-talk mappings, wi
 - **Generic descriptions**: Many formulaic descriptions vs official TED content
 - **Thumbnail quality**: Mix of TED CDN (64 talks) vs YouTube (12 talks)
 
+---
+
+## Schema Changes Required
+
+### 1. URL Field Clarification
+**Problem**: `tedUrl` is ambiguous - can be TED.com or YouTube URL, but validation flags YouTube URLs as issues.
+
+**Solution**: Rename and clarify fields:
+```typescript
+// Current (confusing)
+tedUrl: text('ted_url').notNull()           // Can be TED or YouTube - unclear
+youtubeVideoId: text('youtube_video_id')    // Just the ID
+
+// New (clear)
+tedUrl: text('ted_url')                     // TED.com URL only, nullable if not on TED
+youtubeUrl: text('youtube_url')             // Full YouTube URL, nullable
+youtubeVideoId: text('youtube_video_id')    // Extracted video ID for API calls
+```
+
+**Logic**:
+- If talk exists on TED.com → `tedUrl` is set, use as primary link
+- If talk only on YouTube → `tedUrl` is null, use `youtubeUrl` as primary link
+- `youtubeVideoId` is always extracted from `youtubeUrl` for API metadata fetching
+- Display logic: `talk.tedUrl || talk.youtubeUrl` for the "Watch" button
+
+**Database Constraint** (🔴 RED FLAG #3 FIX):
+```sql
+-- At least one URL must be present
+ALTER TABLE talks ADD CONSTRAINT chk_at_least_one_url
+CHECK (ted_url IS NOT NULL OR youtube_url IS NOT NULL);
+```
+
+**Migration**: Add `youtubeUrl` column, migrate YouTube URLs from `tedUrl` to `youtubeUrl`, make `tedUrl` nullable, add CHECK constraint.
+
+### 2. Soft Delete for Talks
+**Add fields to talks table**:
+```typescript
+isDeleted: boolean('is_deleted').default(false)
+deletedAt: timestamp('deleted_at')
+```
+
+**Behavior**:
+- Default delete = soft delete (set `isDeleted=true`, `deletedAt=now()`)
+- Hard delete requires typing "DELETE" in confirmation dialog
+- Public queries filter `WHERE isDeleted = false`
+- Admin can view and restore soft-deleted talks
+
+**Cascade Behavior** (🔴 RED FLAG #5 FIX):
+```sql
+-- Document and verify foreign key behavior
+-- card_talk_mappings should CASCADE on talk deletion
+ALTER TABLE card_talk_mappings
+  DROP CONSTRAINT IF EXISTS card_talk_mappings_talk_id_fkey,
+  ADD CONSTRAINT card_talk_mappings_talk_id_fkey
+  FOREIGN KEY (talk_id) REFERENCES talks(id) ON DELETE CASCADE;
+```
+When a talk is hard-deleted, all its mappings are automatically deleted. This is intentional.
+
+### 3. Primary Mapping Constraint (Database Level)
+**Add unique partial index**:
+```sql
+CREATE UNIQUE INDEX idx_one_primary_per_card
+ON card_talk_mappings (card_id)
+WHERE is_primary = true;
+```
+
+This guarantees at the database level that only one mapping per card can have `isPrimary=true`, preventing race conditions and manual edit errors.
+
+---
+
 ## Implementation Phases
+
+### Phase 0: Schema Migration & Protection Setup
+**Goal**: Database changes and basic security before building UI
+
+**Tasks**:
+
+#### 0.1 Backup First (🟡 YELLOW FLAG #8 FIX)
+```bash
+# Before any schema changes, export current data
+npx tsx scripts/export-db-to-seed-files.ts
+# Store backup in /lib/db/backups/YYYY-MM-DD/
+```
+
+#### 0.2 Add `youtubeUrl` column to talks table
+- Migrate existing YouTube URLs from `tedUrl` to `youtubeUrl`
+- Make `tedUrl` nullable
+- Add CHECK constraint for at least one URL
+- Update seed data files
+
+#### 0.3 Add soft delete columns
+- Add `isDeleted` (boolean, default false)
+- Add `deletedAt` (timestamp, nullable)
+
+#### 0.4 Add primary mapping constraint
+- Create unique partial index on `card_talk_mappings`
+- Test with duplicate insert (should fail)
+- Test in Supabase SQL editor first (🟡 YELLOW FLAG #7)
+
+#### 0.5 Add ADMIN_TOKEN protection
+- Create `/middleware.ts` to protect `/admin/*` routes
+- Add token check to all `/api/admin/*` routes
+- Add `ADMIN_TOKEN` to `.env.local`
+
+**Files to Modify**:
+```
+/lib/db/schema.ts                    # Add new columns
+/lib/db/migrations/XXXX_*.sql        # Migration file
+/lib/db/backups/                     # NEW - backup directory
+/middleware.ts                       # NEW - route protection
+/.env.local                          # Add ADMIN_TOKEN
+/.env.example                        # Document ADMIN_TOKEN
+```
+
+**Middleware Pattern** (🔴 RED FLAGS #1 & #2 FIX):
+```typescript
+// /middleware.ts
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // 🔴 FIX #2: Exclude login page from protection
+  if (pathname === '/admin/login') {
+    return NextResponse.next();
+  }
+
+  // Protect all other /admin routes
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    // 🔴 FIX #1: Check both cookie AND Authorization header
+    const token = request.cookies.get('admin_token')?.value
+                || request.headers.get('Authorization')?.replace('Bearer ', '');
+
+    const validToken = process.env.ADMIN_TOKEN;
+
+    if (!validToken || token !== validToken) {
+      // For API routes, return 401
+      if (pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      // For page routes, redirect to login
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
+};
+```
+
+**Cookie Security** (🟡 YELLOW FLAG #1 FIX):
+```typescript
+// In /app/admin/login/page.tsx - when setting the cookie
+import { cookies } from 'next/headers';
+
+// Server action for login
+async function login(token: string) {
+  'use server';
+  const cookieStore = await cookies();
+  cookieStore.set('admin_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/admin',
+  });
+}
+```
+
+---
 
 ### Phase 1: Foundation (Core Infrastructure)
 **Goal**: Set up admin structure with talks CRUD
@@ -25,37 +213,111 @@ Build an admin portal at `/admin` to manage TED talks and card-talk mappings, wi
 ```
 /lib/db/queries/admin-talks.ts              # Admin-specific talk queries
 /app/api/admin/talks/route.ts               # GET (list) / POST (create)
-/app/api/admin/talks/[id]/route.ts          # GET / PUT / DELETE
+/app/api/admin/talks/[id]/route.ts          # GET / PUT / DELETE (soft)
+/app/api/admin/talks/[id]/hard-delete/route.ts  # Hard delete (requires confirmation)
 /app/admin/layout.tsx                       # Admin layout with nav
 /app/admin/page.tsx                         # Dashboard with stats
+/app/admin/login/page.tsx                   # Simple token login page
 /app/admin/talks/page.tsx                   # Talks list (server component)
-/components/admin/ui/AdminNav.tsx           # Vertical navigation
+/components/admin/ui/AdminNav.tsx           # Vertical navigation (two modes)
 /components/admin/ui/StatsCard.tsx          # Dashboard stat cards
 /components/admin/talks/TalkList.tsx        # Searchable talks table (client)
 /components/admin/talks/TalkRow.tsx         # Individual row with actions
 /components/admin/ui/ConfirmDialog.tsx      # Delete confirmation
+/components/admin/ui/HardDeleteDialog.tsx   # Type "DELETE" confirmation
 /components/admin/ui/Toast.tsx              # Success/error messages
 ```
 
 **Key Functions in `/lib/db/queries/admin-talks.ts`**:
-- `getAllTalksForAdmin()` - List all with data quality flags
-- `getTalkByIdForAdmin(id)` - Single talk with mappings
-- `searchTalksForAdmin(query)` - Search by title/speaker
-- `createTalk(data)` - Insert new talk
-- `updateTalk(id, data)` - Update existing
-- `deleteTalk(id)` - Delete (cascade removes mappings)
-- `getTalksStats()` - Dashboard statistics
+```typescript
+// List all (including soft-deleted for admin)
+getAllTalksForAdmin(includeDeleted?: boolean)
 
-**Patterns to Follow** (from existing code):
-- Query pattern: `/lib/db/queries/talks.ts` (lines 5-32)
-- API route pattern: `/app/api/search/route.ts` (lines 6-93)
-- Client component pattern: `/components/talks/TalksGrid.tsx` (lines 40-193)
-- Dark theme colors: gray-900, indigo-950, purple-950 gradient
+// Single talk with mappings
+getTalkByIdForAdmin(id: string)
+
+// Search by title/speaker
+searchTalksForAdmin(query: string)
+
+// CRUD with slug collision handling (🔴 RED FLAG #4 FIX)
+async function createTalk(data: InsertTalk) {
+  let slug = generateSlug(data.speakerName, data.title);
+
+  // Check for existing slug and handle collision
+  const existing = await db.select({ slug: talks.slug })
+    .from(talks)
+    .where(eq(talks.slug, slug));
+
+  if (existing.length > 0) {
+    // Append timestamp to make unique
+    slug = `${slug}-${Date.now().toString(36)}`;
+  }
+
+  return db.insert(talks).values({ ...data, slug });
+}
+
+updateTalk(id: string, data: Partial<InsertTalk>)
+softDeleteTalk(id: string)      // Sets isDeleted=true
+hardDeleteTalk(id: string)      // Actually removes from DB (cascades to mappings)
+restoreTalk(id: string)         // Sets isDeleted=false
+
+// Stats for dashboard
+getTalksStats()
+```
+
+**Soft Delete Query Helper** (🟡 YELLOW FLAG #4 FIX):
+```typescript
+// lib/db/queries/talks.ts - Reusable filter
+import { eq, and } from 'drizzle-orm';
+
+// Active filter for public queries
+export const activeFilter = eq(talks.isDeleted, false);
+
+// Use in all public queries:
+export async function getAllTalks() {
+  return db.select()
+    .from(talks)
+    .where(activeFilter)  // Never forget this!
+    .orderBy(desc(talks.createdAt));
+}
+```
+
+**Audit Logging** (🟡 YELLOW FLAG #5 FIX):
+```typescript
+// lib/utils/audit.ts
+export function auditLog(action: string, details: Record<string, unknown>) {
+  const timestamp = new Date().toISOString();
+  console.log(`[AUDIT] ${timestamp} | ${action} |`, JSON.stringify(details));
+
+  // Future: Write to audit_log table or external service
+}
+
+// Usage in API routes:
+auditLog('TALK_HARD_DELETED', { talkId: id, talkTitle: talk.title });
+auditLog('MAPPING_CREATED', { cardId, talkId, isPrimary });
+```
+
+**AdminNav Component (Two Modes)**:
+```
+┌─────────────────────────┐
+│  TarotTED Admin         │
+├─────────────────────────┤
+│  🎨 CURATION            │
+│    📺 Talks             │
+│    🔗 Mappings          │
+│    📂 Themes            │
+├─────────────────────────┤
+│  🔧 REPAIR              │
+│    ⚠️ Validation        │
+├─────────────────────────┤
+│  ← Back to Site         │
+└─────────────────────────┘
+```
 
 ---
 
-### Phase 2: Talk Editing
-**Goal**: Full talk create/edit with metadata fetching
+### Phase 2: Talk Editing & Metadata Fetching
+**Goal**: Full talk create/edit with smart metadata fetching
 
 **New Files to Create**:
 ```
@@ -65,31 +327,162 @@ Build an admin portal at `/admin` to manage TED talks and card-talk mappings, wi
 /components/admin/talks/TalkForm.tsx                    # Create/edit form (client)
 /components/admin/talks/MetadataFetcher.tsx             # Fetch & preview metadata
 /components/admin/talks/TalkPreview.tsx                 # Live preview
+/components/admin/talks/UrlInputs.tsx                   # TED + YouTube URL inputs
 ```
 
-**TalkForm Component Features**:
-- All fields editable: title, speaker, tedUrl, description, year, duration, thumbnail, youtubeVideoId
-- Slug auto-generation from speaker + title
-- Client-side validation (required fields, URL format)
-- Integration with MetadataFetcher
+**TalkForm Fields** (updated for new schema):
+```typescript
+interface TalkFormData {
+  title: string;           // Required
+  speakerName: string;     // Required
+  tedUrl: string | null;   // TED.com URL (nullable)
+  youtubeUrl: string | null; // YouTube URL (nullable)
+  youtubeVideoId: string | null; // Auto-extracted from youtubeUrl
+  description: string | null;
+  durationSeconds: number | null;
+  year: number | null;
+  eventName: string | null;
+  thumbnailUrl: string | null;
+  language: string;        // Default 'en'
+}
+```
 
-**MetadataFetcher Workflow**:
-1. User enters YouTube or TED URL
+**UrlInputs Component**:
+- Two URL input fields: TED.com and YouTube
+- Auto-extract `youtubeVideoId` from YouTube URL
+- Validation: At least one URL required (matches DB constraint)
+- Visual indicator showing which URL is "primary" for viewing
+
+**Rate Limiting for Metadata Fetch** (🟡 YELLOW FLAG #2 FIX):
+```typescript
+// lib/utils/rate-limit.ts
+const rateLimitMap = new Map<string, number[]>();
+const RATE_LIMIT = 10; // max requests per minute
+
+export function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const windowStart = now - 60000; // 1 minute window
+
+  const requests = rateLimitMap.get(key) || [];
+  const recentRequests = requests.filter(t => t > windowStart);
+
+  if (recentRequests.length >= RATE_LIMIT) {
+    return false; // Rate limited
+  }
+
+  recentRequests.push(now);
+  rateLimitMap.set(key, recentRequests);
+  return true;
+}
+```
+
+**Error Handling for External APIs** (🟡 YELLOW FLAG #9 FIX):
+```typescript
+// In /app/api/admin/talks/[id]/fetch-metadata/route.ts
+
+interface MetadataResult {
+  ted: TedMetadata | null;
+  youtube: YoutubeMetadata | null;
+  merged: MergedMetadata;
+  errors: {
+    ted?: string;
+    youtube?: string;
+  };
+}
+
+async function fetchTedMetadata(url: string): Promise<TedMetadata | { error: string }> {
+  try {
+    const response = await fetch(`https://www.ted.com/services/v1/oembed.json?url=${encodeURIComponent(url)}`);
+
+    if (response.status === 404) {
+      return { error: 'Talk not found on TED.com - may have been removed' };
+    }
+    if (!response.ok) {
+      return { error: `TED API error: ${response.status}` };
+    }
+
+    return await response.json();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('timeout')) {
+      return { error: 'TED.com request timed out - try again later' };
+    }
+    return { error: 'Failed to fetch from TED.com' };
+  }
+}
+
+async function fetchYoutubeMetadata(videoId: string): Promise<YoutubeMetadata | { error: string }> {
+  try {
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id=${videoId}&key=${process.env.YOUTUBE_API_KEY}`
+    );
+
+    if (response.status === 403) {
+      return { error: 'YouTube API quota exceeded - try again tomorrow' };
+    }
+    if (!response.ok) {
+      return { error: `YouTube API error: ${response.status}` };
+    }
+
+    const data = await response.json();
+    if (!data.items?.length) {
+      return { error: 'YouTube video not found - may have been deleted' };
+    }
+
+    return parseYoutubeData(data.items[0]);
+  } catch (error) {
+    return { error: 'Failed to fetch from YouTube API' };
+  }
+}
+```
+
+**MetadataFetcher Workflow** (improved):
+1. User enters TED.com URL and/or YouTube URL
 2. Click "Fetch Metadata" button
-3. API calls YouTube Data API or TED oEmbed API
-4. Show side-by-side comparison (current vs fetched)
-5. User selects which fields to update
-6. Apply selected fields to form
+3. Check rate limit before calling APIs
+4. **Try TED oEmbed first** for: title, thumbnail
+5. **Use YouTube API for**: duration, year, description, thumbnail (as fallback)
+6. **Merge results**: TED data preferred, YouTube fills gaps
+7. **Show errors inline** if either API fails
+8. Show side-by-side comparison (current vs fetched)
+9. Checkboxes to select which fields to apply
+10. Apply selected fields to form
 
 **API Endpoint**: `POST /api/admin/talks/[id]/fetch-metadata`
-- Accepts: `{ source: 'youtube' | 'ted', url: string }`
-- Returns: `{ title, description, durationSeconds, year, thumbnailUrl }`
-- Uses existing patterns from `/scripts/fetch-youtube-metadata.ts`
+```typescript
+// Request
+{
+  tedUrl?: string;      // Optional TED.com URL
+  youtubeUrl?: string;  // Optional YouTube URL
+}
+
+// Response
+{
+  ted: { title, thumbnailUrl } | null,
+  youtube: { title, description, durationSeconds, year, thumbnailUrl } | null,
+  merged: {
+    title: string;
+    description: string | null;
+    durationSeconds: number | null;
+    year: number | null;
+    thumbnailUrl: string | null;
+    source: { [field: string]: 'ted' | 'youtube' }  // Track where each field came from
+  },
+  errors: {
+    ted?: string;      // Error message if TED fetch failed
+    youtube?: string;  // Error message if YouTube fetch failed
+  }
+}
+```
+
+**YouTube API Key Security** (🟡 YELLOW FLAG #6):
+- `YOUTUBE_API_KEY` is ONLY accessed in `/app/api/admin/talks/[id]/fetch-metadata/route.ts`
+- NEVER import or reference this key in any client component
+- The key stays server-side only
 
 ---
 
 ### Phase 3: Mappings Management
-**Goal**: Card-talk mapping interface
+**Goal**: Card-talk mapping interface with database-enforced constraints
 
 **New Files to Create**:
 ```
@@ -105,39 +498,74 @@ Build an admin portal at `/admin` to manage TED talks and card-talk mappings, wi
 ```
 
 **Key Functions in `/lib/db/queries/admin-mappings.ts`**:
-- `getAllMappingsForAdmin()` - All mappings with card & talk details
-- `getMappingsByCardId(cardId)` - Mappings for specific card
-- `getCardsWithoutPrimaryMapping()` - Cards missing primary talk
-- `upsertMapping(data)` - Create or update mapping
-- `deleteMapping(id)` - Remove mapping
-- `getMappingsStats()` - Dashboard statistics
+```typescript
+getAllMappingsForAdmin()                    // All mappings with card & talk details
+getMappingsByCardId(cardId: string)         // Mappings for specific card
+getCardsWithoutPrimaryMapping()             // Cards missing primary talk
+getUnmappedTalks()                          // Talks not assigned to any card
+upsertMapping(data: MappingData)            // Create or update mapping
+deleteMapping(id: string)                   // Remove mapping
+getMappingsStats()                          // Dashboard statistics
+```
+
+**Primary Mapping Logic with Transaction** (🟡 YELLOW FLAG #3 FIX):
+```typescript
+// When setting isPrimary=true on a new mapping
+async function setAsPrimary(cardId: string, talkId: string, mappingData: MappingData) {
+  // Use transaction to ensure atomicity
+  await db.transaction(async (tx) => {
+    // Step 1: Demote existing primary (if any)
+    await tx.update(cardTalkMappings)
+      .set({ isPrimary: false })
+      .where(
+        and(
+          eq(cardTalkMappings.cardId, cardId),
+          eq(cardTalkMappings.isPrimary, true)
+        )
+      );
+
+    // Step 2: Upsert the new primary mapping
+    await tx.insert(cardTalkMappings)
+      .values({ ...mappingData, cardId, talkId, isPrimary: true })
+      .onConflictDoUpdate({
+        target: [cardTalkMappings.cardId, cardTalkMappings.talkId],
+        set: { ...mappingData, isPrimary: true }
+      });
+  });
+
+  // Database unique partial index is backup protection
+  auditLog('MAPPING_SET_PRIMARY', { cardId, talkId });
+}
+```
 
 **MappingEditor Layout**:
 ```
-┌─────────────────────────────────────────────────┐
-│  Select Card:  [Four of Wands ▼]                │
-├────────────────┬────────────────────────────────┤
-│ Cards List     │ Current Mappings for Card      │
-│                │                                 │
-│ □ The Fool     │ ✓ Primary: Priya Parker talk   │
-│ □ The Magician │   Strength: 5                  │
-│ ☑ Four of Wands│   "The Four of Wands..."       │
-│ □ Five of Wands│   [Edit] [Delete]              │
-│ ...            │                                 │
-│                │ [+ Add New Mapping]             │
-└────────────────┴────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  Card-Talk Mappings                          [+ Add Mapping]│
+├────────────────────┬────────────────────────────────────────┤
+│ 📇 Cards (78)      │ 🔗 Mappings for: Four of Wands        │
+│                    │                                        │
+│ ▸ Major Arcana     │ ⭐ PRIMARY                             │
+│   The Fool         │ ┌────────────────────────────────────┐ │
+│   The Magician     │ │ Priya Parker                       │ │
+│   ...              │ │ "3 Steps to Turn Everyday..."      │ │
+│ ▸ Wands            │ │ Strength: ●●●●● (5)                │ │
+│   Ace of Wands     │ │ "The Four of Wands celebrates..."  │ │
+│   Two of Wands     │ │ [Edit] [Demote] [Delete]           │ │
+│   Three of Wands   │ └────────────────────────────────────┘ │
+│   ★ Four of Wands  │                                        │
+│   Five of Wands    │ ─ SECONDARY MAPPINGS ─                 │
+│   ...              │ (none)                                 │
+│ ▸ Cups             │                                        │
+│ ▸ Swords           │ [+ Add Another Mapping]                │
+│ ▸ Pentacles        │                                        │
+└────────────────────┴────────────────────────────────────────┘
 ```
-
-**Validation**:
-- Only one isPrimary per card
-- Prevent duplicate card-talk pairs
-- Strength must be 1-5
-- rationaleShort required
 
 ---
 
-### Phase 4: Validation Dashboard
-**Goal**: Data quality dashboard with fix workflows
+### Phase 4: Validation Dashboard (Repair Mode)
+**Goal**: Data quality dashboard with guided fix workflows
 
 **New Files to Create**:
 ```
@@ -147,34 +575,63 @@ Build an admin portal at `/admin` to manage TED talks and card-talk mappings, wi
 /components/admin/validation/ValidationDashboard.tsx # Overview (client)
 /components/admin/validation/IssueCard.tsx           # Individual issue display
 /components/admin/validation/DuplicateVideoIds.tsx   # Fix duplicates
-/components/admin/validation/MissingYoutubeIds.tsx   # Add missing IDs
-/components/admin/validation/YoutubeUrlsInTedUrl.tsx # Suggest TED.com URLs
+/components/admin/validation/MissingUrls.tsx         # Add missing TED/YouTube URLs
+/components/admin/validation/MissingThumbnails.tsx   # Fix thumbnails
+/components/admin/validation/ShortDescriptions.tsx   # Improve descriptions
+/components/admin/validation/UnmappedItems.tsx       # Cards without talks, talks without cards
 ```
 
-**Validation Issues Detected**:
+**Validation Issues Detected** (updated):
 ```typescript
 interface ValidationIssues {
+  // Critical (🔴)
   duplicateYoutubeIds: Array<{
     youtubeVideoId: string;
     talks: Array<{ id, title, speakerName }>;
   }>;
-  missingYoutubeIds: Array<{ id, title, speakerName, tedUrl }>;
-  youtubeUrlsInTedUrl: Array<{ id, title, speakerName, tedUrl }>;
+
+  // Important (🟡)
+  talksWithOnlyYoutubeUrl: Array<{
+    id, title, speakerName, youtubeUrl;
+    suggestedTedUrl?: string;  // If we can find it
+  }>;
+  missingBothUrls: Array<{ id, title, speakerName }>;
   missingThumbnails: Array<{ id, title, speakerName }>;
   shortDescriptions: Array<{ id, title, speakerName, description }>;
+
+  // Mapping Issues (🟠)
   cardsWithoutPrimaryMapping: Array<{ id, name, slug }>;
-  orphanedMappings: Array<{ id, cardId, talkId }>;
+  talksNotMappedToAnyCard: Array<{ id, title, speakerName }>;
+
+  // Info (ℹ️)
+  softDeletedTalks: Array<{ id, title, deletedAt }>;
 }
 ```
 
-**Fix Workflows**:
-1. **Duplicate YouTube IDs**: Inline edit to correct video ID
-2. **YouTube URLs in tedUrl**:
-   - Button to search TED.com (opens in new tab)
-   - Input for corrected TED.com URL
-   - "Fetch Metadata" to preview
-   - Option to move YouTube URL to youtubeVideoId field
-3. **Missing data**: Link to edit page with field highlighted
+**Guided Fix Workflows**:
+
+1. **Duplicate YouTube IDs**:
+   - Show both talks side-by-side
+   - "Search YouTube" button to find correct video for each
+   - Inline edit to correct video ID
+   - Fetch metadata to verify
+
+2. **Talks with Only YouTube URL**:
+   - "Search TED.com" button (opens TED search in new tab)
+   - Input for TED.com URL
+   - "Fetch & Compare" to preview metadata from both sources
+   - Option to add TED URL or mark as "YouTube-only"
+
+3. **Missing Thumbnails**:
+   - "Fetch from YouTube" button
+   - "Fetch from TED" button
+   - Preview before applying
+   - Manual URL input as fallback
+
+4. **Cards Without Primary Mapping**:
+   - Show card details
+   - Quick search for relevant talks
+   - One-click assign as primary
 
 ---
 
@@ -186,132 +643,175 @@ interface ValidationIssues {
 - Optimistic UI updates (remove from list before API response)
 - Loading states (spinners, skeleton loaders)
 - Confirmation dialogs for destructive actions
+- Hard delete requires typing "DELETE"
 - Keyboard shortcuts (Ctrl+S to save form)
 - Better error messages with recovery suggestions
 - Form auto-save to prevent data loss
+- Batch operations (select multiple, bulk delete/restore)
+
+**Mobile Responsiveness** (🟡 YELLOW FLAG #10 FIX):
+The admin portal is designed for **desktop use**. On mobile devices:
+- MappingEditor: Stack columns vertically, use tabs for card/mapping selection
+- TalkList: Collapse table into card view
+- Minimum supported width: 768px (tablet portrait)
+- Show "Best viewed on desktop" notice on narrow screens
 
 ---
 
-## Critical Files & Patterns
+## Critical Files & Implementation Order
 
-### 5 Most Critical Files (implement in order):
+### Phase 0 (Schema & Security):
+1. `/lib/db/backups/` - Create backup before migration
+2. `/lib/db/schema.ts` - Add new columns
+3. `/lib/db/migrations/XXXX_add_youtube_url_soft_delete.sql` - Migration
+4. `/middleware.ts` - Route protection (with login page exclusion)
+5. `/app/admin/login/page.tsx` - Simple token login
 
-1. **`/lib/db/queries/admin-talks.ts`**
-   - Core data access layer
-   - Pattern: Follow `/lib/db/queries/talks.ts` structure
-   - Use Drizzle ORM with `eq`, `desc`, `ilike`, `or`, `sql`
+### Phase 1 (Foundation):
+6. `/lib/db/queries/admin-talks.ts` - Core data access (with slug collision handling)
+7. `/lib/utils/audit.ts` - Audit logging utility
+8. `/app/api/admin/talks/route.ts` - API endpoints
+9. `/app/admin/layout.tsx` - Admin layout with two-mode nav
+10. `/app/admin/page.tsx` - Dashboard
+11. `/components/admin/talks/TalkList.tsx` - Table UI
 
-2. **`/app/api/admin/talks/route.ts`**
-   - First API endpoint
-   - Pattern: Follow `/app/api/search/route.ts` (lines 6-93)
-   - Error handling with try/catch and proper HTTP status codes
+### Phase 2 (Editing):
+12. `/lib/utils/rate-limit.ts` - Rate limiting utility
+13. `/components/admin/talks/TalkForm.tsx` - Form component
+14. `/components/admin/talks/MetadataFetcher.tsx` - Smart fetching with error handling
+15. `/app/api/admin/talks/[id]/fetch-metadata/route.ts` - Fetch API
 
-3. **`/components/admin/talks/TalkForm.tsx`**
-   - Central UI component
-   - Pattern: Client component with `'use client'` directive
-   - Form state management with controlled inputs
+### Phase 3 (Mappings):
+16. `/lib/db/queries/admin-mappings.ts` - Mapping queries (with transactions)
+17. `/components/admin/mappings/MappingEditor.tsx` - Mapping UI
 
-4. **`/app/admin/layout.tsx`**
-   - Admin portal structure
-   - Pattern: Follow `/app/layout.tsx` but add sidebar nav
-   - Dark gradient theme: `from-gray-900 via-indigo-950 to-purple-950`
+### Phase 4 (Validation):
+18. `/lib/db/queries/admin-validation.ts` - Validation queries
+19. `/components/admin/validation/ValidationDashboard.tsx` - Fix workflows
 
-5. **`/components/admin/talks/MetadataFetcher.tsx`**
-   - Solves core data quality problem
-   - Fetch from YouTube Data API or TED oEmbed
-   - Side-by-side preview (current vs fetched)
+---
 
-### UI Theme Constants:
+## Summary of Fixes Applied
+
+### 🔴 Red Flags (All Fixed)
+| # | Issue | Fix |
+|---|-------|-----|
+| 1 | Middleware doesn't check headers | Added `Authorization` header check as fallback |
+| 2 | Login page in protected route | Excluded `/admin/login` from middleware protection |
+| 3 | No constraint for at least one URL | Added `CHECK (ted_url IS NOT NULL OR youtube_url IS NOT NULL)` |
+| 4 | No slug collision handling | Added collision check and timestamp suffix in `createTalk()` |
+| 5 | Cascade delete behavior undefined | Documented and verified `ON DELETE CASCADE` for mappings |
+
+### 🟡 Yellow Flags (All Addressed)
+| # | Issue | Fix |
+|---|-------|-----|
+| 1 | Cookie not HttpOnly/Secure | Added proper cookie settings in login |
+| 2 | No rate limiting | Added rate limit utility for metadata fetch |
+| 3 | Transaction not explicit | Added explicit transaction for primary mapping swap |
+| 4 | Soft delete not filtered | Created reusable `activeFilter` helper |
+| 5 | No audit logging | Added `auditLog()` utility for destructive actions |
+| 6 | API key exposure risk | Verified key only used server-side |
+| 7 | Partial index PostgreSQL | Test in Supabase SQL editor first |
+| 8 | No backup before migration | Added backup step to Phase 0 |
+| 9 | External API error handling | Added specific error messages for each failure mode |
+| 10 | Mobile not responsive | Documented as desktop-focused with graceful degradation |
+
+---
+
+## UI Theme Constants
 ```typescript
 // Reuse from existing components
 bg-gray-900, bg-gray-800/50
 border-gray-700, border-gray-600 (hover)
 text-gray-100, text-gray-400
 bg-indigo-600 hover:bg-indigo-700 (primary button)
+bg-red-600 hover:bg-red-700 (danger button)
 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 (cards)
 rounded-xl, shadow-sm
 ```
 
-### API Integration:
-- **YouTube Data API**: `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&id={videoId}&key={API_KEY}`
-- **TED oEmbed**: `https://www.ted.com/services/v1/oembed.json?url={tedUrl}`
-- Environment variable: `YOUTUBE_API_KEY` in `.env.local`
-
 ---
 
-## Database Schema (Reference)
+## API Integration
 
-**Tables Used**:
-- `talks` - All TED talk data
-- `cards` - 78 Tarot cards
-- `cardTalkMappings` - Many-to-many relationship with rationale
-- `themes` - Curated collections (future use)
+### YouTube Data API v3
+```
+Endpoint: https://www.googleapis.com/youtube/v3/videos
+Params: part=snippet,contentDetails&id={videoId}&key={API_KEY}
+Returns: title, description, duration, publishedAt, thumbnails
+```
 
-**Key Fields**:
-- `talks.slug` - Unique identifier for URLs
-- `talks.youtubeVideoId` - For metadata fetching
-- `talks.tedUrl` - Can be TED.com or YouTube URL (user decides)
-- `cardTalkMappings.isPrimary` - One per card
-- `cardTalkMappings.strength` - 1-5 rating
+### TED oEmbed API
+```
+Endpoint: https://www.ted.com/services/v1/oembed.json
+Params: url={tedUrl}
+Returns: title, thumbnail_url (limited data)
+```
+
+### Metadata Fetching Strategy
+1. If TED URL provided → fetch TED oEmbed for title/thumbnail
+2. If YouTube URL provided → fetch YouTube API for all fields
+3. Merge: TED data preferred for title/thumbnail, YouTube fills rest
+4. Display source indicators in UI
+5. Show user-friendly error messages if APIs fail
 
 ---
 
 ## Success Criteria
 
+### Phase 0 Complete:
+- [ ] Database backup created before migration
+- [ ] `youtubeUrl` column added and migrated
+- [ ] CHECK constraint for at least one URL added
+- [ ] Soft delete columns added (`isDeleted`, `deletedAt`)
+- [ ] Cascade delete verified for mappings
+- [ ] Primary mapping unique index created
+- [ ] ADMIN_TOKEN protection working
+- [ ] Login page excluded from protection
+- [ ] Cookie set with HttpOnly/Secure flags
+
 ### Phase 1 Complete:
 - [ ] Admin portal accessible at `/admin`
+- [ ] Two-mode navigation (Curation / Repair)
 - [ ] Dashboard shows talk statistics
-- [ ] Talks list page with search and filters
-- [ ] Can delete talks with confirmation
+- [ ] Talks list with search and filters
+- [ ] Soft delete working with restore option
+- [ ] Hard delete requires typing "DELETE"
+- [ ] Slug collisions handled automatically
+- [ ] Audit logging for destructive actions
 
 ### Phase 2 Complete:
 - [ ] Can create new talks with all fields
 - [ ] Can edit existing talks
-- [ ] Metadata fetcher shows preview from YouTube/TED
-- [ ] Slug auto-generates from speaker + title
+- [ ] TED + YouTube URL inputs working
+- [ ] At least one URL validation enforced
+- [ ] Metadata fetcher merges TED + YouTube data
+- [ ] Rate limiting active on metadata fetch
+- [ ] Error messages shown for API failures
+- [ ] Shows data source for each field
 
 ### Phase 3 Complete:
 - [ ] Can view all card-talk mappings
 - [ ] Can create/edit mappings with rationale
+- [ ] Database constraint prevents duplicate primaries
+- [ ] Transaction used for primary swap
+- [ ] UI shows warning when changing primary
 - [ ] Can delete mappings
-- [ ] Prevents duplicate card-talk pairs
-- [ ] Enforces one primary per card
 
 ### Phase 4 Complete:
-- [ ] Validation dashboard shows all 7 issue types
-- [ ] Can fix duplicate YouTube IDs inline
-- [ ] Can search for TED.com URLs for YouTube talks
-- [ ] Can add missing YouTube IDs
-- [ ] Shows cards without primary mappings
+- [ ] Validation dashboard shows all issue types
+- [ ] Duplicate YouTube IDs fixable inline
+- [ ] Can add TED URLs to YouTube-only talks
+- [ ] Can fetch missing thumbnails
+- [ ] Shows unmapped cards and talks
 
 ### Phase 5 Complete:
 - [ ] Toast notifications working
 - [ ] Loading states on all actions
-- [ ] Keyboard shortcuts functional
+- [ ] Hard delete confirmation functional
 - [ ] No console errors
-- [ ] Mobile responsive
-
----
-
-## Next Steps After Implementation
-
-1. **Add Authentication** (when ready):
-   - Install NextAuth.js or use Supabase Auth
-   - Protect `/app/admin/layout.tsx` with auth check
-   - Protect all `/app/api/admin/*` routes
-
-2. **Data Export**:
-   - Add "Export to JSON" button
-   - Integrate with existing `/scripts/export-db-to-seed-files.ts`
-
-3. **Bulk Operations** (if needed):
-   - CSV import for talks
-   - Bulk metadata refresh
-   - Batch assign talks to themes
-
-4. **Analytics**:
-   - Track which talks are most viewed (if adding analytics)
-   - Show popular card-talk pairings
+- [ ] Desktop-focused with tablet support
+- [ ] "Best on desktop" notice for mobile
 
 ---
 
@@ -325,8 +825,9 @@ rounded-xl, shadow-sm
 
 **Scripts to Leverage**:
 - `/scripts/upsert-talks.ts` - CRUD pattern
-- `/scripts/fetch-youtube-metadata.ts` - API integration
+- `/scripts/fetch-youtube-metadata.ts` - YouTube API integration
 - `/scripts/upsert-mappings.ts` - Mapping logic
+- `/scripts/export-db-to-seed-files.ts` - Backup before migration
 
 **Schema**:
 - `/lib/db/schema.ts` - Table definitions
