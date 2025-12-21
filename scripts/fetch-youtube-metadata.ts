@@ -92,7 +92,7 @@ async function updateAllTalksMetadata() {
   for (const talk of allTalks) {
     // Use youtubeVideoId if available, otherwise try to extract from tedUrl
     let videoId = talk.youtubeVideoId;
-    if (!videoId) {
+    if (!videoId && talk.tedUrl) {
       videoId = extractVideoId(talk.tedUrl);
     }
 

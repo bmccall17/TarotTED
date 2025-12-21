@@ -135,7 +135,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                   <div className="flex gap-4">
                     {/* Clickable Thumbnail - Opens video */}
                     <a
-                      href={talk.tedUrl}
+                      href={talk.tedUrl || talk.youtubeUrl || '#'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
@@ -165,7 +165,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                       </p>
                       <div className="flex gap-3">
                         <a
-                          href={talk.tedUrl}
+                          href={talk.tedUrl || talk.youtubeUrl || '#'}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-indigo-400 hover:text-indigo-300 text-sm font-medium"

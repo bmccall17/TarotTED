@@ -45,7 +45,7 @@ async function applyMigration() {
     `);
 
     console.log('Columns in talks table:');
-    console.table(result.rows);
+    console.table(result);
 
     process.exit(0);
   } catch (error) {

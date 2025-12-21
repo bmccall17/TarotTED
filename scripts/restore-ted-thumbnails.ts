@@ -35,7 +35,7 @@ async function restoreTedThumbnails() {
 
   for (const talk of allTalks) {
     // Only process TED.com URLs
-    if (!talk.tedUrl.includes('ted.com/talks/')) {
+    if (!talk.tedUrl || !talk.tedUrl.includes('ted.com/talks/')) {
       console.log(`⏭️  Skipped: ${talk.title} (not a TED.com URL)`);
       skipped++;
       continue;

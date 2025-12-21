@@ -21,7 +21,8 @@ async function login(formData: FormData) {
     redirect('/admin');
   }
 
-  return { error: 'Invalid token' };
+  // Redirect back to login with error parameter
+  redirect('/admin/login?error=Invalid+token');
 }
 
 export default async function LoginPage({

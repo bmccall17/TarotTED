@@ -4,7 +4,7 @@ import { generateSlug } from './helpers';
 // Note: Some talks appear multiple times across different cards
 export const talksSeedData = [
   {
-    slug: generateSlug('BJ Miller What Really Matters at the End of Life'),
+    slug: generateSlug("BJ Miller What Really Matters at the End of Life"),
     title: 'What Really Matters at the End of Life',
     speakerName: 'BJ Miller',
     tedUrl: 'https://www.ted.com/talks/bj_miller_what_really_matters_at_the_end_of_life',
@@ -17,7 +17,7 @@ export const talksSeedData = [
     youtubeVideoId: 'apbSsILLh28',
   },
   {
-    slug: generateSlug('Elizabeth Loftus How Reliable is Your Memory'),
+    slug: generateSlug("Elizabeth Loftus How Reliable is Your Memory"),
     title: 'How Reliable is Your Memory',
     speakerName: 'Elizabeth Loftus',
     tedUrl: 'https://www.ted.com/talks/elizabeth_loftus_how_reliable_is_your_memory',
@@ -30,7 +30,7 @@ export const talksSeedData = [
     youtubeVideoId: 'PB2OegI6wvI',
   },
   {
-    slug: generateSlug('Caroline Casey Looking Past Limits'),
+    slug: generateSlug("Caroline Casey Looking Past Limits"),
     title: 'Looking Past Limits',
     speakerName: 'Caroline Casey',
     tedUrl: 'https://www.ted.com/talks/caroline_casey_looking_past_limits',
@@ -43,7 +43,7 @@ export const talksSeedData = [
     youtubeVideoId: null,
   },
   {
-    slug: generateSlug('Sam Berns My Philosophy for a Happy Life'),
+    slug: generateSlug("Sam Berns My Philosophy for a Happy Life"),
     title: 'My Philosophy for a Happy Life',
     speakerName: 'Sam Berns',
     tedUrl: 'https://www.ted.com/talks/sam_berns_my_philosophy_for_a_happy_life',
@@ -56,7 +56,7 @@ export const talksSeedData = [
     youtubeVideoId: '36m1o-tM05g',
   },
   {
-    slug: generateSlug('Elizabeth Gilbert Success, Failure, and the Drive to Keep Creating'),
+    slug: generateSlug("Elizabeth Gilbert Success, Failure, and the Drive to Keep Creating"),
     title: 'Success, Failure, and the Drive to Keep Creating',
     speakerName: 'Elizabeth Gilbert',
     tedUrl: 'https://www.ted.com/talks/elizabeth_gilbert_success_failure_and_the_drive_to_keep_creating',
@@ -69,7 +69,7 @@ export const talksSeedData = [
     youtubeVideoId: '_waBFUg_oT8',
   },
   {
-    slug: generateSlug('Brené Brown The Power of Vulnerability'),
+    slug: generateSlug("Brené Brown The Power of Vulnerability"),
     title: 'The Power of Vulnerability',
     speakerName: 'Brené Brown',
     tedUrl: 'https://www.ted.com/talks/brene_brown_the_power_of_vulnerability',
@@ -82,7 +82,7 @@ export const talksSeedData = [
     youtubeVideoId: 'iCvmsMzlF7o',
   },
   {
-    slug: generateSlug('Johann Hari Everything You Think You Know About Addiction is Wrong'),
+    slug: generateSlug("Johann Hari Everything You Think You Know About Addiction is Wrong"),
     title: 'Everything You Think You Know About Addiction is Wrong',
     speakerName: 'Johann Hari',
     tedUrl: 'https://www.ted.com/talks/johann_hari_everything_you_think_you_know_about_addiction_is_wrong',
@@ -95,7 +95,7 @@ export const talksSeedData = [
     youtubeVideoId: 'PY9DcIMGxMs',
   },
   {
-    slug: generateSlug('Jill Bolte Taylor My Stroke of Insight'),
+    slug: generateSlug("Jill Bolte Taylor My Stroke of Insight"),
     title: 'My Stroke of Insight',
     speakerName: 'Jill Bolte Taylor',
     tedUrl: 'https://www.ted.com/talks/jill_bolte_taylor_my_stroke_of_insight',
@@ -108,7 +108,7 @@ export const talksSeedData = [
     youtubeVideoId: 'mYD7Y9CXeUw',
   },
   {
-    slug: generateSlug('Jonathan Haidt The Moral Roots of Liberals and Conservatives'),
+    slug: generateSlug("Jonathan Haidt The Moral Roots of Liberals and Conservatives"),
     title: 'The Moral Roots of Liberals and Conservatives',
     speakerName: 'Jonathan Haidt',
     tedUrl: 'https://www.youtube.com/watch?v=9ei_HSlUxUQ',
@@ -121,7 +121,7 @@ export const talksSeedData = [
     youtubeVideoId: '9ei_HSlUxUQ',
   },
   {
-    slug: generateSlug('Amy Cuddy Your Body Language May Shape Who You Are'),
+    slug: generateSlug("Amy Cuddy Your Body Language May Shape Who You Are"),
     title: 'Your Body Language May Shape Who You Are',
     speakerName: 'Amy Cuddy',
     tedUrl: 'https://youtu.be/NDQ1Mi5I4rg',
@@ -134,7 +134,7 @@ export const talksSeedData = [
     youtubeVideoId: 'NDQ1Mi5I4rg',
   },
   {
-    slug: generateSlug('Helen Fisher The Brain in Love'),
+    slug: generateSlug("Helen Fisher The Brain in Love"),
     title: 'The Brain in Love',
     speakerName: 'Helen Fisher',
     tedUrl: 'https://www.ted.com/talks/helen_fisher_the_brain_in_love',
@@ -147,7 +147,7 @@ export const talksSeedData = [
     youtubeVideoId: 'OYfoGTIG7pY',
   },
   {
-    slug: generateSlug('Simon Sinek Why Good Leaders Make You Feel Safe'),
+    slug: generateSlug("Simon Sinek Why Good Leaders Make You Feel Safe"),
     title: 'Why Good Leaders Make You Feel Safe',
     speakerName: 'Simon Sinek',
     tedUrl: 'https://www.ted.com/talks/simon_sinek_why_good_leaders_make_you_feel_safe',
@@ -160,7 +160,7 @@ export const talksSeedData = [
     youtubeVideoId: 'lmyZMtPVodo',
   },
   {
-    slug: generateSlug('Pico Iyer The Art of Stillness'),
+    slug: generateSlug("Pico Iyer The Art of Stillness"),
     title: 'The Art of Stillness',
     speakerName: 'Pico Iyer',
     tedUrl: 'https://www.ted.com/talks/pico_iyer_the_art_of_stillness',
@@ -173,7 +173,7 @@ export const talksSeedData = [
     youtubeVideoId: 'aUBawr1hUwo',
   },
   {
-    slug: generateSlug('Bryan Stevenson We Need to Talk About an Injustice'),
+    slug: generateSlug("Bryan Stevenson We Need to Talk About an Injustice"),
     title: 'We Need to Talk About an Injustice',
     speakerName: 'Bryan Stevenson',
     tedUrl: 'https://www.ted.com/talks/bryan_stevenson_we_need_to_talk_about_an_injustice',
@@ -186,7 +186,7 @@ export const talksSeedData = [
     youtubeVideoId: 'c2tOp7OxyQ8',
   },
   {
-    slug: generateSlug('Dan Buettner How to Live to Be 100+'),
+    slug: generateSlug("Dan Buettner How to Live to Be 100+"),
     title: 'How to Live to Be 100+',
     speakerName: 'Dan Buettner',
     tedUrl: 'https://www.ted.com/talks/dan_buettner_how_to_live_to_be_100',
@@ -199,7 +199,7 @@ export const talksSeedData = [
     youtubeVideoId: 'ff40YiMmVkU',
   },
   {
-    slug: generateSlug('Bill Gates The Next Outbreak? We're Not Ready'),
+    slug: generateSlug("Bill Gates The Next Outbreak? We're Not Ready"),
     title: 'The Next Outbreak? We\'re Not Ready',
     speakerName: 'Bill Gates',
     tedUrl: 'https://www.ted.com/talks/bill_gates_the_next_outbreak_we_re_not_ready',
@@ -212,7 +212,7 @@ export const talksSeedData = [
     youtubeVideoId: '6Af6b_wyiwI',
   },
   {
-    slug: generateSlug('Jason Fried Why Work Doesn't Happen at Work'),
+    slug: generateSlug("Jason Fried Why Work Doesn't Happen at Work"),
     title: 'Why Work Doesn\'t Happen at Work',
     speakerName: 'Jason Fried',
     tedUrl: 'https://www.ted.com/talks/jason_fried_why_work_doesn_t_happen_at_work',
@@ -225,7 +225,7 @@ export const talksSeedData = [
     youtubeVideoId: '5XD2kNopsUs',
   },
   {
-    slug: generateSlug('Emilie Wapnick Why Some of Us Don't Have One True Calling'),
+    slug: generateSlug("Emilie Wapnick Why Some of Us Don't Have One True Calling"),
     title: 'Why Some of Us Don\'t Have One True Calling',
     speakerName: 'Emilie Wapnick',
     tedUrl: 'https://www.ted.com/talks/emilie_wapnick_why_some_of_us_don_t_have_one_true_calling',
@@ -238,7 +238,7 @@ export const talksSeedData = [
     youtubeVideoId: '4sZdcB6bjI8',
   },
   {
-    slug: generateSlug('Jia Jiang What I Learned from 100 Days of Rejection'),
+    slug: generateSlug("Jia Jiang What I Learned from 100 Days of Rejection"),
     title: 'What I Learned from 100 Days of Rejection',
     speakerName: 'Jia Jiang',
     tedUrl: 'https://www.ted.com/talks/jia_jiang_what_i_learned_from_100_days_of_rejection',
@@ -251,7 +251,7 @@ export const talksSeedData = [
     youtubeVideoId: '-vZXgApsPCQ',
   },
   {
-    slug: generateSlug('Sheryl Sandberg Why We Have Too Few Women Leaders'),
+    slug: generateSlug("Sheryl Sandberg Why We Have Too Few Women Leaders"),
     title: 'Why We Have Too Few Women Leaders',
     speakerName: 'Sheryl Sandberg',
     tedUrl: 'https://www.ted.com/talks/sheryl_sandberg_why_we_have_too_few_women_leaders',
@@ -264,7 +264,7 @@ export const talksSeedData = [
     youtubeVideoId: '18uDutylDa4',
   },
   {
-    slug: generateSlug('Simon Sinek How Great Leaders Inspire Action'),
+    slug: generateSlug("Simon Sinek How Great Leaders Inspire Action"),
     title: 'How Great Leaders Inspire Action',
     speakerName: 'Simon Sinek',
     tedUrl: 'https://www.ted.com/talks/simon_sinek_how_great_leaders_inspire_action',
@@ -277,7 +277,7 @@ export const talksSeedData = [
     youtubeVideoId: 'qp0HIF3SfI4',
   },
   {
-    slug: generateSlug('Beau Lotto Optical Illusions Show How We See'),
+    slug: generateSlug("Beau Lotto Optical Illusions Show How We See"),
     title: 'Optical Illusions Show How We See',
     speakerName: 'Beau Lotto',
     tedUrl: 'https://www.ted.com/talks/beau_lotto_optical_illusions_show_how_we_see',
@@ -290,7 +290,7 @@ export const talksSeedData = [
     youtubeVideoId: 'mf5otGNbkuc',
   },
   {
-    slug: generateSlug('Mel Robbins How to Stop Screwing Yourself Over'),
+    slug: generateSlug("Mel Robbins How to Stop Screwing Yourself Over"),
     title: 'How to Stop Screwing Yourself Over',
     speakerName: 'Mel Robbins',
     tedUrl: 'https://youtu.be/ppfONdsOkWI',
@@ -303,7 +303,7 @@ export const talksSeedData = [
     youtubeVideoId: 'ppfONdsOkWI',
   },
   {
-    slug: generateSlug('Gretchen Rubin The Four Ways to Successfully Change Behavior'),
+    slug: generateSlug("Gretchen Rubin The Four Ways to Successfully Change Behavior"),
     title: 'The Four Ways to Successfully Change Behavior',
     speakerName: 'Gretchen Rubin',
     tedUrl: 'https://www.youtube.com/watch?v=H14bBuluwB8',
@@ -316,7 +316,7 @@ export const talksSeedData = [
     youtubeVideoId: 'H14bBuluwB8',
   },
   {
-    slug: generateSlug('Elizabeth Gilbert Your Elusive Creative Genius'),
+    slug: generateSlug("Elizabeth Gilbert Your Elusive Creative Genius"),
     title: 'Your Elusive Creative Genius',
     speakerName: 'Elizabeth Gilbert',
     tedUrl: 'https://www.ted.com/talks/elizabeth_gilbert_your_elusive_creative_genius',
@@ -329,7 +329,7 @@ export const talksSeedData = [
     youtubeVideoId: '86x-u-tz0MA',
   },
   {
-    slug: generateSlug('Kelly McGonigal How to Make Stress Your Friend'),
+    slug: generateSlug("Kelly McGonigal How to Make Stress Your Friend"),
     title: 'How to Make Stress Your Friend',
     speakerName: 'Kelly McGonigal',
     tedUrl: 'https://www.ted.com/talks/kelly_mcgonigal_how_to_make_stress_your_friend',
@@ -342,7 +342,7 @@ export const talksSeedData = [
     youtubeVideoId: 'RcGyVTAoXEU',
   },
   {
-    slug: generateSlug('Hannah Fry The Mathematics of Love'),
+    slug: generateSlug("Hannah Fry The Mathematics of Love"),
     title: 'The Mathematics of Love',
     speakerName: 'Hannah Fry',
     tedUrl: 'https://www.ted.com/talks/hannah_fry_the_mathematics_of_love',
@@ -355,7 +355,7 @@ export const talksSeedData = [
     youtubeVideoId: 'yFVXsjVdvmY',
   },
   {
-    slug: generateSlug('Derek Sivers How to Start a Movement'),
+    slug: generateSlug("Derek Sivers How to Start a Movement"),
     title: 'How to Start a Movement',
     speakerName: 'Derek Sivers',
     tedUrl: 'https://www.ted.com/talks/derek_sivers_how_to_start_a_movement',
@@ -368,7 +368,7 @@ export const talksSeedData = [
     youtubeVideoId: 'V74AxCqOTvg',
   },
   {
-    slug: generateSlug('Tim Ferriss Why You Should Define Your Fears Instead of Your Goals'),
+    slug: generateSlug("Tim Ferriss Why You Should Define Your Fears Instead of Your Goals"),
     title: 'Why You Should Define Your Fears Instead of Your Goals',
     speakerName: 'Tim Ferriss',
     tedUrl: 'https://www.ted.com/talks/tim_ferriss_why_you_should_define_your_fears_instead_of_your_goals',
@@ -381,7 +381,7 @@ export const talksSeedData = [
     youtubeVideoId: '5J6jAC6XxAI',
   },
   {
-    slug: generateSlug('Dan Pink The Puzzle of Motivation'),
+    slug: generateSlug("Dan Pink The Puzzle of Motivation"),
     title: 'The Puzzle of Motivation',
     speakerName: 'Dan Pink',
     tedUrl: 'https://www.ted.com/talks/dan_pink_the_puzzle_of_motivation',
@@ -394,7 +394,7 @@ export const talksSeedData = [
     youtubeVideoId: 'rrkrvAUbU9Y',
   },
   {
-    slug: generateSlug('Adam Galinsky How to Speak Up for Yourself'),
+    slug: generateSlug("Adam Galinsky How to Speak Up for Yourself"),
     title: 'How to Speak Up for Yourself',
     speakerName: 'Adam Galinsky',
     tedUrl: 'https://www.ted.com/talks/adam_galinsky_how_to_speak_up_for_yourself',
@@ -407,7 +407,7 @@ export const talksSeedData = [
     youtubeVideoId: 'MEDgtjpycYg',
   },
   {
-    slug: generateSlug('Celeste Headlee 10 Ways to Have a Better Conversation'),
+    slug: generateSlug("Celeste Headlee 10 Ways to Have a Better Conversation"),
     title: '10 Ways to Have a Better Conversation',
     speakerName: 'Celeste Headlee',
     tedUrl: 'https://www.ted.com/talks/celeste_headlee_10_ways_to_have_a_better_conversation',
@@ -420,7 +420,7 @@ export const talksSeedData = [
     youtubeVideoId: 'R1vskiVDwl4',
   },
   {
-    slug: generateSlug('Ruth Chang How to Make Hard Choices'),
+    slug: generateSlug("Ruth Chang How to Make Hard Choices"),
     title: 'How to Make Hard Choices',
     speakerName: 'Ruth Chang',
     tedUrl: 'https://www.ted.com/talks/ruth_chang_how_to_make_hard_choices',
@@ -433,7 +433,7 @@ export const talksSeedData = [
     youtubeVideoId: '8GQZuzIdeQQ',
   },
   {
-    slug: generateSlug('Esther Perel Rethinking Infidelity: A Talk for Anyone Who Has Ever Loved'),
+    slug: generateSlug("Esther Perel Rethinking Infidelity: A Talk for Anyone Who Has Ever Loved"),
     title: 'Rethinking Infidelity: A Talk for Anyone Who Has Ever Loved',
     speakerName: 'Esther Perel',
     tedUrl: 'https://www.ted.com/talks/esther_perel_rethinking_infidelity_a_talk_for_anyone_who_has_ever_loved',
@@ -446,7 +446,7 @@ export const talksSeedData = [
     youtubeVideoId: 'P2AUat93a8Q',
   },
   {
-    slug: generateSlug('Andy Puddicombe All It Takes is 10 Mindful Minutes'),
+    slug: generateSlug("Andy Puddicombe All It Takes is 10 Mindful Minutes"),
     title: 'All It Takes is 10 Mindful Minutes',
     speakerName: 'Andy Puddicombe',
     tedUrl: 'https://www.ted.com/talks/andy_puddicombe_all_it_takes_is_10_mindful_minutes',
@@ -459,7 +459,7 @@ export const talksSeedData = [
     youtubeVideoId: 'qzR62JJCMBQ',
   },
   {
-    slug: generateSlug('Margaret Heffernan The Dangers of 'Willful Blindness''),
+    slug: generateSlug("Margaret Heffernan The Dangers of 'Willful Blindness'"),
     title: 'The Dangers of \'Willful Blindness\'',
     speakerName: 'Margaret Heffernan',
     tedUrl: 'https://www.ted.com/talks/margaret_heffernan_the_dangers_of_willful_blindness',
@@ -472,7 +472,7 @@ export const talksSeedData = [
     youtubeVideoId: 'Kn5JRgz3W0o',
   },
   {
-    slug: generateSlug('David Steindl-Rast Want to Be Happy? Be Grateful'),
+    slug: generateSlug("David Steindl-Rast Want to Be Happy? Be Grateful"),
     title: 'Want to Be Happy? Be Grateful',
     speakerName: 'David Steindl-Rast',
     tedUrl: 'https://www.ted.com/talks/david_steindl_rast_want_to_be_happy_be_grateful',
@@ -485,7 +485,7 @@ export const talksSeedData = [
     youtubeVideoId: 'YyBk55G7Keo',
   },
   {
-    slug: generateSlug('Esther Perel The Secret to Desire in a Long-Term Relationship'),
+    slug: generateSlug("Esther Perel The Secret to Desire in a Long-Term Relationship"),
     title: 'The Secret to Desire in a Long-Term Relationship',
     speakerName: 'Esther Perel',
     tedUrl: 'https://www.ted.com/talks/esther_perel_the_secret_to_desire_in_a_long_term_relationship',
@@ -498,7 +498,7 @@ export const talksSeedData = [
     youtubeVideoId: 'sa0RUmGTCYY',
   },
   {
-    slug: generateSlug('Dan Gilbert The Surprising Science of Happiness'),
+    slug: generateSlug("Dan Gilbert The Surprising Science of Happiness"),
     title: 'The Surprising Science of Happiness',
     speakerName: 'Dan Gilbert',
     tedUrl: 'https://www.ted.com/talks/dan_gilbert_the_surprising_science_of_happiness',
@@ -511,7 +511,7 @@ export const talksSeedData = [
     youtubeVideoId: '4q1dgn_C0AU',
   },
   {
-    slug: generateSlug('Eliza Lay Ryan Sparking Curiosity, Connection, and Creativity'),
+    slug: generateSlug("Eliza Lay Ryan Sparking Curiosity, Connection, and Creativity"),
     title: 'Sparking Curiosity, Connection, and Creativity',
     speakerName: 'Eliza Lay Ryan',
     tedUrl: 'https://www.ted.com/talks/eliza_lay_ryan_sparking_curiosity_connection_and_creativity',
@@ -524,7 +524,7 @@ export const talksSeedData = [
     youtubeVideoId: 't9WM42gBRlc',
   },
   {
-    slug: generateSlug('Steve Jobs How to Live Before You Die'),
+    slug: generateSlug("Steve Jobs How to Live Before You Die"),
     title: 'How to Live Before You Die',
     speakerName: 'Steve Jobs',
     tedUrl: 'https://www.ted.com/talks/steve_jobs_how_to_live_before_you_die',
@@ -537,7 +537,7 @@ export const talksSeedData = [
     youtubeVideoId: null,
   },
   {
-    slug: generateSlug('Gary Lewandowski The Psychology of Betrayal and Recovery'),
+    slug: generateSlug("Gary Lewandowski The Psychology of Betrayal and Recovery"),
     title: 'The Psychology of Betrayal and Recovery',
     speakerName: 'Gary Lewandowski',
     tedUrl: 'https://www.youtube.com/watch?v=Cw2qD87KDHc',
@@ -550,7 +550,7 @@ export const talksSeedData = [
     youtubeVideoId: 'Cw2qD87KDHc',
   },
   {
-    slug: generateSlug('Daniel Goleman Why Aren't We More Compassionate?'),
+    slug: generateSlug("Daniel Goleman Why Aren't We More Compassionate?"),
     title: 'Why Aren\'t We More Compassionate?',
     speakerName: 'Daniel Goleman',
     tedUrl: 'https://www.ted.com/talks/daniel_goleman_why_aren_t_we_more_compassionate',
@@ -563,7 +563,7 @@ export const talksSeedData = [
     youtubeVideoId: 'r3wyCxHtGd0',
   },
   {
-    slug: generateSlug('Ingrid Fetell Lee Where Joy Hides and How to Find It'),
+    slug: generateSlug("Ingrid Fetell Lee Where Joy Hides and How to Find It"),
     title: 'Where Joy Hides and How to Find It',
     speakerName: 'Ingrid Fetell Lee',
     tedUrl: 'https://www.ted.com/talks/ingrid_fetell_lee_where_joy_hides_and_how_to_find_it',
@@ -576,7 +576,7 @@ export const talksSeedData = [
     youtubeVideoId: 'A_u2WFTfbcg',
   },
   {
-    slug: generateSlug('Rose Cain Ignite Your Curiosity'),
+    slug: generateSlug("Rose Cain Ignite Your Curiosity"),
     title: 'Ignite Your Curiosity',
     speakerName: 'Rose Cain',
     tedUrl: 'https://www.ted.com/talks/rose_cain_ignite_your_curiosity',
@@ -589,7 +589,7 @@ export const talksSeedData = [
     youtubeVideoId: 'E9HZyIT6Z-4',
   },
   {
-    slug: generateSlug('Robert Waldinger What Makes a Good Life? Lessons from the Longest Study on Happiness'),
+    slug: generateSlug("Robert Waldinger What Makes a Good Life? Lessons from the Longest Study on Happiness"),
     title: 'What Makes a Good Life? Lessons from the Longest Study on Happiness',
     speakerName: 'Robert Waldinger',
     tedUrl: 'https://www.youtube.com/watch?v=HSercnrqeN4',
@@ -602,7 +602,7 @@ export const talksSeedData = [
     youtubeVideoId: 'HSercnrqeN4',
   },
   {
-    slug: generateSlug('Gever Tulley 5 Dangerous Things You Should Let Your Kids Do'),
+    slug: generateSlug("Gever Tulley 5 Dangerous Things You Should Let Your Kids Do"),
     title: '5 Dangerous Things You Should Let Your Kids Do',
     speakerName: 'Gever Tulley',
     tedUrl: 'https://www.youtube.com/watch?v=eIho2S0ZahI',
@@ -615,7 +615,7 @@ export const talksSeedData = [
     youtubeVideoId: 'eIho2S0ZahI',
   },
   {
-    slug: generateSlug('David Blaine How I Held My Breath for 17 Minutes'),
+    slug: generateSlug("David Blaine How I Held My Breath for 17 Minutes"),
     title: 'How I Held My Breath for 17 Minutes',
     speakerName: 'David Blaine',
     tedUrl: 'https://www.ted.com/talks/david_blaine_how_i_held_my_breath_for_17_minutes',
@@ -628,7 +628,7 @@ export const talksSeedData = [
     youtubeVideoId: 'XFnGhrC_3Gs',
   },
   {
-    slug: generateSlug('Angela Lee Duckworth Grit: The Power of Passion and Perseverance'),
+    slug: generateSlug("Angela Lee Duckworth Grit: The Power of Passion and Perseverance"),
     title: 'Grit: The Power of Passion and Perseverance',
     speakerName: 'Angela Lee Duckworth',
     tedUrl: 'https://www.ted.com/talks/angela_lee_duckworth_grit_the_power_of_passion_and_perseverance',
@@ -641,7 +641,7 @@ export const talksSeedData = [
     youtubeVideoId: 'H14bBuluwB8',
   },
   {
-    slug: generateSlug('Brené Brown Listening to Shame'),
+    slug: generateSlug("Brené Brown Listening to Shame"),
     title: 'Listening to Shame',
     speakerName: 'Brené Brown',
     tedUrl: 'https://www.ted.com/talks/brene_brown_listening_to_shame',
@@ -654,7 +654,7 @@ export const talksSeedData = [
     youtubeVideoId: 'psN1DORYYV0',
   },
   {
-    slug: generateSlug('Shawn Achor The Happy Secret to Better Work'),
+    slug: generateSlug("Shawn Achor The Happy Secret to Better Work"),
     title: 'The Happy Secret to Better Work',
     speakerName: 'Shawn Achor',
     tedUrl: 'https://www.ted.com/talks/shawn_achor_the_happy_secret_to_better_work',
@@ -667,7 +667,7 @@ export const talksSeedData = [
     youtubeVideoId: 'fLJsdqxnZb0',
   },
   {
-    slug: generateSlug('Carla Harris How to Find the Person Who Can Help You Get Ahead at Work'),
+    slug: generateSlug("Carla Harris How to Find the Person Who Can Help You Get Ahead at Work"),
     title: 'How to Find the Person Who Can Help You Get Ahead at Work',
     speakerName: 'Carla Harris',
     tedUrl: 'https://www.ted.com/talks/carla_harris_how_to_find_the_person_who_can_help_you_get_ahead_at_work',
@@ -680,7 +680,7 @@ export const talksSeedData = [
     youtubeVideoId: 'gpE_W50OTUc',
   },
   {
-    slug: generateSlug('Pamela Meyer How to Spot a Liar'),
+    slug: generateSlug("Pamela Meyer How to Spot a Liar"),
     title: 'How to Spot a Liar',
     speakerName: 'Pamela Meyer',
     tedUrl: 'https://www.ted.com/talks/pamela_meyer_how_to_spot_a_liar',
@@ -693,7 +693,7 @@ export const talksSeedData = [
     youtubeVideoId: 'P_6vDLq64gE',
   },
   {
-    slug: generateSlug('Steven Johnson Where Good Ideas Come From'),
+    slug: generateSlug("Steven Johnson Where Good Ideas Come From"),
     title: 'Where Good Ideas Come From',
     speakerName: 'Steven Johnson',
     tedUrl: 'https://www.ted.com/talks/steven_johnson_where_good_ideas_come_from',
@@ -706,7 +706,7 @@ export const talksSeedData = [
     youtubeVideoId: '0af00UcTO-c',
   },
   {
-    slug: generateSlug('Tim Urban Inside the Mind of a Master Procrastinator'),
+    slug: generateSlug("Tim Urban Inside the Mind of a Master Procrastinator"),
     title: 'Inside the Mind of a Master Procrastinator',
     speakerName: 'Tim Urban',
     tedUrl: 'https://www.ted.com/talks/tim_urban_inside_the_mind_of_a_master_procrastinator',
@@ -719,7 +719,7 @@ export const talksSeedData = [
     youtubeVideoId: 'arj7oStGLkU',
   },
   {
-    slug: generateSlug('Casey Brown Know Your Worth, and Then Ask for It'),
+    slug: generateSlug("Casey Brown Know Your Worth, and Then Ask for It"),
     title: 'Know Your Worth, and Then Ask for It',
     speakerName: 'Casey Brown',
     tedUrl: 'https://www.youtube.com/watch?v=DjcZrtcBZi4',
@@ -732,7 +732,7 @@ export const talksSeedData = [
     youtubeVideoId: 'DjcZrtcBZi4',
   },
   {
-    slug: generateSlug('Sam Harris Can We Build AI Without Losing Control Over It?'),
+    slug: generateSlug("Sam Harris Can We Build AI Without Losing Control Over It?"),
     title: 'Can We Build AI Without Losing Control Over It?',
     speakerName: 'Sam Harris',
     tedUrl: 'https://www.ted.com/talks/sam_harris_can_we_build_ai_without_losing_control_over_it',
@@ -745,7 +745,7 @@ export const talksSeedData = [
     youtubeVideoId: '8nt3edWLgIg',
   },
   {
-    slug: generateSlug('Charlie Mackesy Abandon The Idea Of Being Good And Just Try'),
+    slug: generateSlug("Charlie Mackesy Abandon The Idea Of Being Good And Just Try"),
     title: 'Abandon The Idea Of Being Good And Just Try',
     speakerName: 'Charlie Mackesy',
     tedUrl: 'https://www.youtube.com/watch?v=cRC0Kvrn93Q',
@@ -758,7 +758,7 @@ export const talksSeedData = [
     youtubeVideoId: 'cRC0Kvrn93Q',
   },
   {
-    slug: generateSlug('Amy Gutmann What It Means to Be a Global Citizen'),
+    slug: generateSlug("Amy Gutmann What It Means to Be a Global Citizen"),
     title: 'What It Means to Be a Global Citizen',
     speakerName: 'Amy Gutmann',
     tedUrl: 'https://youtu.be/ZwGEQcFo9RE',
@@ -771,7 +771,7 @@ export const talksSeedData = [
     youtubeVideoId: 'ZwGEQcFo9RE',
   },
   {
-    slug: generateSlug('Megan Phelps-Roper I Grew Up in the Westboro Baptist Church. Here's Why I Left'),
+    slug: generateSlug("Megan Phelps-Roper I Grew Up in the Westboro Baptist Church. Here's Why I Left"),
     title: 'I Grew Up in the Westboro Baptist Church. Here\'s Why I Left',
     speakerName: 'Megan Phelps-Roper',
     tedUrl: 'https://www.ted.com/talks/megan_phelps_roper_i_grew_up_in_the_westboro_baptist_church_here_s_why_i_left',
@@ -784,7 +784,7 @@ export const talksSeedData = [
     youtubeVideoId: 'bVV2Zk88beY',
   },
   {
-    slug: generateSlug('Michael Norton How to Buy Happiness'),
+    slug: generateSlug("Michael Norton How to Buy Happiness"),
     title: 'How to Buy Happiness',
     speakerName: 'Michael Norton',
     tedUrl: 'https://www.ted.com/talks/michael_norton_how_to_buy_happiness',
@@ -797,7 +797,7 @@ export const talksSeedData = [
     youtubeVideoId: 'PsihkFWDt3Y',
   },
   {
-    slug: generateSlug('Tom Wujec Build a Tower, Build a Team'),
+    slug: generateSlug("Tom Wujec Build a Tower, Build a Team"),
     title: 'Build a Tower, Build a Team',
     speakerName: 'Tom Wujec',
     tedUrl: 'https://www.ted.com/talks/tom_wujec_build_a_tower_build_a_team',
@@ -810,7 +810,7 @@ export const talksSeedData = [
     youtubeVideoId: 'H0_yKBitO8M',
   },
   {
-    slug: generateSlug('Mandy Len Catron A Better Way to Talk About Love'),
+    slug: generateSlug("Mandy Len Catron A Better Way to Talk About Love"),
     title: 'A Better Way to Talk About Love',
     speakerName: 'Mandy Len Catron',
     tedUrl: 'https://www.ted.com/talks/mandy_len_catron_a_better_way_to_talk_about_love',
@@ -823,7 +823,7 @@ export const talksSeedData = [
     youtubeVideoId: 'zMWYQRKuc5M',
   },
   {
-    slug: generateSlug('Al Vernacchio Sex Needs a New Metaphor. Here's One'),
+    slug: generateSlug("Al Vernacchio Sex Needs a New Metaphor. Here's One"),
     title: 'Sex Needs a New Metaphor. Here\'s One',
     speakerName: 'Al Vernacchio',
     tedUrl: 'https://www.ted.com/talks/al_vernacchio_sex_needs_a_new_metaphor_here_s_one',
@@ -836,7 +836,7 @@ export const talksSeedData = [
     youtubeVideoId: 'xF-CX9mAHPo',
   },
   {
-    slug: generateSlug('David Allen The Art of Stress-Free Productivity'),
+    slug: generateSlug("David Allen The Art of Stress-Free Productivity"),
     title: 'The Art of Stress-Free Productivity',
     speakerName: 'David Allen',
     tedUrl: 'https://www.ted.com/talks/david_allen_the_art_of_stress_free_productivity',
@@ -849,7 +849,7 @@ export const talksSeedData = [
     youtubeVideoId: 'CHxhjDPKfbY',
   },
   {
-    slug: generateSlug('Nora McInerny We Don't Move On from Grief. We Move Forward with It'),
+    slug: generateSlug("Nora McInerny We Don't Move On from Grief. We Move Forward with It"),
     title: 'We Don\'t Move On from Grief. We Move Forward with It',
     speakerName: 'Nora McInerny',
     tedUrl: 'https://www.ted.com/talks/nora_mcinerny_we_don_t_move_on_from_grief_we_move_forward_with_it',
@@ -862,7 +862,7 @@ export const talksSeedData = [
     youtubeVideoId: 'khkJkR-ipfw',
   },
   {
-    slug: generateSlug('Adam Grant The Surprising Habits of Original Thinkers'),
+    slug: generateSlug("Adam Grant The Surprising Habits of Original Thinkers"),
     title: 'The Surprising Habits of Original Thinkers',
     speakerName: 'Adam Grant',
     tedUrl: 'https://www.ted.com/talks/adam_grant_the_surprising_habits_of_original_thinkers',
@@ -875,7 +875,7 @@ export const talksSeedData = [
     youtubeVideoId: 'fxbCHn6gE3U',
   },
   {
-    slug: generateSlug('Priya Parker 3 Steps to Turn Everyday Get-Togethers Into Transformative Gatherings'),
+    slug: generateSlug("Priya Parker 3 Steps to Turn Everyday Get-Togethers Into Transformative Gatherings"),
     title: '3 Steps to Turn Everyday Get-Togethers Into Transformative Gatherings',
     speakerName: 'Priya Parker',
     tedUrl: 'https://www.ted.com/talks/priya_parker_3_steps_to_turn_everyday_get_togethers_into_transformative_gatherings',
@@ -888,7 +888,7 @@ export const talksSeedData = [
     youtubeVideoId: 'c0KYU2j0TM4',
   },
   {
-    slug: generateSlug('Peter Singer The Why and How of Effective Altruism'),
+    slug: generateSlug("Peter Singer The Why and How of Effective Altruism"),
     title: 'The Why and How of Effective Altruism',
     speakerName: 'Peter Singer',
     tedUrl: 'https://www.ted.com/talks/peter_singer_the_why_and_how_of_effective_altruism',
@@ -901,7 +901,7 @@ export const talksSeedData = [
     youtubeVideoId: 'Diuv3XZQXyc',
   },
   {
-    slug: generateSlug('Paul Piff Does Money Make You Mean?'),
+    slug: generateSlug("Paul Piff Does Money Make You Mean?"),
     title: 'Does Money Make You Mean?',
     speakerName: 'Paul Piff',
     tedUrl: 'https://www.ted.com/talks/paul_piff_does_money_make_you_mean',
@@ -914,7 +914,7 @@ export const talksSeedData = [
     youtubeVideoId: 'bJ8Kq1wucsk',
   },
   {
-    slug: generateSlug('Bill Gross The Single Biggest Reason Why Startups Succeed'),
+    slug: generateSlug("Bill Gross The Single Biggest Reason Why Startups Succeed"),
     title: 'The Single Biggest Reason Why Startups Succeed',
     speakerName: 'Bill Gross',
     tedUrl: 'https://www.ted.com/talks/bill_gross_the_single_biggest_reason_why_startups_succeed',
@@ -927,7 +927,7 @@ export const talksSeedData = [
     youtubeVideoId: 'bNpx7gpSqbY',
   },
   {
-    slug: generateSlug('Carol Dweck The Power of Believing That You Can Improve'),
+    slug: generateSlug("Carol Dweck The Power of Believing That You Can Improve"),
     title: 'The Power of Believing That You Can Improve',
     speakerName: 'Carol Dweck',
     tedUrl: 'https://www.ted.com/talks/carol_dweck_the_power_of_believing_that_you_can_improve',
@@ -940,7 +940,7 @@ export const talksSeedData = [
     youtubeVideoId: '_X0mgOOSpLU',
   },
   {
-    slug: generateSlug('Chip Conley What Baby Boomers Can Learn from Millennials at Work -- and Vice Versa'),
+    slug: generateSlug("Chip Conley What Baby Boomers Can Learn from Millennials at Work -- and Vice Versa"),
     title: 'What Baby Boomers Can Learn from Millennials at Work -- and Vice Versa',
     speakerName: 'Chip Conley',
     tedUrl: 'https://www.ted.com/talks/chip_conley_what_baby_boomers_can_learn_from_millennials_at_work_and_vice_versa',
@@ -953,7 +953,7 @@ export const talksSeedData = [
     youtubeVideoId: '7p1nCRQCiUM',
   },
   {
-    slug: generateSlug('Laura Vanderkam How to Gain Control of Your Free Time'),
+    slug: generateSlug("Laura Vanderkam How to Gain Control of Your Free Time"),
     title: 'How to Gain Control of Your Free Time',
     speakerName: 'Laura Vanderkam',
     tedUrl: 'https://youtu.be/gmj-azFbpkA',
@@ -966,7 +966,7 @@ export const talksSeedData = [
     youtubeVideoId: 'gmj-azFbpkA',
   },
   {
-    slug: generateSlug('Ray Dalio How to Build a Company Where the Best Ideas Win'),
+    slug: generateSlug("Ray Dalio How to Build a Company Where the Best Ideas Win"),
     title: 'How to Build a Company Where the Best Ideas Win',
     speakerName: 'Ray Dalio',
     tedUrl: 'https://www.ted.com/talks/ray_dalio_how_to_build_a_company_where_the_best_ideas_win',
@@ -979,7 +979,7 @@ export const talksSeedData = [
     youtubeVideoId: 'HXbsVbFAczg',
   },
   {
-    slug: generateSlug('Shonda Rhimes My Year of Saying Yes to Everything'),
+    slug: generateSlug("Shonda Rhimes My Year of Saying Yes to Everything"),
     title: 'My Year of Saying Yes to Everything',
     speakerName: 'Shonda Rhimes',
     tedUrl: 'https://www.ted.com/talks/shonda_rhimes_my_year_of_saying_yes_to_everything',

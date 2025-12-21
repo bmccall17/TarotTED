@@ -1,0 +1,15 @@
+Failed to compile.
+./app/admin/login/page.tsx:40:15
+Type error: Type '(formData: FormData) => Promise<{ error: string; }>' is not assignable to type 'string | ((formData: FormData) => void | Promise<void>) | undefined'.
+  Type '(formData: FormData) => Promise<{ error: string; }>' is not assignable to type '(formData: FormData) => void | Promise<void>'.
+    Type 'Promise<{ error: string; }>' is not assignable to type 'void | Promise<void>'.
+      Type 'Promise<{ error: string; }>' is not assignable to type 'Promise<void>'.
+        Type '{ error: string; }' is not assignable to type 'void'.
+  38 |         <h1 className="text-2xl font-bold text-gray-100 mb-6">Admin Login</h1>
+  39 |
+> 40 |         <form action={login}>
+     |               ^
+  41 |           <div className="mb-6">
+  42 |             <label htmlFor="token" className="block text-sm font-medium text-gray-300 mb-2">
+  43 |               Access Token
+Next.js build worker exited with code: 1 and signal: null

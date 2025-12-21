@@ -41,6 +41,7 @@ async function addYoutubeVideoIdField() {
     let skipped = 0;
 
     for (const talk of allTalks) {
+      if (!talk.tedUrl) continue;
       const videoId = extractVideoId(talk.tedUrl);
 
       if (videoId) {

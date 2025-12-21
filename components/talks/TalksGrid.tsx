@@ -19,7 +19,8 @@ interface Talk {
   slug: string;
   title: string;
   speakerName: string;
-  tedUrl: string;
+  tedUrl: string | null;
+  youtubeUrl?: string | null;
   durationSeconds: number | null;
   year: number | null;
   thumbnailUrl: string | null;
@@ -106,7 +107,7 @@ export function TalksGrid({ talks }: TalksGridProps) {
               <div className="flex gap-4 items-center">
                 {/* Clickable Thumbnail - Opens video */}
                 <a
-                  href={talk.tedUrl}
+                  href={talk.tedUrl || talk.youtubeUrl || '#'}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}

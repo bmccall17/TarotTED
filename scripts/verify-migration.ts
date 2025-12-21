@@ -11,7 +11,7 @@ async function verifyMigration() {
       FROM information_schema.columns
       WHERE table_name = 'talks'
       ORDER BY ordinal_position
-    `);
+    `) as any;
 
     console.log('Columns in talks table:');
     const rows = Array.isArray(result) ? result : result?.rows || [];
@@ -25,7 +25,7 @@ async function verifyMigration() {
       SELECT conname, contype, pg_get_constraintdef(oid) as definition
       FROM pg_constraint
       WHERE conrelid = 'talks'::regclass
-    `);
+    `) as any;
 
     console.log('Constraints on talks table:');
     const constraintRows = Array.isArray(constraints) ? constraints : constraints?.rows || [];
@@ -39,7 +39,7 @@ async function verifyMigration() {
       SELECT indexname, indexdef
       FROM pg_indexes
       WHERE tablename = 'card_talk_mappings'
-    `);
+    `) as any;
 
     console.log('Indexes on card_talk_mappings table:');
     const indexRows = Array.isArray(indexes) ? indexes : indexes?.rows || [];

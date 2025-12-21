@@ -86,8 +86,8 @@ async function updateTalkMetadata() {
     console.log(`\n📹 "${talk.title}" by ${talk.speakerName}`);
 
     // Only fetch from ted.com URLs (not YouTube)
-    if (!talk.tedUrl.includes('ted.com')) {
-      console.log(`  ⏭️  Skipping (YouTube URL)`);
+    if (!talk.tedUrl || !talk.tedUrl.includes('ted.com')) {
+      console.log(`  ⏭️  Skipping (no TED URL or YouTube URL)`);
       skipped++;
       continue;
     }

@@ -77,7 +77,7 @@ async function completeMigration() {
       WHERE table_name = 'talks'
       AND column_name IN ('youtube_url', 'is_deleted', 'deleted_at', 'ted_url')
       ORDER BY column_name
-    `);
+    `) as any;
 
     const columns = Array.isArray(columnsResult) ? columnsResult : columnsResult?.rows || [];
     console.log('New/Modified columns:');
@@ -90,7 +90,7 @@ async function completeMigration() {
       FROM pg_constraint
       WHERE conrelid = 'talks'::regclass
       AND conname = 'chk_at_least_one_url'
-    `);
+    `) as any;
     const constraints = Array.isArray(constraintsResult) ? constraintsResult : constraintsResult?.rows || [];
     if (constraints.length > 0) {
       console.log('\n  ✓ CHECK constraint: chk_at_least_one_url');
@@ -101,7 +101,7 @@ async function completeMigration() {
       FROM pg_indexes
       WHERE tablename = 'card_talk_mappings'
       AND indexname = 'idx_one_primary_per_card'
-    `);
+    `) as any;
     const indexes = Array.isArray(indexesResult) ? indexesResult : indexesResult?.rows || [];
     if (indexes.length > 0) {
       console.log('  ✓ Unique partial index: idx_one_primary_per_card');
