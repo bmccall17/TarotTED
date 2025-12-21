@@ -760,15 +760,15 @@ Returns: title, thumbnail_url (limited data)
 ## Success Criteria
 
 ### Phase 0 Complete:
-- [ ] Database backup created before migration
-- [ ] `youtubeUrl` column added and migrated
-- [ ] CHECK constraint for at least one URL added
-- [ ] Soft delete columns added (`isDeleted`, `deletedAt`)
-- [ ] Cascade delete verified for mappings
-- [ ] Primary mapping unique index created
-- [ ] ADMIN_TOKEN protection working
-- [ ] Login page excluded from protection
-- [ ] Cookie set with HttpOnly/Secure flags
+- [X] Database backup created before migration
+- [X] `youtubeUrl` column added and migrated
+- [X] CHECK constraint for at least one URL added
+- [X] Soft delete columns added (`isDeleted`, `deletedAt`)
+- [X] Cascade delete verified for mappings
+- [X] Primary mapping unique index created
+- [X] ADMIN_TOKEN protection working
+- [X] Login page excluded from protection
+- [X] Cookie set with HttpOnly/Secure flags
 
 ### Phase 1 Complete:
 - [ ] Admin portal accessible at `/admin`
