@@ -34,7 +34,8 @@ export const talks = pgTable('talks', {
   slug: varchar('slug', { length: 200 }).notNull().unique(),
   title: varchar('title', { length: 300 }).notNull(),
   speakerName: varchar('speaker_name', { length: 200 }).notNull(),
-  tedUrl: text('ted_url').notNull(),
+  tedUrl: text('ted_url'), // TED.com URL only, nullable if not on TED
+  youtubeUrl: text('youtube_url'), // Full YouTube URL, nullable
   youtubeVideoId: varchar('youtube_video_id', { length: 20 }), // For metadata fetching
   description: text('description'),
   durationSeconds: integer('duration_seconds'),
@@ -42,6 +43,8 @@ export const talks = pgTable('talks', {
   year: integer('year'),
   thumbnailUrl: text('thumbnail_url'),
   language: varchar('language', { length: 10 }),
+  isDeleted: boolean('is_deleted').default(false).notNull(),
+  deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
