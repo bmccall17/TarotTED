@@ -94,8 +94,24 @@ async function fetchYoutubeMetadata(
       { signal: AbortSignal.timeout(10000) } // 10 second timeout
     );
 
-    if (response.status === 403) {
-      return { error: 'YouTube API quota exceeded - try again tomorrow' };
+    // Handle auth errors with detailed messages from Google
+    if (response.status === 401 || response.status === 403) {
+      const errorData = await response.json().catch(() => null);
+      const googleError = errorData?.error?.message || errorData?.error?.errors?.[0]?.message;
+      const reason = errorData?.error?.errors?.[0]?.reason;
+
+      if (reason === 'quotaExceeded') {
+        return { error: 'YouTube API quota exceeded - try again tomorrow' };
+      }
+      if (reason === 'keyInvalid') {
+        return { error: 'YouTube API key is invalid - check Vercel environment variables' };
+      }
+      if (reason === 'ipRefererBlocked') {
+        return { error: 'API key has IP/referrer restrictions - remove restrictions in Google Cloud Console' };
+      }
+
+      // Return actual error from Google for debugging
+      return { error: `YouTube API: ${googleError || `Error ${response.status}`}` };
     }
     if (!response.ok) {
       return { error: `YouTube API error: ${response.status}` };
