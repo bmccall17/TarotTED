@@ -7,14 +7,6 @@ async function login(formData: FormData) {
   const token = formData.get('token') as string;
   const validToken = process.env.ADMIN_TOKEN;
 
-  // Debug logging
-  console.log('Login attempt:');
-  console.log('  Token received:', token?.substring(0, 10) + '...');
-  console.log('  Valid token:', validToken?.substring(0, 10) + '...');
-  console.log('  Token length:', token?.length);
-  console.log('  Valid token length:', validToken?.length);
-  console.log('  Tokens match:', token === validToken);
-
   if (token && validToken && token === validToken) {
     // Set secure cookie (fix for YELLOW FLAG #1)
     const cookieStore = await cookies();
