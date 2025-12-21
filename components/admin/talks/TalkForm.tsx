@@ -152,7 +152,7 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8">
+    <div className="max-w-7xl mx-auto p-8 pb-24">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-100">
           {mode === 'create' ? 'Create New Talk' : 'Edit Talk'}
