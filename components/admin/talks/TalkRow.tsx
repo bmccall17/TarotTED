@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Edit2, Trash2, RotateCcw, AlertTriangle, ExternalLink } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { HardDeleteDialog } from '../ui/HardDeleteDialog';
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
+  const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [showHardDeleteDialog, setShowHardDeleteDialog] = useState(false);
@@ -170,7 +172,7 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
             ) : (
               <>
                 <button
-                  onClick={() => {/* TODO: Open edit dialog */}}
+                  onClick={() => router.push(`/admin/talks/${talk.id}/edit`)}
                   className="p-2 text-indigo-400 hover:bg-indigo-900/20 rounded-lg transition-colors"
                   title="Edit talk"
                 >

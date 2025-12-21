@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Plus, Filter } from 'lucide-react';
 import { TalkRow } from './TalkRow';
 import { Toast } from '../ui/Toast';
@@ -19,6 +20,7 @@ type Talk = {
 };
 
 export function TalksList() {
+  const router = useRouter();
   const [talks, setTalks] = useState<Talk[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -106,7 +108,7 @@ export function TalksList() {
           </button>
 
           <button
-            onClick={() => {/* TODO: Open create dialog */}}
+            onClick={() => router.push('/admin/talks/new')}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />

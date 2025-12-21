@@ -1,0 +1,38 @@
+import { notFound } from 'next/navigation';
+import { getTalkByIdForAdmin } from '@/lib/db/queries/admin-talks';
+import { TalkForm } from '@/components/admin/talks/TalkForm';
+
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function EditTalkPage({ params }: Props) {
+  const { id } = await params;
+  const talk = await getTalkByIdForAdmin(id);
+
+  if (!talk) {
+    notFound();
+  }
+
+  return (
+    <TalkForm
+      mode="edit"
+      talkId={talk.id}
+      initialData={{
+        title: talk.title,
+        speakerName: talk.speakerName,
+        tedUrl: talk.tedUrl || '',
+        youtubeUrl: talk.youtubeUrl || '',
+        youtubeVideoId: talk.youtubeVideoId,
+        description: talk.description || '',
+        durationSeconds: talk.durationSeconds,
+        year: talk.year,
+        eventName: talk.eventName || '',
+        thumbnailUrl: talk.thumbnailUrl || '',
+        language: talk.language || 'en',
+      }}
+    />
+  );
+}
