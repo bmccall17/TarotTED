@@ -1,11 +1,12 @@
 import { db } from '../index';
 import { talks, cardTalkMappings, cards } from '../schema';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, or, isNull } from 'drizzle-orm';
 
 export async function getAllTalks() {
   const allTalks = await db
     .select()
     .from(talks)
+    .where(or(eq(talks.isDeleted, false), isNull(talks.isDeleted))) // Exclude soft-deleted talks
     .orderBy(desc(talks.year), talks.title);
 
   // For each talk, get its primary mapped card
@@ -37,6 +38,11 @@ export async function getTalkBySlug(slug: string) {
     .from(talks)
     .where(eq(talks.slug, slug))
     .limit(1);
+
+  // Don't return soft-deleted talks
+  if (talk?.isDeleted) {
+    return undefined;
+  }
 
   return talk;
 }
