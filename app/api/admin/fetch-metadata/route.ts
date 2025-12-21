@@ -200,7 +200,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { tedUrl, youtubeUrl } = body;
+    let { tedUrl, youtubeUrl } = body;
+
+    // Trim URLs and convert empty strings to null
+    tedUrl = tedUrl?.trim() || null;
+    youtubeUrl = youtubeUrl?.trim() || null;
 
     if (!tedUrl && !youtubeUrl) {
       return NextResponse.json(

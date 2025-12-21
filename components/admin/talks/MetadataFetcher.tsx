@@ -72,10 +72,24 @@ export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) 
 
       const data = await response.json();
       setFetchedData(data.merged);
-      setErrors(data.errors || {});
+
+      // Only set errors for APIs we actually tried to fetch from
+      const newErrors: { ted?: string; youtube?: string } = {};
+      if (tedUrl.trim() && data.errors?.ted) {
+        newErrors.ted = data.errors.ted;
+      }
+      if (youtubeUrl.trim() && data.errors?.youtube) {
+        newErrors.youtube = data.errors.youtube;
+      }
+      setErrors(newErrors);
     } catch (error) {
       console.error('Error fetching metadata:', error);
-      setErrors({ ted: error instanceof Error ? error.message : 'Unknown error' });
+      // General error - only show for the URL types we tried
+      const newErrors: { ted?: string; youtube?: string } = {};
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      if (tedUrl.trim()) newErrors.ted = errorMessage;
+      if (youtubeUrl.trim()) newErrors.youtube = errorMessage;
+      setErrors(newErrors);
     } finally {
       setLoading(false);
     }
