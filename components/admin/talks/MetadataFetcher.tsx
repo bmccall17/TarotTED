@@ -59,6 +59,7 @@ export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) 
       const response = await fetch('/api/admin/fetch-metadata', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for admin auth
         body: JSON.stringify({
           tedUrl: tedUrl.trim() || undefined,
           youtubeUrl: youtubeUrl.trim() || undefined,
