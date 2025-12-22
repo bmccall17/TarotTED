@@ -806,12 +806,12 @@ Returns: title, thumbnail_url (limited data)
 - [X] Shows unmapped cards and talks
 
 ### Phase 5 Complete:
-- [ ] Toast notifications working
-- [ ] Loading states on all actions
-- [ ] Hard delete confirmation functional
-- [ ] No console errors
-- [ ] Desktop-focused with tablet support
-- [ ] "Best on desktop" notice for mobile
+- [X] Toast notifications working
+- [X] Loading states on all actions
+- [X] Hard delete confirmation functional
+- [X] Keyboard shortcuts (Ctrl+S to save forms)
+- [X] Desktop-focused with tablet support
+- [X] "Best on desktop" notice for mobile
 
 ---
 

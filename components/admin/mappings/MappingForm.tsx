@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Save, X, Star } from 'lucide-react';
 import { TalkSelector } from './TalkSelector';
 
@@ -78,6 +78,22 @@ export function MappingForm({
     (m) => m.isPrimary && m.id !== editingMapping?.id
   );
 
+  // Form ref for programmatic submission
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Keyboard shortcut: Ctrl+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -115,7 +131,7 @@ export function MappingForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-100">
           {editingMapping ? 'Edit Mapping' : 'Add New Mapping'}

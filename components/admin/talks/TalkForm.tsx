@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, X } from 'lucide-react';
 import { UrlInputs } from './UrlInputs';
@@ -64,6 +64,22 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
     setFormData((prev) => ({ ...prev, ...metadata }));
     setToast({ message: 'Metadata applied successfully', type: 'success' });
   };
+
+  // Form ref for programmatic submission
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // Keyboard shortcut: Ctrl+S to save
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -167,7 +183,7 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Column */}
         <div className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             {/* URLs Section */}
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
               <h2 className="text-lg font-semibold text-gray-100 mb-4">URLs</h2>
