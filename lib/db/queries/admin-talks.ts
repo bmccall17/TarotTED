@@ -37,8 +37,8 @@ export async function getAllTalksForAdmin(includeDeleted: boolean = false) {
       // Count of mappings for this talk
       mappingsCount: sql<number>`(
         SELECT COUNT(*)::int
-        FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.talkId} = ${talks.id}
+        FROM card_talk_mappings
+        WHERE card_talk_mappings.talk_id = talks.id
       )`,
     })
     .from(talks)
@@ -52,35 +52,33 @@ export async function getAllTalksForAdmin(includeDeleted: boolean = false) {
  * Get a single talk by ID for admin (includes deleted)
  */
 export async function getTalkByIdForAdmin(id: string) {
-  const result = await db
-    .select({
-      talk: talks,
-      mappings: sql<any>`(
-        SELECT json_agg(
-          json_build_object(
-            'id', ${cardTalkMappings.id},
-            'cardId', ${cardTalkMappings.cardId},
-            'cardName', ${cards.name},
-            'cardSlug', ${cards.slug},
-            'isPrimary', ${cardTalkMappings.isPrimary},
-            'strength', ${cardTalkMappings.strength},
-            'rationaleShort', ${cardTalkMappings.rationaleShort}
-          )
-        )
-        FROM ${cardTalkMappings}
-        LEFT JOIN ${cards} ON ${cardTalkMappings.cardId} = ${cards.id}
-        WHERE ${cardTalkMappings.talkId} = ${talks.id}
-      )`,
-    })
+  // First get the talk
+  const [talk] = await db
+    .select()
     .from(talks)
     .where(eq(talks.id, id))
     .limit(1);
 
-  if (result.length === 0) return null;
+  if (!talk) return null;
+
+  // Then get mappings separately (simpler query, more reliable)
+  const mappings = await db
+    .select({
+      id: cardTalkMappings.id,
+      cardId: cardTalkMappings.cardId,
+      cardName: cards.name,
+      cardSlug: cards.slug,
+      isPrimary: cardTalkMappings.isPrimary,
+      strength: cardTalkMappings.strength,
+      rationaleShort: cardTalkMappings.rationaleShort,
+    })
+    .from(cardTalkMappings)
+    .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+    .where(eq(cardTalkMappings.talkId, id));
 
   return {
-    ...result[0].talk,
-    mappings: result[0].mappings || [],
+    ...talk,
+    mappings,
   };
 }
 
