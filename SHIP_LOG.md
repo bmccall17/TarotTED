@@ -770,4 +770,325 @@ The upsert infrastructure enables:
 
 ---
 
+---
+
+## v0.2.0 - Admin Portal & Data Management 🛠️
+**Release Date:** December 22, 2024
+**Status:** Production Ready
+
+### Overview
+
+Complete admin portal implementation with full CRUD capabilities for talks and mappings, validation dashboard for data quality, and fixes to critical SQL query bugs. This release establishes TarotTED as a self-service content management platform where all data operations happen through the UI instead of scripts.
+
+### ✨ What's New
+
+#### Admin Portal Foundation (Phase 0-1)
+- **Token-based Authentication**
+  - Login page at `/admin/login`
+  - Middleware protection for all admin routes
+  - HttpOnly cookies with secure flags
+  - Works with both cookie and Authorization header
+
+- **Admin Dashboard** (`/admin`)
+  - Real-time statistics: total talks, cards, mappings
+  - Quick navigation to all management interfaces
+  - Two-mode design: Curation (📺 Talks, 🔗 Mappings) + Repair (⚠️ Validation)
+
+#### Talks Management (Phase 1-2)
+- **Full CRUD Interface** (`/admin/talks`)
+  - Create new talks with all metadata fields
+  - Edit existing talks with live preview
+  - Soft delete with restore capability
+  - Hard delete with confirmation (requires typing "DELETE")
+  - Searchable table with filters
+
+- **Smart Metadata Fetching** (`/admin/talks/new`, `/admin/talks/[id]/edit`)
+  - Dual URL support (TED.com + YouTube)
+  - Fetch from TED oEmbed API
+  - Fetch from YouTube Data API v3
+  - Merge and preview metadata before applying
+  - Select which fields to update
+  - Error handling for API failures
+  - Rate limiting protection
+
+- **Talk Form Features**
+  - Required fields: title, speaker name, at least one URL
+  - Optional: description, duration, year, event name, thumbnail, language
+  - YouTube video ID auto-extraction
+  - Live preview panel
+  - Keyboard shortcut: Ctrl+S to save
+
+#### Card-Talk Mappings Management (Phase 3)
+- **Mapping Editor** (`/admin/mappings`)
+  - Two-panel layout: card selector + mapping manager
+  - Collapsible card list by arcana/suit
+  - Search cards by name
+  - View all mappings for selected card
+
+- **Mapping CRUD Operations**
+  - Create mappings with rationale (short + long)
+  - Edit existing mappings
+  - Delete mappings
+  - Set/change primary mapping
+  - Strength rating (1-5 scale with visual indicator)
+  - Database constraint prevents duplicate primaries
+
+- **Primary Mapping Logic**
+  - Only one primary mapping per card (enforced in database)
+  - Transaction-based primary swap (atomic operation)
+  - Visual warning when replacing existing primary
+  - Audit logging for all mapping operations
+
+#### Data Validation Dashboard (Phase 4)
+- **Issue Detection** (`/admin/validation`)
+  - Duplicate YouTube video IDs
+  - Talks with only YouTube URLs (no TED.com link)
+  - Talks missing both URLs
+  - Missing thumbnails
+  - Short or missing descriptions
+  - Cards without primary mapping
+  - Unmapped talks (talks not assigned to any card)
+  - Soft-deleted talks
+
+- **Guided Fixes**
+  - Issue cards with quick actions
+  - Direct links to edit pages
+  - Collapsible sections by issue type
+  - Count badges for each issue category
+
+#### Polish & UX (Phase 5)
+- **Toast Notifications**
+  - Success/error messages for all CRUD operations
+  - Auto-dismiss after 3 seconds
+  - Positioned at bottom-right
+
+- **Loading States**
+  - Button spinners ("Saving...", "Deleting...")
+  - Disabled state during operations
+  - Skeleton loaders where appropriate
+
+- **Keyboard Shortcuts**
+  - Ctrl+S to save forms (TalkForm, MappingForm)
+
+- **Mobile Notice**
+  - Warning banner on screens < 1024px
+  - "Admin portal is optimized for desktop"
+  - Hidden on desktop/tablet
+
+- **Confirmation Dialogs**
+  - Soft delete: "Are you sure?" dialog
+  - Hard delete: Type "DELETE" to confirm
+  - Destructive actions protected
+
+### 🐛 Critical Bug Fixes
+
+#### SQL Subquery Bug (All Mapping Counts Showing 0)
+**Issue**: Drizzle ORM interpolations like `${cardTalkMappings}` don't resolve correctly inside raw SQL template literals, causing all count subqueries to fail.
+
+**Files Fixed**:
+- `/lib/db/queries/admin-mappings.ts` (4 functions)
+- `/lib/db/queries/admin-talks.ts` (2 functions)
+
+**Solution**: Use raw table/column names (`card_talk_mappings.card_id`) instead of Drizzle interpolations.
+
+**Impact**: Mapping counts now display correctly in:
+- Card selector sidebar (shows actual mapping counts)
+- Talks list (shows mappings per talk)
+- Dashboard stats (accurate counts)
+- Validation dashboard (correct issue detection)
+
+#### JSON Parse Error on Themes Page
+**Issue**: Theme detail page crashed during build when rendering cards with null/undefined `keywords` field.
+
+**File Fixed**: `/app/themes/[slug]/page.tsx` line 94
+
+**Solution**: Added null-safety check:
+```typescript
+const keywords = card.keywords ? JSON.parse(card.keywords) : [];
+```
+
+**Impact**: All 17 theme pages now build successfully (192 static pages total).
+
+#### Missing Image File
+**Issue**: Eight of Pentacles card image missing from `/public/images/cards/` directory.
+
+**Resolution**: User manually added `eight-of-pentacles.jpg` to complete the set.
+
+### 🔧 Technical Implementation
+
+#### Database Queries (New)
+- `/lib/db/queries/admin-talks.ts` - Admin-specific talk queries with mappings count
+- `/lib/db/queries/admin-mappings.ts` - Full CRUD for mappings with atomic transactions
+- `/lib/db/queries/admin-validation.ts` - Issue detection queries
+
+#### API Routes (New)
+- `/app/api/admin/talks/route.ts` - List/create talks
+- `/app/api/admin/talks/[id]/route.ts` - Get/update/soft-delete talk
+- `/app/api/admin/talks/[id]/hard-delete/route.ts` - Permanent deletion
+- `/app/api/admin/talks/[id]/restore/route.ts` - Un-delete talk
+- `/app/api/admin/fetch-metadata/route.ts` - TED + YouTube metadata fetching
+- `/app/api/admin/mappings/route.ts` - List/create mappings
+- `/app/api/admin/mappings/[id]/route.ts` - Delete/update mapping
+- `/app/api/admin/validation/route.ts` - Get all validation issues
+
+#### Components (New)
+**Admin UI:**
+- `AdminNav.tsx` - Two-mode navigation sidebar
+- `Toast.tsx` - Success/error notifications
+- `ConfirmDialog.tsx` - Standard confirmation
+- `HardDeleteDialog.tsx` - Type-to-confirm deletion
+
+**Talks:**
+- `TalkForm.tsx` - Create/edit form with validation
+- `TalksList.tsx` - Searchable table with actions
+- `TalkRow.tsx` - Individual row with edit/delete
+- `TalkPreview.tsx` - Live preview panel
+- `UrlInputs.tsx` - TED + YouTube URL inputs with validation
+- `MetadataFetcher.tsx` - Smart metadata fetching with merge logic
+
+**Mappings:**
+- `MappingEditor.tsx` - Two-panel layout
+- `CardSelector.tsx` - Collapsible card list with search
+- `TalkSelector.tsx` - Searchable talk dropdown with debounce
+- `MappingForm.tsx` - Create/edit with strength slider and primary toggle
+- `MappingsList.tsx` - Primary + secondary grouping
+
+**Validation:**
+- `ValidationDashboard.tsx` - Collapsible issue sections
+- `IssueCard.tsx` - Individual issue display with actions
+
+#### Utilities (New)
+- `/lib/utils/rate-limit.ts` - In-memory rate limiting for API calls
+- `/lib/hooks/useDebounce.ts` - Debounce hook for search inputs
+
+### 📊 Data Quality Impact
+
+#### Before Admin Portal
+- 4 talks with duplicate YouTube IDs
+- 2 talks missing YouTube metadata
+- 11 talks with YouTube URLs in wrong field
+- 2 cards without primary mappings
+- All managed via database scripts
+
+#### After Admin Portal
+- All issues fixable through UI
+- Validation dashboard shows remaining work
+- Real-time issue detection
+- Guided fix workflows (edit links)
+
+### 🎯 Success Criteria Met
+
+From ADMIN_PORTAL_PLAN.md:
+
+**Phase 0 (Schema & Security):**
+- ✅ Database backup before migration
+- ✅ ADMIN_TOKEN protection
+- ✅ Login page with HttpOnly cookies
+- ✅ Middleware excludes login page
+
+**Phase 1 (Foundation):**
+- ✅ Admin portal at `/admin`
+- ✅ Two-mode navigation
+- ✅ Dashboard with stats
+- ✅ Talks list with search
+- ✅ Soft delete + restore
+- ✅ Hard delete confirmation
+- ✅ Slug collision handling
+- ✅ Audit logging
+
+**Phase 2 (Editing):**
+- ✅ Create/edit talks
+- ✅ TED + YouTube URL inputs
+- ✅ Metadata fetcher (TED oEmbed + YouTube API)
+- ✅ Rate limiting
+- ✅ Error messages for API failures
+- ✅ Live preview
+
+**Phase 3 (Mappings):**
+- ✅ View all mappings
+- ✅ Create/edit with rationale
+- ✅ Database constraint on primaries
+- ✅ Transaction-based primary swap
+- ✅ Delete mappings
+- ✅ Strength rating input
+
+**Phase 4 (Validation):**
+- ✅ Validation dashboard
+- ✅ All issue types detected
+- ✅ Issue counts and details
+- ✅ Links to fix pages
+- ⚠️ Inline fix workflows (basic - edit links only)
+
+**Phase 5 (Polish):**
+- ✅ Toast notifications
+- ✅ Loading states
+- ✅ Hard delete confirmation
+- ✅ Keyboard shortcuts (Ctrl+S)
+- ✅ Mobile notice
+- ✅ Desktop-focused design
+
+### 📝 Documentation Updates
+
+- `ADMIN_PORTAL_PLAN.md` - All phases marked complete
+- `SHIP_LOG.md` - This release documented
+- `.env.example` - YOUTUBE_API_KEY setup instructions
+- `README.md` - (No changes this release)
+
+### 🚧 Known Limitations & Future Work
+
+#### Not Implemented (Deferred to v0.3.0)
+1. **Theme Management Admin Interface** (0% complete)
+   - Create/edit/delete themes
+   - Assign cards/talks to themes
+   - Currently managed via seed files only
+
+2. **Inline Validation Fix Workflows**
+   - Validation dashboard shows issues
+   - Fix links go to edit pages (basic)
+   - Advanced inline fixes (search YouTube, fetch metadata inline) not built
+
+3. **Batch Operations**
+   - No multi-select for bulk delete/restore
+   - One-at-a-time operations only
+
+4. **Rich Display Fields Not Shown to Users**
+   - `rationaleLong` - Stored in DB, editable in admin, never shown to users
+   - `mapping.strength` (1-5 rating) - Stored, editable, but hidden from public
+   - `theme.longDescription` - Field exists but queries only use short
+   - `theme.category` - Field exists but never used for filtering
+   - `talk.language` - Stored but never displayed
+
+#### Edge Cases
+- YouTube API quota handling (shows error but no retry logic)
+- No undo functionality for deletions
+- No version history for mapping edits
+
+### 🔮 What's Next: v0.3.0 - Enhanced Curation & User Features
+
+**Planned Features:**
+1. Theme Management Interface
+   - Full CRUD for themes
+   - Card/talk theme assignments
+   - Category-based filtering
+
+2. Enhanced User Experience
+   - Display mapping strength visually (1-5 stars)
+   - Show full rationale (rationaleLong) in expandable section
+   - Theme category filters on themes page
+   - Language indicator for talks
+
+3. Advanced Validation Workflows
+   - Inline YouTube search for duplicate ID fixes
+   - One-click thumbnail fetch from TED/YouTube
+   - Bulk metadata update operations
+
+4. Content Expansion
+   - Add 50+ more TED talks
+   - Secondary mappings (multiple talks per card)
+   - More themes (target: 25 total)
+
+See next release planning in `NEXT-STEPS.md` (to be created).
+
+---
+
 **Built with ❤️ by the TarotTED team**
