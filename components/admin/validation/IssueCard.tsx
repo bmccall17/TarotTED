@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink, Edit2, RefreshCw } from 'lucide-react';
+import { ExternalLink, Edit2, RefreshCw, Check } from 'lucide-react';
 import Link from 'next/link';
 
 type IssueType =
@@ -15,16 +15,19 @@ type IssueType =
 
 type DuplicateYoutubeData = {
   youtubeVideoId: string;
-  talks: Array<{ id: string; title: string; speakerName: string }>;
+  talks: Array<{ id: string; title: string; speakerName: string; slug: string }>;
 };
 
 type TalkData = {
   id: string;
   title: string;
   speakerName: string;
+  slug: string;
   youtubeUrl?: string | null;
   description?: string | null;
   thumbnailUrl?: string | null;
+  tedUrl?: string | null;
+  youtubeVideoId?: string | null;
   deletedAt?: Date | null;
 };
 
@@ -39,14 +42,17 @@ type CardData = {
 type Props = {
   type: IssueType;
   data: DuplicateYoutubeData | TalkData | CardData;
+  onFix?: (type: IssueType, data: any) => void;
+  isFixed?: boolean;
+  isFixing?: boolean;
 };
 
-export function IssueCard({ type, data }: Props) {
+export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
   // Duplicate YouTube IDs
   if (type === 'duplicateYoutube') {
     const item = data as DuplicateYoutubeData;
     return (
-      <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4">
+      <div className={`bg-gray-900/50 border rounded-lg p-4 transition-all ${isFixed ? 'border-green-500/50 bg-green-500/5' : 'border-gray-700'}`}>
         <div className="flex items-start justify-between mb-3">
           <div>
             <p className="text-sm font-medium text-gray-300">
@@ -56,17 +62,20 @@ export function IssueCard({ type, data }: Props) {
               Used by {item.talks.length} talks
             </p>
           </div>
-          <a
-            href={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200"
-          >
-            <ExternalLink className="w-3 h-3" />
-            View on YouTube
-          </a>
+          <div className="flex items-center gap-2">
+            {isFixed && <Check className="w-4 h-4 text-green-400" />}
+            <a
+              href={`https://www.youtube.com/watch?v=${item.youtubeVideoId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200"
+            >
+              <ExternalLink className="w-3 h-3" />
+              View on YouTube
+            </a>
+          </div>
         </div>
-        <div className="space-y-2">
+        <div className="space-y-2 mb-3">
           {item.talks.map((talk) => (
             <div
               key={talk.id}
@@ -81,11 +90,33 @@ export function IssueCard({ type, data }: Props) {
                 className="flex items-center gap-1 text-xs text-indigo-400 hover:text-indigo-300"
               >
                 <Edit2 className="w-3 h-3" />
-                Fix
+                Edit
               </Link>
             </div>
           ))}
         </div>
+        <button
+          onClick={() => onFix?.(type, data)}
+          disabled={isFixing || isFixed}
+          className="w-full flex items-center justify-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isFixing ? (
+            <>
+              <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
+              Fixing...
+            </>
+          ) : isFixed ? (
+            <>
+              <Check className="w-3 h-3" />
+              Fixed
+            </>
+          ) : (
+            <>
+              <Edit2 className="w-3 h-3" />
+              Resolve Inline
+            </>
+          )}
+        </button>
       </div>
     );
   }
@@ -102,21 +133,24 @@ export function IssueCard({ type, data }: Props) {
     const item = data as TalkData;
 
     const getActionLabel = () => {
+      if (isFixed) return 'Fixed';
+      if (isFixing) return 'Fixing...';
+
       switch (type) {
         case 'youtubeOnly':
           return 'Add TED URL';
         case 'missingUrls':
           return 'Add URLs';
         case 'missingThumbnail':
-          return 'Add Thumbnail';
+          return 'Fetch Thumbnail';
         case 'shortDescription':
           return 'Edit Description';
         case 'unmappedTalk':
-          return 'Add to Card';
+          return 'Add Mapping';
         case 'softDeleted':
           return 'Restore';
         default:
-          return 'Edit';
+          return 'Fix';
       }
     };
 
@@ -128,7 +162,7 @@ export function IssueCard({ type, data }: Props) {
     };
 
     return (
-      <div className="flex items-center justify-between bg-gray-900/50 border border-gray-700 rounded-lg p-4">
+      <div className={`flex items-center justify-between bg-gray-900/50 border rounded-lg p-4 transition-all ${isFixed ? 'border-green-500/50 bg-green-500/5' : 'border-gray-700'}`}>
         <div className="flex items-center gap-4">
           {item.thumbnailUrl && (
             <img
@@ -152,13 +186,38 @@ export function IssueCard({ type, data }: Props) {
             )}
           </div>
         </div>
-        <Link
-          href={getActionLink()}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors"
-        >
-          <Edit2 className="w-3 h-3" />
-          {getActionLabel()}
-        </Link>
+        <div className="flex items-center gap-2">
+          {isFixed && <Check className="w-4 h-4 text-green-400" />}
+          <button
+            onClick={() => onFix?.(type, data)}
+            disabled={isFixing || isFixed}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFixing ? (
+              <>
+                <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
+                Fixing...
+              </>
+            ) : isFixed ? (
+              <>
+                <Check className="w-3 h-3" />
+                Fixed
+              </>
+            ) : (
+              <>
+                <Edit2 className="w-3 h-3" />
+                {getActionLabel()}
+              </>
+            )}
+          </button>
+          <Link
+            href={getActionLink()}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            <Edit2 className="w-3 h-3" />
+            Edit
+          </Link>
+        </div>
       </div>
     );
   }
@@ -167,7 +226,7 @@ export function IssueCard({ type, data }: Props) {
   if (type === 'cardNoPrimary') {
     const item = data as CardData;
     return (
-      <div className="flex items-center justify-between bg-gray-900/50 border border-gray-700 rounded-lg p-4">
+      <div className={`flex items-center justify-between bg-gray-900/50 border rounded-lg p-4 transition-all ${isFixed ? 'border-green-500/50 bg-green-500/5' : 'border-gray-700'}`}>
         <div className="flex items-center gap-4">
           <img
             src={item.imageUrl}
@@ -181,13 +240,38 @@ export function IssueCard({ type, data }: Props) {
             </p>
           </div>
         </div>
-        <Link
-          href={`/admin/mappings?card=${item.slug}`}
-          className="flex items-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors"
-        >
-          <Edit2 className="w-3 h-3" />
-          Set Primary
-        </Link>
+        <div className="flex items-center gap-2">
+          {isFixed && <Check className="w-4 h-4 text-green-400" />}
+          <button
+            onClick={() => onFix?.(type, data)}
+            disabled={isFixing || isFixed}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFixing ? (
+              <>
+                <div className="w-3 h-3 border-2 border-indigo-400/30 border-t-indigo-400 rounded-full animate-spin" />
+                Setting...
+              </>
+            ) : isFixed ? (
+              <>
+                <Check className="w-3 h-3" />
+                Fixed
+              </>
+            ) : (
+              <>
+                <Edit2 className="w-3 h-3" />
+                Set Primary
+              </>
+            )}
+          </button>
+          <Link
+            href={`/admin/mappings?card=${item.slug}`}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 rounded transition-colors"
+          >
+            <Edit2 className="w-3 h-3" />
+            Edit
+          </Link>
+        </div>
       </div>
     );
   }

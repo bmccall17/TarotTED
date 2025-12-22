@@ -16,6 +16,14 @@ import {
 } from 'lucide-react';
 import { IssueCard } from './IssueCard';
 import { Toast } from '../ui/Toast';
+import {
+  QuickEditModal,
+  RestoreConfirmModal,
+  DuplicateYoutubeModal,
+  SetPrimaryModal,
+  FetchThumbnailModal,
+  AddMappingModal,
+} from './modals';
 
 type ValidationIssues = {
   duplicateYoutubeIds: Array<{
@@ -71,6 +79,16 @@ type Props = {
 
 type SectionKey = keyof ValidationIssues;
 
+type IssueType =
+  | 'duplicateYoutube'
+  | 'youtubeOnly'
+  | 'missingUrls'
+  | 'missingThumbnail'
+  | 'shortDescription'
+  | 'cardNoPrimary'
+  | 'unmappedTalk'
+  | 'softDeleted';
+
 export function ValidationDashboard({ initialIssues }: Props) {
   const [issues, setIssues] = useState<ValidationIssues>(initialIssues);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -85,6 +103,12 @@ export function ValidationDashboard({ initialIssues }: Props) {
   });
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Modal state
+  const [activeModal, setActiveModal] = useState<IssueType | null>(null);
+  const [selectedIssue, setSelectedIssue] = useState<any>(null);
+  const [fixedIssues, setFixedIssues] = useState<Set<string>>(new Set());
+  const [fixingId, setFixingId] = useState<string | null>(null);
 
   const toggleSection = (key: string) => {
     setExpandedSections((prev) => ({
@@ -107,6 +131,41 @@ export function ValidationDashboard({ initialIssues }: Props) {
     } finally {
       setRefreshing(false);
     }
+  };
+
+  const handleFix = (type: IssueType, data: any) => {
+    setActiveModal(type);
+    setSelectedIssue(data);
+    setFixingId(data.id || data.youtubeVideoId || null);
+  };
+
+  const handleModalClose = () => {
+    setActiveModal(null);
+    setSelectedIssue(null);
+    setFixingId(null);
+  };
+
+  const handleFixSuccess = async () => {
+    // Add to fixed issues
+    if (fixingId) {
+      setFixedIssues(prev => new Set(prev).add(fixingId));
+    }
+
+    // Show success toast
+    setToast({ message: 'Issue fixed successfully', type: 'success' });
+
+    // Refresh issues after a short delay
+    setTimeout(async () => {
+      await handleRefresh();
+      handleModalClose();
+    }, 500);
+  };
+
+  const getIssueId = (type: IssueType, data: any): string => {
+    if (type === 'duplicateYoutube') {
+      return data.youtubeVideoId;
+    }
+    return data.id;
   };
 
   const sectionConfig: Record<
@@ -198,44 +257,124 @@ export function ValidationDashboard({ initialIssues }: Props) {
         {isExpanded && (
           <div className="border-t border-gray-700 p-4 space-y-3">
             {key === 'duplicateYoutubeIds' &&
-              issues.duplicateYoutubeIds.map((item) => (
-                <IssueCard key={item.youtubeVideoId} type="duplicateYoutube" data={item} />
-              ))}
+              issues.duplicateYoutubeIds.map((item) => {
+                const issueId = getIssueId('duplicateYoutube', item);
+                return (
+                  <IssueCard
+                    key={item.youtubeVideoId}
+                    type="duplicateYoutube"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'talksWithOnlyYoutubeUrl' &&
-              issues.talksWithOnlyYoutubeUrl.map((item) => (
-                <IssueCard key={item.id} type="youtubeOnly" data={item} />
-              ))}
+              issues.talksWithOnlyYoutubeUrl.map((item) => {
+                const issueId = getIssueId('youtubeOnly', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="youtubeOnly"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'missingBothUrls' &&
-              issues.missingBothUrls.map((item) => (
-                <IssueCard key={item.id} type="missingUrls" data={item} />
-              ))}
+              issues.missingBothUrls.map((item) => {
+                const issueId = getIssueId('missingUrls', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="missingUrls"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'missingThumbnails' &&
-              issues.missingThumbnails.map((item) => (
-                <IssueCard key={item.id} type="missingThumbnail" data={item} />
-              ))}
+              issues.missingThumbnails.map((item) => {
+                const issueId = getIssueId('missingThumbnail', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="missingThumbnail"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'shortDescriptions' &&
-              issues.shortDescriptions.map((item) => (
-                <IssueCard key={item.id} type="shortDescription" data={item} />
-              ))}
+              issues.shortDescriptions.map((item) => {
+                const issueId = getIssueId('shortDescription', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="shortDescription"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'cardsWithoutPrimaryMapping' &&
-              issues.cardsWithoutPrimaryMapping.map((item) => (
-                <IssueCard key={item.id} type="cardNoPrimary" data={item} />
-              ))}
+              issues.cardsWithoutPrimaryMapping.map((item) => {
+                const issueId = getIssueId('cardNoPrimary', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="cardNoPrimary"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'talksNotMappedToAnyCard' &&
-              issues.talksNotMappedToAnyCard.map((item) => (
-                <IssueCard key={item.id} type="unmappedTalk" data={item} />
-              ))}
+              issues.talksNotMappedToAnyCard.map((item) => {
+                const issueId = getIssueId('unmappedTalk', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="unmappedTalk"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
 
             {key === 'softDeletedTalks' &&
-              issues.softDeletedTalks.map((item) => (
-                <IssueCard key={item.id} type="softDeleted" data={item} />
-              ))}
+              issues.softDeletedTalks.map((item) => {
+                const issueId = getIssueId('softDeleted', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="softDeleted"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
           </div>
         )}
       </div>
@@ -341,6 +480,83 @@ export function ValidationDashboard({ initialIssues }: Props) {
           message={toast.message}
           type={toast.type}
           onClose={() => setToast(null)}
+        />
+      )}
+
+      {/* Modals */}
+      {activeModal === 'duplicateYoutube' && selectedIssue && (
+        <DuplicateYoutubeModal
+          youtubeVideoId={selectedIssue.youtubeVideoId}
+          talks={selectedIssue.talks}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'softDeleted' && selectedIssue && (
+        <RestoreConfirmModal
+          talk={selectedIssue}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'youtubeOnly' && selectedIssue && (
+        <QuickEditModal
+          talk={selectedIssue}
+          fields={[
+            { name: 'tedUrl', label: 'TED URL', type: 'url', placeholder: 'https://www.ted.com/talks/...' },
+          ]}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'missingUrls' && selectedIssue && (
+        <QuickEditModal
+          talk={selectedIssue}
+          fields={[
+            { name: 'tedUrl', label: 'TED URL', type: 'url', placeholder: 'https://www.ted.com/talks/...' },
+            { name: 'youtubeUrl', label: 'YouTube URL', type: 'url', placeholder: 'https://www.youtube.com/watch?v=...' },
+          ]}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'shortDescription' && selectedIssue && (
+        <QuickEditModal
+          talk={selectedIssue}
+          fields={[
+            { name: 'description', label: 'Description', type: 'textarea', placeholder: 'Enter a detailed description of the talk...' },
+          ]}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'missingThumbnail' && selectedIssue && (
+        <FetchThumbnailModal
+          talk={selectedIssue}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'unmappedTalk' && selectedIssue && (
+        <AddMappingModal
+          talk={selectedIssue}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'cardNoPrimary' && selectedIssue && (
+        <SetPrimaryModal
+          card={selectedIssue}
+          mappings={[]}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
         />
       )}
     </div>

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Search, ArrowLeft, Play, Sparkles } from 'lucide-react';
+import SearchFilters, { type FilterState } from '@/components/search/SearchFilters';
 
 const themeColors: Record<string, string> = {
   'new-beginnings': 'bg-green-500',
@@ -51,19 +52,95 @@ interface SearchResults {
 
 function SearchContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialQuery = searchParams.get('q') || '';
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Parse filters from URL
+  const parseFiltersFromURL = (): FilterState => {
+    const typeParam = searchParams.get('type');
+    const types = typeParam
+      ? typeParam.split(',').filter(t => ['card', 'talk', 'theme'].includes(t)) as ('card' | 'talk' | 'theme')[]
+      : ['card', 'talk', 'theme'] as ('card' | 'talk' | 'theme')[];
+
+    const arcanaParam = searchParams.get('arcana');
+    const arcana = arcanaParam === 'major' || arcanaParam === 'minor' ? arcanaParam : 'all';
+
+    const suitParam = searchParams.get('suit');
+    const suits = suitParam
+      ? suitParam.split(',').filter(s => ['wands', 'cups', 'swords', 'pentacles'].includes(s)) as ('wands' | 'cups' | 'swords' | 'pentacles')[]
+      : [];
+
+    const minDuration = parseInt(searchParams.get('minDuration') || '0', 10);
+    const maxDuration = parseInt(searchParams.get('maxDuration') || '3600', 10);
+    const minYear = parseInt(searchParams.get('minYear') || '2000', 10);
+    const maxYear = parseInt(searchParams.get('maxYear') || '2025', 10);
+
+    return {
+      type: types,
+      arcana,
+      suit: suits,
+      minDuration: isNaN(minDuration) ? 0 : minDuration,
+      maxDuration: isNaN(maxDuration) ? 3600 : maxDuration,
+      minYear: isNaN(minYear) ? 2000 : minYear,
+      maxYear: isNaN(maxYear) ? 2025 : maxYear,
+    };
+  };
+
+  const [filters, setFilters] = useState<FilterState>(parseFiltersFromURL());
+
+  // Update filters when URL changes
+  useEffect(() => {
+    setFilters(parseFiltersFromURL());
+  }, [searchParams]);
+
+  // Perform search when query or filters change
   useEffect(() => {
     if (initialQuery) {
-      performSearch(initialQuery);
+      performSearch(initialQuery, filters);
     }
-  }, [initialQuery]);
+  }, [initialQuery, searchParams]);
 
-  const performSearch = async (query: string) => {
+  const buildSearchURL = (query: string, filterState: FilterState): string => {
+    const params = new URLSearchParams();
+    params.set('q', query);
+
+    // Only add filter params if they differ from defaults
+    if (filterState.type.length > 0 && filterState.type.length < 3) {
+      params.set('type', filterState.type.join(','));
+    }
+
+    if (filterState.arcana !== 'all') {
+      params.set('arcana', filterState.arcana);
+    }
+
+    if (filterState.suit.length > 0) {
+      params.set('suit', filterState.suit.join(','));
+    }
+
+    if (filterState.minDuration > 0) {
+      params.set('minDuration', filterState.minDuration.toString());
+    }
+
+    if (filterState.maxDuration < 3600) {
+      params.set('maxDuration', filterState.maxDuration.toString());
+    }
+
+    if (filterState.minYear > 2000) {
+      params.set('minYear', filterState.minYear.toString());
+    }
+
+    if (filterState.maxYear < 2025) {
+      params.set('maxYear', filterState.maxYear.toString());
+    }
+
+    return `/api/search?${params.toString()}`;
+  };
+
+  const performSearch = async (query: string, filterState: FilterState) => {
     if (!query.trim()) {
       setResults(null);
       return;
@@ -71,7 +148,8 @@ function SearchContent() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+      const url = buildSearchURL(query, filterState);
+      const response = await fetch(url);
       const data = await response.json();
       setResults(data);
     } catch (error) {
@@ -83,7 +161,62 @@ function SearchContent() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    performSearch(searchQuery);
+    performSearch(searchQuery, filters);
+  };
+
+  const handleFilterChange = (newFilters: FilterState) => {
+    setFilters(newFilters);
+
+    // Update URL with new filters
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+
+    if (newFilters.type.length > 0 && newFilters.type.length < 3) {
+      params.set('type', newFilters.type.join(','));
+    }
+
+    if (newFilters.arcana !== 'all') {
+      params.set('arcana', newFilters.arcana);
+    }
+
+    if (newFilters.suit.length > 0) {
+      params.set('suit', newFilters.suit.join(','));
+    }
+
+    if (newFilters.minDuration > 0) {
+      params.set('minDuration', newFilters.minDuration.toString());
+    }
+
+    if (newFilters.maxDuration < 3600) {
+      params.set('maxDuration', newFilters.maxDuration.toString());
+    }
+
+    if (newFilters.minYear > 2000) {
+      params.set('minYear', newFilters.minYear.toString());
+    }
+
+    if (newFilters.maxYear < 2025) {
+      params.set('maxYear', newFilters.maxYear.toString());
+    }
+
+    router.push(`/search?${params.toString()}`, { scroll: false });
+  };
+
+  const handleClearFilters = () => {
+    const defaultFilters: FilterState = {
+      type: ['card', 'talk', 'theme'],
+      arcana: 'all',
+      suit: [],
+      minDuration: 0,
+      maxDuration: 3600,
+      minYear: 2000,
+      maxYear: 2025,
+    };
+    setFilters(defaultFilters);
+
+    const params = new URLSearchParams();
+    if (searchQuery) params.set('q', searchQuery);
+    router.push(`/search?${params.toString()}`, { scroll: false });
   };
 
   const totalResults = results
@@ -116,6 +249,13 @@ function SearchContent() {
         />
       </form>
 
+      {/* Search Filters */}
+      <SearchFilters
+        filters={filters}
+        onChange={handleFilterChange}
+        onClear={handleClearFilters}
+      />
+
       {/* Loading State */}
       {isLoading && (
         <div className="text-center py-12">
@@ -131,7 +271,12 @@ function SearchContent() {
           <div className="text-center">
             <p className="text-gray-400">
               {totalResults === 0 ? (
-                <>No results found for &ldquo;{results.query}&rdquo;</>
+                <>
+                  No results found for &ldquo;{results.query}&rdquo;
+                  {(filters.type.length < 3 || filters.arcana !== 'all' || filters.suit.length > 0 || filters.minDuration > 0 || filters.maxDuration < 3600 || filters.minYear > 2000 || filters.maxYear < 2025) && (
+                    <span className="block mt-1 text-sm">Try adjusting your filters</span>
+                  )}
+                </>
               ) : (
                 <>
                   Found {totalResults} result{totalResults !== 1 ? 's' : ''} for &ldquo;{results.query}&rdquo;

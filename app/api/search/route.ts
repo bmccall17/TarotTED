@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { cards, talks, themes } from '@/lib/db/schema';
-import { ilike, or, sql } from 'drizzle-orm';
+import { searchWithFilters, type SearchFilters } from '@/lib/db/queries/search';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,73 +14,75 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const searchTerm = `%${query.trim()}%`;
+    // Parse filter parameters
+    const filters: SearchFilters = {};
 
-    // Search cards (name, keywords, summary)
-    const cardResults = await db
-      .select({
-        id: cards.id,
-        slug: cards.slug,
-        name: cards.name,
-        summary: cards.summary,
-        keywords: cards.keywords,
-        imageUrl: cards.imageUrl,
-        arcanaType: cards.arcanaType,
-        suit: cards.suit,
-      })
-      .from(cards)
-      .where(
-        or(
-          ilike(cards.name, searchTerm),
-          ilike(cards.keywords, searchTerm),
-          ilike(cards.summary, searchTerm)
-        )
-      )
-      .limit(20);
+    // Entity type filter (comma-separated: card,talk,theme)
+    const typeParam = searchParams.get('type');
+    if (typeParam) {
+      const types = typeParam.split(',').map(t => t.trim());
+      const validTypes = types.filter(t => ['card', 'talk', 'theme'].includes(t));
+      if (validTypes.length > 0) {
+        filters.type = validTypes as ('card' | 'talk' | 'theme')[];
+      }
+    }
 
-    // Search talks (title, speaker)
-    const talkResults = await db
-      .select({
-        id: talks.id,
-        slug: talks.slug,
-        title: talks.title,
-        speakerName: talks.speakerName,
-        tedUrl: talks.tedUrl,
-        durationSeconds: talks.durationSeconds,
-        year: talks.year,
-      })
-      .from(talks)
-      .where(
-        or(
-          ilike(talks.title, searchTerm),
-          ilike(talks.speakerName, searchTerm)
-        )
-      )
-      .limit(20);
+    // Arcana filter (major or minor)
+    const arcanaParam = searchParams.get('arcana');
+    if (arcanaParam === 'major' || arcanaParam === 'minor') {
+      filters.arcana = arcanaParam;
+    }
 
-    // Search themes (name, description)
-    const themeResults = await db
-      .select({
-        id: themes.id,
-        slug: themes.slug,
-        name: themes.name,
-        description: themes.shortDescription,
-      })
-      .from(themes)
-      .where(
-        or(
-          ilike(themes.name, searchTerm),
-          ilike(themes.shortDescription, searchTerm)
-        )
-      )
-      .limit(10);
+    // Suit filter (comma-separated: wands,cups,swords,pentacles)
+    const suitParam = searchParams.get('suit');
+    if (suitParam) {
+      const suits = suitParam.split(',').map(s => s.trim());
+      const validSuits = suits.filter(s =>
+        ['wands', 'cups', 'swords', 'pentacles'].includes(s)
+      );
+      if (validSuits.length > 0) {
+        filters.suit = validSuits as ('wands' | 'cups' | 'swords' | 'pentacles')[];
+      }
+    }
 
-    return NextResponse.json({
-      cards: cardResults,
-      talks: talkResults,
-      themes: themeResults,
-      query: query.trim(),
-    });
+    // Duration filters (in seconds)
+    const minDurationParam = searchParams.get('minDuration');
+    if (minDurationParam) {
+      const minDuration = parseInt(minDurationParam, 10);
+      if (!isNaN(minDuration) && minDuration >= 0) {
+        filters.minDuration = minDuration;
+      }
+    }
+
+    const maxDurationParam = searchParams.get('maxDuration');
+    if (maxDurationParam) {
+      const maxDuration = parseInt(maxDurationParam, 10);
+      if (!isNaN(maxDuration) && maxDuration >= 0) {
+        filters.maxDuration = maxDuration;
+      }
+    }
+
+    // Year filters
+    const minYearParam = searchParams.get('minYear');
+    if (minYearParam) {
+      const minYear = parseInt(minYearParam, 10);
+      if (!isNaN(minYear)) {
+        filters.minYear = minYear;
+      }
+    }
+
+    const maxYearParam = searchParams.get('maxYear');
+    if (maxYearParam) {
+      const maxYear = parseInt(maxYearParam, 10);
+      if (!isNaN(maxYear)) {
+        filters.maxYear = maxYear;
+      }
+    }
+
+    // Execute search with filters
+    const results = await searchWithFilters(query, filters);
+
+    return NextResponse.json(results);
   } catch (error) {
     console.error('Error searching:', error);
     return NextResponse.json(
