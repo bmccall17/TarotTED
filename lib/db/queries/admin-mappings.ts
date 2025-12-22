@@ -82,14 +82,14 @@ export async function getAllCardsWithMappingCounts() {
       imageUrl: cards.imageUrl,
       mappingsCount: sql<number>`(
         SELECT COUNT(*)::int
-        FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.cardId} = ${cards.id}
+        FROM card_talk_mappings
+        WHERE card_talk_mappings.card_id = cards.id
       )`,
       hasPrimary: sql<boolean>`EXISTS (
         SELECT 1
-        FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.cardId} = ${cards.id}
-        AND ${cardTalkMappings.isPrimary} = true
+        FROM card_talk_mappings
+        WHERE card_talk_mappings.card_id = cards.id
+        AND card_talk_mappings.is_primary = true
       )`,
     })
     .from(cards)
@@ -112,16 +112,16 @@ export async function getCardsWithoutPrimaryMapping() {
       imageUrl: cards.imageUrl,
       mappingsCount: sql<number>`(
         SELECT COUNT(*)::int
-        FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.cardId} = ${cards.id}
+        FROM card_talk_mappings
+        WHERE card_talk_mappings.card_id = cards.id
       )`,
     })
     .from(cards)
     .where(
       sql`NOT EXISTS (
-        SELECT 1 FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.cardId} = ${cards.id}
-        AND ${cardTalkMappings.isPrimary} = true
+        SELECT 1 FROM card_talk_mappings
+        WHERE card_talk_mappings.card_id = cards.id
+        AND card_talk_mappings.is_primary = true
       )`
     )
     .orderBy(cards.sequenceIndex);
@@ -147,8 +147,8 @@ export async function getUnmappedTalks() {
       and(
         eq(talks.isDeleted, false),
         sql`NOT EXISTS (
-          SELECT 1 FROM ${cardTalkMappings}
-          WHERE ${cardTalkMappings.talkId} = ${talks.id}
+          SELECT 1 FROM card_talk_mappings
+          WHERE card_talk_mappings.talk_id = talks.id
         )`
       )
     )
@@ -347,7 +347,7 @@ export async function getMappingsStats() {
     .from(cards);
 
   const cardsWithPrimary = await db
-    .select({ count: sql<number>`COUNT(DISTINCT ${cardTalkMappings.cardId})::int` })
+    .select({ count: sql<number>`COUNT(DISTINCT card_talk_mappings.card_id)::int` })
     .from(cardTalkMappings)
     .where(eq(cardTalkMappings.isPrimary, true));
 
@@ -358,8 +358,8 @@ export async function getMappingsStats() {
       and(
         eq(talks.isDeleted, false),
         sql`NOT EXISTS (
-          SELECT 1 FROM ${cardTalkMappings}
-          WHERE ${cardTalkMappings.talkId} = ${talks.id}
+          SELECT 1 FROM card_talk_mappings
+          WHERE card_talk_mappings.talk_id = talks.id
         )`
       )
     );
