@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
 import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
 
+// Revalidate every 60 seconds to pick up admin changes
+export const revalidate = 60;
+
 export async function generateStaticParams() {
   const talks = await getAllTalks();
   return talks.map((talk) => ({
