@@ -28,29 +28,48 @@ import {
 type ValidationIssues = {
   duplicateYoutubeIds: Array<{
     youtubeVideoId: string;
-    talks: Array<{ id: string; title: string; speakerName: string }>;
+    talks: Array<{ id: string; title: string; speakerName: string; slug: string }>;
   }>;
   talksWithOnlyYoutubeUrl: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     youtubeUrl: string | null;
+    tedUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
   }>;
   missingBothUrls: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
   }>;
   missingThumbnails: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
   }>;
   shortDescriptions: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     description: string | null;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
   }>;
   cardsWithoutPrimaryMapping: Array<{
     id: string;
@@ -63,13 +82,22 @@ type ValidationIssues = {
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     thumbnailUrl: string | null;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
   }>;
   softDeletedTalks: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     deletedAt: Date | null;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
   }>;
 };
 

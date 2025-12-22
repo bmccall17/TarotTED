@@ -9,7 +9,7 @@ export interface ValidationIssues {
   // Critical
   duplicateYoutubeIds: Array<{
     youtubeVideoId: string;
-    talks: Array<{ id: string; title: string; speakerName: string }>;
+    talks: Array<{ id: string; title: string; speakerName: string; slug: string }>;
   }>;
 
   // Important
@@ -17,23 +17,42 @@ export interface ValidationIssues {
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     youtubeUrl: string | null;
+    tedUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
   }>;
   missingBothUrls: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
   }>;
   missingThumbnails: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
   }>;
   shortDescriptions: Array<{
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     description: string | null;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
   }>;
 
   // Mapping Issues
@@ -48,7 +67,11 @@ export interface ValidationIssues {
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     thumbnailUrl: string | null;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
   }>;
 
   // Info
@@ -56,7 +79,12 @@ export interface ValidationIssues {
     id: string;
     title: string;
     speakerName: string;
+    slug: string;
     deletedAt: Date | null;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
   }>;
 }
 
@@ -124,6 +152,7 @@ async function getDuplicateYoutubeIds() {
           id: talks.id,
           title: talks.title,
           speakerName: talks.speakerName,
+          slug: talks.slug,
         })
         .from(talks)
         .where(
@@ -152,7 +181,11 @@ async function getTalksWithOnlyYoutubeUrl() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
       youtubeUrl: talks.youtubeUrl,
+      tedUrl: talks.tedUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
     })
     .from(talks)
     .where(
@@ -174,6 +207,11 @@ async function getMissingBothUrls() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
     })
     .from(talks)
     .where(
@@ -195,6 +233,11 @@ async function getMissingThumbnails() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
     })
     .from(talks)
     .where(
@@ -215,7 +258,12 @@ async function getShortDescriptions() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
       description: talks.description,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
     })
     .from(talks)
     .where(
@@ -266,7 +314,11 @@ async function getTalksNotMappedToAnyCard() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
       thumbnailUrl: talks.thumbnailUrl,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
     })
     .from(talks)
     .where(
@@ -290,7 +342,12 @@ async function getSoftDeletedTalks() {
       id: talks.id,
       title: talks.title,
       speakerName: talks.speakerName,
+      slug: talks.slug,
       deletedAt: talks.deletedAt,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
     })
     .from(talks)
     .where(eq(talks.isDeleted, true))
