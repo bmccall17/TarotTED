@@ -91,7 +91,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
             <h2 className="text-xl font-bold text-gray-100">Cards</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {theme.cards.map((card) => {
-                const keywords = JSON.parse(card.keywords);
+                const keywords = card.keywords ? JSON.parse(card.keywords) : [];
                 return (
                   <Link
                     key={card.id}
