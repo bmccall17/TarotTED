@@ -771,39 +771,39 @@ Returns: title, thumbnail_url (limited data)
 - [X] Cookie set with HttpOnly/Secure flags
 
 ### Phase 1 Complete:
-- [ ] Admin portal accessible at `/admin`
-- [ ] Two-mode navigation (Curation / Repair)
-- [ ] Dashboard shows talk statistics
-- [ ] Talks list with search and filters
-- [ ] Soft delete working with restore option
-- [ ] Hard delete requires typing "DELETE"
-- [ ] Slug collisions handled automatically
-- [ ] Audit logging for destructive actions
+- [X] Admin portal accessible at `/admin`
+- [X] Two-mode navigation (Curation / Repair)
+- [X] Dashboard shows talk statistics
+- [X] Talks list with search and filters
+- [X] Soft delete working with restore option
+- [X] Hard delete requires typing "DELETE"
+- [X] Slug collisions handled automatically
+- [X] Audit logging for destructive actions
 
 ### Phase 2 Complete:
-- [ ] Can create new talks with all fields
-- [ ] Can edit existing talks
-- [ ] TED + YouTube URL inputs working
-- [ ] At least one URL validation enforced
-- [ ] Metadata fetcher merges TED + YouTube data
-- [ ] Rate limiting active on metadata fetch
-- [ ] Error messages shown for API failures
-- [ ] Shows data source for each field
+- [X] Can create new talks with all fields
+- [X] Can edit existing talks
+- [X] TED + YouTube URL inputs working
+- [X] At least one URL validation enforced
+- [X] Metadata fetcher merges TED + YouTube data
+- [X] Rate limiting active on metadata fetch
+- [X] Error messages shown for API failures
+- [X] Shows data source for each field
 
 ### Phase 3 Complete:
-- [ ] Can view all card-talk mappings
-- [ ] Can create/edit mappings with rationale
-- [ ] Database constraint prevents duplicate primaries
-- [ ] Transaction used for primary swap
-- [ ] UI shows warning when changing primary
-- [ ] Can delete mappings
+- [X] Can view all card-talk mappings
+- [X] Can create/edit mappings with rationale
+- [X] Database constraint prevents duplicate primaries
+- [X] Transaction used for primary swap
+- [X] UI shows warning when changing primary
+- [X] Can delete mappings
 
 ### Phase 4 Complete:
-- [ ] Validation dashboard shows all issue types
-- [ ] Duplicate YouTube IDs fixable inline
-- [ ] Can add TED URLs to YouTube-only talks
-- [ ] Can fetch missing thumbnails
-- [ ] Shows unmapped cards and talks
+- [X] Validation dashboard shows all issue types
+- [X] Duplicate YouTube IDs fixable inline
+- [X] Can add TED URLs to YouTube-only talks
+- [X] Can fetch missing thumbnails
+- [X] Shows unmapped cards and talks
 
 ### Phase 5 Complete:
 - [ ] Toast notifications working

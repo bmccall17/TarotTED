@@ -1,6 +1,6 @@
 import { db } from '../index';
 import { cards, cardTalkMappings, talks } from '../schema';
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, and, or, isNull } from 'drizzle-orm';
 
 export async function getAllCards() {
   return db
@@ -41,7 +41,13 @@ export async function getCardWithMappings(slug: string) {
     })
     .from(cardTalkMappings)
     .innerJoin(talks, eq(cardTalkMappings.talkId, talks.id))
-    .where(eq(cardTalkMappings.cardId, card.id))
+    .where(
+      and(
+        eq(cardTalkMappings.cardId, card.id),
+        // Filter out soft-deleted talks
+        or(eq(talks.isDeleted, false), isNull(talks.isDeleted))
+      )
+    )
     .orderBy(
       desc(cardTalkMappings.isPrimary),
       desc(cardTalkMappings.strength)
