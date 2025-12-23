@@ -11,7 +11,7 @@ Tarot of TED is a project i began in March 2025 during a profoundly challenging 
 
 to navigate that difficult season, i returned to that simple daily practice of drawing one Tarot card but i started adding the practice of watching a TED or TEDx talk that aligned with the archetype of that card. day by day, the pattern grew clearer. the themes in the cards echoed the themes in the talks: constraint, liberation, vulnerability, reinvention, courage, power, healing. i continued mapping these connections intentionally throughout the year and soon i had a full framework linking all 78 cards to talks across the TED ecosystem.
 
-by late 2025, i realized this was no longer just a personal healing practice. it had become a dataset, a map, and a shared resource waiting to be built. using Claude Code as my primary development environment, with support from ChatGPT and NotebookLM, i turned the framework into a small Next.js webapp that hosts all 78 card-and-talk pairings, with room to grow through notes, commentary, and expanded metadata. the first version launched on December 9, 2025.
+i actually gave a [Pecha Kucha talk about this project here in Asheville](https://www.youtube.com/watch?v=4xJLVWDR0iw) on December 5, 2025! which inspired me to see how this project could become more than a personal healing practice... its a dataset, a map, and could become a shared resource for anyone to explore. using Claude Code as my primary development environment, with support from ChatGPT and NotebookLM, i turned the framework into a small Next.js webapp that hosts all 78 card-and-talk pairings, with room to grow through notes, commentary, and expanded metadata. the first version launched on December 9, 2025.
 
 at its core, Tarot of TED is about the art of noticing, pattern recognition, meaning-making, and learning to see your life through multiple lenses at once: ancient and contemporary, symbolic and scientific, internal and external. it is an experiment in learning through symbols, story, and the unexpected conversations between them, and a reminder that sometimes the things we build to save ourselves become things we can offer to others.
 
@@ -25,8 +25,16 @@ the tarot card images are from the beautifully preserved **Pamela A (1909) Rider
 ---
 ## books & resources
 these works informed the historical grounding and interpretive depth of the project:
-* **Llewellyn's Complete Book of the Rider–Waite–Smith Tarot: A Journey Through the History, Meaning, and Use of the World's Most Famous Deck**
-* **Secrets of the Waite–Smith Tarot: The True Story of the World’s Most Popular Tarot**
+* Graham, Sasha. **Llewellyn’s Complete Book of the Rider-Waite-Smith Tarot: A Journey Through the History, Meaning, and Use of the World’s Most Famous Deck.** Woodbury, Minnesota: Llewellyn Publications, 2018. ISBN 978-0-7387-5319-5.
+* Katz, Marcus, and Tali Goodwin. **Secrets of the Waite-Smith Tarot: The True Story of the World’s Most Popular Tarot.** Woodbury, Minnesota: Llewellyn Publications, 2015. ISBN 978-0-7387-4436-0.
+* Cynova, Melissa. **Kitchen Table Tarot: Pull Up a Chair, Shuffle the Cards, and Let’s Talk Tarot.** First Edition. Woodbury, Minnesota: Llewellyn Publications, 2017. ISBN 978-0-7387-5077-4.
+* Dore, Jessica. **Tarot for Change: Using the Cards for Self-Care, Acceptance, and Growth.** Illustrated by Xaviera López. New York: Penguin Life (Viking), 2021. ISBN 978-0-593-29593-9.
+* Esselmont, Brigit. **Everyday Tarot: Unlock Your Inner Wisdom and Manifest Your Future.** Illustrated by Eleanor Grosch. New York: Running Press, 2018. ISBN 978-0-7624-9280-0.
+* Nichols, Sallie. **Tarot and the Archetypal Journey: The Jungian Path from Darkness to Light.** Foreword by Mary K. Greer. Newburyport, MA: Weiser Books, 2019. ISBN 978-1-57863-659-4.
+* Pollack, Rachel. **Seventy-Eight Degrees of Wisdom: A Tarot Journey to Self-Awareness.** Third Edition. Newburyport, MA: Weiser Books, 2019. ISBN 978-1-57863-665-5.
+* Tea, Michelle. **Modern Tarot: Connecting with Your Higher Self Through the Wisdom of the Cards.** Illustrated by Amanda Verwey. San Francisco: HarperElixir, 2017. ISBN 978-0-06-268240-6.
+* Wen, Benebell. **Holistic Tarot: An Integrative Approach to Using Tarot for Personal Growth.** Berkeley, California: North Atlantic Books, 2015. ISBN 978-1-58394-835-4.
+* Wintner, Bakara. **WTF Is Tarot? ...& How Do I Do It?** Illustrated by Autumn Whitehurst. Salem, MA: Page Street Publishing Co., 2017. eISBN 978-1-62414-451-6.
 
 ---
 ## notes
