@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { BottomNav } from '@/components/layout/BottomNav';
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
   title: 'TarotTED - Tarot Cards Mapped to TED Talks',
@@ -17,6 +19,8 @@ export default function RootLayout({
       <body className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-purple-950 antialiased">
         {children}
         <BottomNav />
+        <AnalyticsProvider />
+        <SpeedInsights />
       </body>
     </html>
   );
