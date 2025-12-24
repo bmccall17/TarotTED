@@ -6,8 +6,8 @@ import { CardDetailClient } from '@/components/cards/CardDetailClient';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 
-// Revalidate frequently to pick up mapping changes from admin
-export const revalidate = 60; // 1 minute - mappings can change
+// Disable caching to immediately reflect admin changes
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   const cards = await getAllCards();

@@ -19,7 +19,12 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({ slug: randomCard.slug });
+    // No caching for random results
+    return NextResponse.json({ slug: randomCard.slug }, {
+      headers: {
+        'Cache-Control': 'no-store, max-age=0',
+      },
+    });
   } catch (error) {
     console.error('Error fetching random card:', error);
     return NextResponse.json(

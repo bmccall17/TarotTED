@@ -5,8 +5,8 @@ import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
 
-// Revalidate every 60 seconds to pick up admin changes
-export const revalidate = 3600; // 1 hour - talk metadata changes infrequently
+// Disable caching to immediately reflect admin changes
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   const talks = await getAllTalks();

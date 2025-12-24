@@ -6,8 +6,8 @@ export const metadata = {
   description: 'Explore curated TED talks mapped to Tarot archetypes',
 };
 
-// Revalidate every 1 hour - talk list changes infrequently
-export const revalidate = 3600;
+// Disable caching to immediately reflect admin changes
+export const revalidate = 0;
 
 export default async function TalksPage() {
   const talks = await getAllTalks();

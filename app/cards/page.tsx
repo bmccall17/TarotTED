@@ -6,6 +6,9 @@ export const metadata = {
   description: 'Explore all 78 Tarot cards and discover their meanings',
 };
 
+// Disable caching to immediately reflect admin changes
+export const revalidate = 0;
+
 export default async function CardsPage() {
   const cards = await getAllCards();
 

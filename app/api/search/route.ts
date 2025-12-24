@@ -82,9 +82,10 @@ export async function GET(request: NextRequest) {
     // Execute search with filters
     const results = await searchWithFilters(query, filters);
 
+    // No caching to immediately reflect admin changes
     return NextResponse.json(results, {
       headers: {
-        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+        'Cache-Control': 'no-store, max-age=0',
       },
     });
   } catch (error) {

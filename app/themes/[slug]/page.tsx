@@ -5,8 +5,8 @@ import { getThemeWithCardsAndTalks, getAllThemes } from '@/lib/db/queries/themes
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, Sparkles, Play, ExternalLink } from 'lucide-react';
 
-// Revalidate every 1 hour - theme collections are static
-export const revalidate = 3600;
+// Disable caching to immediately reflect admin changes
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   const themes = await getAllThemes();
