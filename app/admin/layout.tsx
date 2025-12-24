@@ -7,9 +7,11 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900">
-      <AdminNav />
-      <main className="flex-1 overflow-auto">
+    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 overflow-hidden">
+      <div className="relative z-10 flex-shrink-0">
+        <AdminNav />
+      </div>
+      <main className="flex-1 overflow-auto relative z-0">
         {/* Mobile Notice - shown only on small screens */}
         <div className="lg:hidden bg-amber-500/20 border-b border-amber-500/30 px-4 py-3">
           <div className="flex items-center gap-2 text-amber-300 text-sm">
