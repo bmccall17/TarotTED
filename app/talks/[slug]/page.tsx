@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
+import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
 
 // Revalidate every 60 seconds to pick up admin changes
@@ -39,6 +40,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
   }
 
   const durationMinutes = talk.durationSeconds ? Math.floor(talk.durationSeconds / 60) : null;
+  const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId);
 
   return (
     <div className="min-h-screen pb-24">
@@ -62,7 +64,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
         {/* Talk Hero */}
         <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl overflow-hidden border border-indigo-500/30">
           {/* Thumbnail Banner */}
-          {talk.thumbnailUrl && (talk.tedUrl || talk.youtubeUrl) && (
+          {thumbnailUrl && (talk.tedUrl || talk.youtubeUrl) && (
             <a
               href={(talk.tedUrl || talk.youtubeUrl) as string}
               target="_blank"
@@ -71,11 +73,12 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
             >
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                 <img
-                  src={talk.thumbnailUrl}
+                  src={thumbnailUrl}
                   alt={talk.title}
                   className="absolute inset-0 w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
                   referrerPolicy="no-referrer"
                   loading="eager"
+                  crossOrigin="anonymous"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -89,7 +92,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
 
           <div className="p-6">
             <div className="flex items-start gap-4 mb-4">
-              {!talk.thumbnailUrl && (
+              {!thumbnailUrl && (
                 <div className="w-16 h-16 bg-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
                   <Play className="w-8 h-8 text-white" />
                 </div>

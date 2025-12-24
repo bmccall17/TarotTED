@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { Search, Play, Clock, Calendar } from 'lucide-react';
 
 interface Card {
@@ -21,6 +22,7 @@ interface Talk {
   speakerName: string;
   tedUrl: string | null;
   youtubeUrl?: string | null;
+  youtubeVideoId?: string | null;
   durationSeconds: number | null;
   year: number | null;
   thumbnailUrl: string | null;
@@ -98,6 +100,7 @@ export function TalksGrid({ talks }: TalksGridProps) {
       <div className="space-y-3">
         {filteredTalks.map((talk) => {
           const durationMinutes = talk.durationSeconds ? Math.floor(talk.durationSeconds / 60) : null;
+          const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId || null);
 
           return (
             <div
@@ -113,14 +116,15 @@ export function TalksGrid({ talks }: TalksGridProps) {
                   onClick={(e) => e.stopPropagation()}
                   className="w-32 h-24 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
                 >
-                  {talk.thumbnailUrl ? (
+                  {thumbnailUrl ? (
                     <>
                       <img
-                        src={talk.thumbnailUrl}
+                        src={thumbnailUrl}
                         alt={talk.title}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                         loading="lazy"
+                        crossOrigin="anonymous"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
                         <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />

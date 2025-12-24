@@ -36,7 +36,22 @@ export async function getCardWithMappings(slug: string) {
 
   const mappings = await db
     .select({
-      talk: talks,
+      talk: {
+        id: talks.id,
+        slug: talks.slug,
+        title: talks.title,
+        speakerName: talks.speakerName,
+        tedUrl: talks.tedUrl,
+        youtubeUrl: talks.youtubeUrl,
+        youtubeVideoId: talks.youtubeVideoId,
+        description: talks.description,
+        durationSeconds: talks.durationSeconds,
+        eventName: talks.eventName,
+        year: talks.year,
+        thumbnailUrl: talks.thumbnailUrl,
+        language: talks.language,
+        isDeleted: talks.isDeleted,
+      },
       mapping: cardTalkMappings,
     })
     .from(cardTalkMappings)

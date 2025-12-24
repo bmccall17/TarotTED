@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getThemeWithCardsAndTalks, getAllThemes } from '@/lib/db/queries/themes';
+import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, Sparkles, Play, ExternalLink } from 'lucide-react';
 
 // Revalidate every 1 hour - theme collections are static
@@ -130,7 +131,9 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-100">Talks</h2>
             <div className="space-y-3">
-              {theme.talks.map((talk) => (
+              {theme.talks.map((talk) => {
+                const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId);
+                return (
                 <div
                   key={talk.id}
                   className="bg-gray-800/50 rounded-xl p-4 shadow-sm border border-gray-700 hover:shadow-md hover:border-gray-600 transition-all"
@@ -143,14 +146,15 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                       rel="noopener noreferrer"
                       className="w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg flex items-center justify-center flex-shrink-0 border border-indigo-500/30 hover:border-indigo-400/50 overflow-hidden relative group transition-all"
                     >
-                      {talk.thumbnailUrl ? (
+                      {thumbnailUrl ? (
                         <>
                           <img
-                            src={talk.thumbnailUrl}
+                            src={thumbnailUrl}
                             alt={talk.title}
                             className="w-full h-full object-cover"
                             referrerPolicy="no-referrer"
                             loading="lazy"
+                            crossOrigin="anonymous"
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
                             <Play className="w-6 h-6 text-white/90 drop-shadow-lg" />
@@ -188,7 +192,8 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                     </div>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
         )}

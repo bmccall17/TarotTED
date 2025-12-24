@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCardWithMappings, getAllCards } from '@/lib/db/queries/cards';
 import { CardDetailClient } from '@/components/cards/CardDetailClient';
+import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 
 // Revalidate frequently to pick up mapping changes from admin
@@ -42,6 +43,11 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
   const keywords = card.keywords ? JSON.parse(card.keywords) : [];
   const primaryMapping = card.mappings.find((m) => m.mapping.isPrimary);
   const otherMappings = card.mappings.filter((m) => !m.mapping.isPrimary);
+
+  // Get best thumbnail URL for primary mapping (prefer YouTube for mobile compatibility)
+  const primaryThumbnail = primaryMapping
+    ? getThumbnailUrl(primaryMapping.talk.thumbnailUrl, primaryMapping.talk.youtubeVideoId)
+    : null;
 
   return (
     <div className="min-h-screen pb-24">
@@ -105,14 +111,15 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 className="flex-shrink-0 group"
               >
                 <div className="relative w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg overflow-hidden border border-indigo-500/30 group-hover:border-indigo-400/50 transition-all">
-                  {primaryMapping.talk.thumbnailUrl ? (
+                  {primaryThumbnail ? (
                     <>
                       <img
-                        src={primaryMapping.talk.thumbnailUrl}
+                        src={primaryThumbnail}
                         alt={primaryMapping.talk.title}
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                         loading="lazy"
+                        crossOrigin="anonymous"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                         <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
