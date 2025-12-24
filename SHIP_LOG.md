@@ -4,6 +4,134 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.0.1 - Analytics & Production Polish 📊
+**Release Date:** December 23, 2024
+**Status:** Production Ready
+
+### Overview
+
+Added Vercel Web Analytics for page view tracking, Speed Insights for performance monitoring, and polished the admin portal UX. This release establishes observability for understanding user behavior while maintaining privacy compliance.
+
+### 📊 Analytics Implementation
+
+#### Vercel Web Analytics
+- **Automatic page view tracking** for all public routes
+- **Privacy-friendly** - no cookies required, GDPR-compliant by default
+- **Admin exclusion** - `/admin/*` routes completely excluded from tracking
+- **Client-side wrapper** - `AnalyticsProvider` component handles route-based filtering
+
+#### Speed Insights
+- **Core Web Vitals monitoring** (LCP, FID, CLS)
+- **Performance by route** - identify slow pages
+- **Already enabled** on Vercel dashboard
+
+#### What's Tracked
+| Route | Tracked |
+|-------|---------|
+| `/` (Home) | ✅ Yes |
+| `/cards`, `/cards/[slug]` | ✅ Yes |
+| `/talks`, `/talks/[slug]` | ✅ Yes |
+| `/themes`, `/themes/[slug]` | ✅ Yes |
+| `/search` | ✅ Yes |
+| `/admin/*` | ❌ No (excluded) |
+
+#### Architecture Decision
+Created dedicated `AnalyticsProvider` client component instead of using `beforeSend` callback:
+- Avoids "functions cannot be passed to Client Components" error in App Router
+- Uses `usePathname()` to detect admin routes
+- Returns `null` for admin pages (no analytics component rendered at all)
+- Defense-in-depth: analytics never even load on admin routes
+
+### 🎨 Admin Portal UX Improvements
+
+#### Bottom Navigation Removed from Admin
+- **Problem:** Bottom nav was redundant and blocked content in admin portal
+- **Solution:** Added pathname check to `BottomNav` component
+- **Result:** Admin uses sidebar nav only; public pages keep bottom nav
+- Clean separation between admin and public navigation patterns
+
+### 🔧 Technical Fixes
+
+#### Drizzle-Kit Version Mismatch (Deployment Blocker)
+**Problem:** `drizzle-kit@0.18.1` incompatible with `drizzle-orm@0.45.0`
+- Config type `Config` didn't recognize `dialect` or `driver` properties
+- Caused TypeScript compilation failure on Vercel deployment
+
+**Solution:** Upgraded `drizzle-kit` from `0.18.1` → `0.31.8`
+- Now compatible with `drizzle-orm@0.45.0`
+- Uses modern config format: `dialect: 'postgresql'` + `url` in dbCredentials
+
+**Files Changed:**
+- `package.json` - drizzle-kit version bump
+- `drizzle.config.ts` - updated to modern config format
+
+### 📁 Files Created/Modified
+
+#### New Files
+| File | Purpose |
+|------|---------|
+| `components/analytics/AnalyticsProvider.tsx` | Client wrapper for Vercel Analytics with admin exclusion |
+
+#### Modified Files
+| File | Change |
+|------|--------|
+| `app/layout.tsx` | Added AnalyticsProvider and SpeedInsights imports |
+| `components/layout/BottomNav.tsx` | Added admin route exclusion |
+| `package.json` | Added @vercel/analytics, upgraded drizzle-kit |
+| `drizzle.config.ts` | Fixed config format for drizzle-kit 0.31.8 |
+
+### 📊 Analytics Dashboard Access
+
+After deployment, view analytics at:
+1. **Vercel Dashboard** → TarotTED project → **Analytics** tab
+   - Page views by route
+   - Unique visitors (daily hash)
+   - Top referrers, countries, devices
+   - Real-time visitors
+
+2. **Vercel Dashboard** → TarotTED project → **Speed Insights** tab
+   - Core Web Vitals scores
+   - Performance by route
+   - Historical trends
+
+### ⚠️ Hobby Plan Limitations
+
+Current Vercel Hobby plan does **not** support custom events. Future upgrade to Pro ($20/month) would enable:
+- `draw_card` - Track when users draw random cards
+- `search_submitted` - Track search usage patterns
+- `talk_clicked` - Track which talks users engage with
+- `mapping_clicked` - Track card-to-talk navigation
+
+See `AnalyticsPlan.md` for future custom event taxonomy design.
+
+### 🚀 Build Verification
+
+```
+✓ Compiled successfully in 31.0s
+✓ Linting and checking validity of types
+✓ Generating static pages (194/194)
+✓ Build completed with zero errors
+```
+
+### 🎯 Impact
+
+This release establishes:
+- **Observability** - Understand which pages users visit most
+- **Performance monitoring** - Track Core Web Vitals over time
+- **Privacy compliance** - No cookies, GDPR-friendly by default
+- **Clean admin UX** - Dedicated navigation without public nav clutter
+- **Deployment stability** - Fixed dependency version conflicts
+
+### 🔮 What's Next
+
+With analytics in place, future decisions can be data-driven:
+- Identify most popular cards and talks
+- Understand user navigation patterns
+- Optimize slow-loading pages
+- Prioritize features based on actual usage
+
+---
+
 ## v0.1.0 - Initial Public Prototype 🎉
 **Release Date:** December 20, 2024
 **Tag:** `v0.1.0`
