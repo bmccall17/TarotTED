@@ -14,6 +14,11 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  // Don't show bottom nav on admin pages
+  if (pathname?.startsWith('/admin')) {
+    return null;
+  }
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 border-t border-gray-800 safe-area-bottom z-50">
       <div className="max-w-7xl mx-auto">
