@@ -1,11 +1,11 @@
 Failed to compile.
 ./drizzle.config.ts:9:3
-Type error: Object literal may only specify known properties, and 'dialect' does not exist in type 'Config'.
+Type error: Object literal may only specify known properties, and 'driver' does not exist in type 'Config'.
    7 |   schema: './lib/db/schema.ts',
    8 |   out: './lib/db/migrations',
->  9 |   dialect: 'postgresql',
+>  9 |   driver: 'pg',
      |   ^
   10 |   dbCredentials: {
-  11 |     url: process.env.POSTGRES_URL || process.env.DATABASE_URL!,
+  11 |     connectionString: process.env.POSTGRES_URL || process.env.DATABASE_URL!,
   12 |   },
 Next.js build worker exited with code: 1 and signal: null
