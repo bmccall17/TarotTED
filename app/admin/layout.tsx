@@ -16,27 +16,18 @@ export default function AdminLayout({
     <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900">
       <AdminNav />
       <main className="flex-1 overflow-auto">
-        {/* Diagnostic Banner - Only on Edit pages */}
+        {/* Back Button - Only on Edit pages */}
         {isEditPage && (
-          <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-2 flex gap-4 items-center">
-            <button
-              onClick={() => alert('Regular button works!')}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-bold"
-            >
-              🔧 TEST 1: Button
-            </button>
+          <div className="bg-indigo-900/40 border-b border-indigo-500/30 px-6 py-4 flex items-center gap-4">
             <a
               href="/admin/talks"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold text-lg shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
             >
-              🔧 TEST 2: Regular &lt;a&gt; tag
+              ← BACK TO TALKS
             </a>
-            <button
-              onClick={() => window.location.href = '/admin/talks'}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold"
-            >
-              🔧 TEST 3: window.location
-            </button>
+            <span className="text-gray-400 text-sm">
+              (Temporary workaround - click this to return to Talks list when done editing)
+            </span>
           </div>
         )}
 
