@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
-import { talks, cardTalkMappings } from '@/lib/db/schema';
+import { talks, cardTalkMappings, cards } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 // Validation fix actions:
@@ -64,6 +65,17 @@ export async function POST(request: NextRequest) {
               eq(cardTalkMappings.talkId, talkId)
             )
           );
+
+        // Revalidate the card detail page to bust the cache
+        const cardData = await db
+          .select({ slug: cards.slug })
+          .from(cards)
+          .where(eq(cards.id, cardId))
+          .limit(1);
+
+        if (cardData.length > 0) {
+          revalidatePath(`/cards/${cardData[0].slug}`);
+        }
 
         return NextResponse.json({ success: true, message: 'Primary mapping updated' });
       }

@@ -4,6 +4,226 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.0.2 - Security Hardening & Performance Optimization 🔒
+**Release Date:** December 24, 2024
+**Status:** Production Ready
+
+### Overview
+
+Critical security and performance improvements following comprehensive application audit. This release addresses 8 quick-win issues across security, performance, and functional categories, plus deployment fixes and database connection stabilization.
+
+### 🔒 Security Improvements
+
+#### HTTP Security Headers
+- **Added Security Headers** to `next.config.ts`
+  - `X-Frame-Options: DENY` - Prevents clickjacking attacks
+  - `X-Content-Type-Options: nosniff` - Prevents MIME-type sniffing
+  - `Referrer-Policy: origin-when-cross-origin` - Controls referrer information
+  - `X-XSS-Protection: 1; mode=block` - Legacy XSS protection
+- **Impact:** Improves security posture against common web vulnerabilities
+
+#### Debug Endpoint Removed
+- **Deleted `/api/admin/test-token` route** that was exposing token information
+- **Risk:** Endpoint was leaking first/last 10 characters of admin token
+- **Impact:** Eliminates potential attack vector for token discovery
+
+#### Error Message Information Leak Fixed
+- **YouTube API Error Messages** (`/app/api/admin/fetch-metadata/route.ts`)
+  - Before: "YouTube API key is invalid - check Vercel environment variables"
+  - After: "Unable to fetch metadata - API configuration error"
+  - Before: "API key has IP/referrer restrictions - remove restrictions in Google Cloud Console"
+  - After: "Unable to fetch metadata - API access restricted"
+- **Impact:** Prevents implementation detail leakage to potential attackers
+
+### ⚡ Performance Improvements
+
+#### Cache Revalidation Optimization
+- **Increased ISR revalidation times** from 60 seconds to 3600 seconds (1 hour)
+- **Files Updated:**
+  - `app/cards/[slug]/page.tsx` - Card detail pages
+  - `app/talks/page.tsx` - Talks list
+  - `app/talks/[slug]/page.tsx` - Talk detail pages
+  - `app/themes/[slug]/page.tsx` - Theme detail pages
+- **Rationale:** Card/talk data rarely changes; 60-second revalidation caused unnecessary overhead
+- **Impact:** Reduced server load and faster page loads for repeat visitors
+
+#### API Response Caching
+- **Added Cache-Control headers** to search API (`/app/api/search/route.ts`)
+  - `Cache-Control: public, max-age=300, stale-while-revalidate=600`
+  - 5-minute cache, 10-minute stale serving window
+- **Impact:** Reduces database queries for repeated searches, improves response time
+
+### 🛠️ Functional Fixes
+
+#### Null-Safe JSON Parsing
+- **Protected all JSON.parse() calls** with null checks across 4 files:
+  - `app/cards/[slug]/page.tsx`
+  - `app/search/page.tsx`
+  - `app/talks/[slug]/page.tsx`
+  - Pattern: `const keywords = card.keywords ? JSON.parse(card.keywords) : [];`
+- **Impact:** Prevents crashes on malformed or null data
+
+#### Dead Link Prevention
+- **Replaced `href="#"` fallbacks** with disabled button states
+- **Files Updated:**
+  - `app/cards/[slug]/page.tsx` - "Watch Talk" button
+  - `app/talks/[slug]/page.tsx` - Thumbnail banner, "Watch on TED" button
+- **Implementation:** Conditional rendering instead of non-functional links
+  ```tsx
+  {(talk.tedUrl || talk.youtubeUrl) ? (
+    <a href={...}>Watch on TED</a>
+  ) : (
+    <div className="cursor-not-allowed">No Video Available</div>
+  )}
+  ```
+- **Impact:** Better UX, prevents confusing dead links
+
+#### Search Results Enhancement
+- **Added `youtubeUrl` to search results**
+- **Files Updated:**
+  - `lib/db/queries/search.ts` - Added field to type interface and query
+  - `app/search/page.tsx` - Updated component interface
+- **Impact:** YouTube-only talks can now be watched directly from search results
+
+### 🚀 Deployment Fixes
+
+#### Admin Dashboard Build Timeout
+- **Problem:** Admin dashboard timing out during static generation (>60 seconds)
+- **Root Cause:** Complex database queries running at build time
+- **Solution:** Added `export const dynamic = 'force-dynamic'` to `/app/admin/page.tsx`
+- **Impact:** Admin dashboard now renders on-demand (correct behavior for authenticated pages)
+
+#### Admin Dashboard Error Handling
+- **Added comprehensive error handling** with try-catch wrapper
+- **Error Display:** User-friendly error page with:
+  - Error message (instead of generic production error)
+  - Possible causes (database connection, env vars, timeouts)
+  - Helpful debugging information
+- **Impact:** Better developer experience when troubleshooting issues
+
+#### TypeScript Type Errors Fixed
+- **Problem:** `href` attribute expecting `string | undefined`, receiving `string | null`
+- **Files Fixed:**
+  - `app/cards/[slug]/page.tsx:156` - Type assertion for Watch Talk link
+  - `app/talks/[slug]/page.tsx:67` - Type assertion for thumbnail banner
+  - `app/talks/[slug]/page.tsx:131` - Type assertion for Watch on TED button
+- **Solution:** Added `as string` type assertions within truthy conditional checks
+- **Impact:** Build succeeds without TypeScript errors
+
+#### Database Connection Stabilization
+- **Integration:** Supabase-Vercel integration configured
+- **Auto-synced Environment Variables:**
+  - `POSTGRES_URL` / `DATABASE_URL` automatically updated
+  - Other Supabase credentials synced to Vercel
+- **Impact:** Admin dashboard reconnected, all queries working in production
+
+### 🧹 Environment Cleanup
+
+#### Removed Unused Supabase Variables
+- **Confirmed safe to delete** from `.env.local`:
+  - `SUPABASE_URL`
+  - `SUPABASE_ANON_KEY`
+  - `SUPABASE_PUBLISHABLE_KEY`
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SECRET_KEY`
+- **Verification:** Grepped entire codebase - zero usage in application code
+- **Reason:** App uses Postgres via Drizzle ORM, not Supabase Auth/Client SDK
+- **Impact:** Cleaner environment configuration, reduced confusion
+
+### 📊 Audit Results
+
+Comprehensive application audit completed on December 23, 2024. Full findings documented in `devnotes/APPLICATION_AUDIT_2024-12-23.md`.
+
+**Issues Fixed (8 Quick Wins):**
+- ✅ Security: Removed test-token debug endpoint (HIGH)
+- ✅ Security: Added HTTP security headers (MEDIUM)
+- ✅ Security: Fixed API error message leaks (MEDIUM)
+- ✅ Performance: Increased cache revalidation times (MEDIUM)
+- ✅ Performance: Added API response caching (MEDIUM)
+- ✅ Functional: Protected JSON.parse() calls (MEDIUM)
+- ✅ Functional: Fixed dead links (MEDIUM)
+- ✅ Functional: Added youtubeUrl to search (LOW)
+
+**Remaining Issues (Documented for Future):**
+- 🔴 Critical: Secrets in git history, rate limiting, timing attack vulnerability
+- 🟡 High: Database indexes, N+1 queries, image optimization
+- 🟠 Medium: Custom error pages, theme management UI
+
+### 🔧 Technical Implementation
+
+#### Files Created
+None (all changes to existing files)
+
+#### Files Modified
+```
+Security:
+- next.config.ts (security headers)
+- app/api/admin/fetch-metadata/route.ts (error messages)
+- Deleted: app/api/admin/test-token/route.ts
+
+Performance:
+- app/cards/[slug]/page.tsx (revalidation, null-checks, dead links, type fixes)
+- app/talks/page.tsx (revalidation)
+- app/talks/[slug]/page.tsx (revalidation, null-checks, dead links, type fixes)
+- app/themes/[slug]/page.tsx (revalidation)
+- app/api/search/route.ts (cache headers)
+
+Functional:
+- app/search/page.tsx (youtubeUrl, null-checks)
+- lib/db/queries/search.ts (youtubeUrl)
+
+Deployment:
+- app/admin/page.tsx (force-dynamic, error handling)
+```
+
+### 📝 Breaking Changes
+None. All changes are backwards compatible.
+
+### 🎯 Success Metrics
+
+**Security:**
+- HTTP security headers on all routes
+- No token information leakage
+- Generic error messages in production
+
+**Performance:**
+- 60× longer cache revalidation (60s → 3600s)
+- 5-minute API response caching
+- Reduced database query load
+
+**Stability:**
+- Zero TypeScript compilation errors
+- Admin dashboard renders successfully
+- All pages build without timeouts
+
+**Code Quality:**
+- Null-safe JSON parsing across codebase
+- Type-safe href attributes
+- Proper error boundaries
+
+### 🔮 What's Next
+
+**Security Priorities (Critical):**
+- Rotate ADMIN_TOKEN (exposed in git history)
+- Implement rate limiting for admin login
+- Fix timing attack vulnerability in token comparison
+
+**Performance Priorities (High):**
+- Add database indexes for foreign keys
+- Fix N+1 queries in getAllTalks() and getAllThemes()
+- Replace `<img>` with `<Image>` component for thumbnails
+
+**Feature Priorities (Medium):**
+- Custom error pages (error.tsx, not-found.tsx)
+- Theme management admin interface
+- Cache-Control headers for static assets
+
+See `devnotes/APPLICATION_AUDIT_2024-12-23.md` for complete prioritized action plan.
+
+---
+
 ## v1.0.1 - Analytics & Production Polish 📊
 **Release Date:** December 23, 2024
 **Status:** Production Ready

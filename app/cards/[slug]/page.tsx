@@ -5,8 +5,8 @@ import { getCardWithMappings, getAllCards } from '@/lib/db/queries/cards';
 import { CardDetailClient } from '@/components/cards/CardDetailClient';
 import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 
-// Revalidate every 60 seconds to pick up new mappings
-export const revalidate = 3600; // 1 hour - card meanings are static
+// Revalidate frequently to pick up mapping changes from admin
+export const revalidate = 60; // 1 minute - mappings can change
 
 export async function generateStaticParams() {
   const cards = await getAllCards();

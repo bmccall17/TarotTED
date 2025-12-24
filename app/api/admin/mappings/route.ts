@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import {
   getAllMappingsForAdmin,
   getMappingsByCardId,
@@ -8,6 +9,9 @@ import {
   getMappingsStats,
 } from '@/lib/db/queries/admin-mappings';
 import { searchTalksForAdmin } from '@/lib/db/queries/admin-talks';
+import { db } from '@/lib/db';
+import { cards } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 /**
  * GET /api/admin/mappings
@@ -109,6 +113,17 @@ export async function POST(request: NextRequest) {
       rationaleShort: rationaleShort.trim(),
       rationaleLong: rationaleLong?.trim() || null,
     });
+
+    // Revalidate the card detail page to bust the cache
+    const cardData = await db
+      .select({ slug: cards.slug })
+      .from(cards)
+      .where(eq(cards.id, cardId))
+      .limit(1);
+
+    if (cardData.length > 0) {
+      revalidatePath(`/cards/${cardData[0].slug}`);
+    }
 
     return NextResponse.json({ mapping });
   } catch (error) {

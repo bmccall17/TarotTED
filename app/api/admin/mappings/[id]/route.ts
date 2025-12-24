@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { deleteMapping, setMappingAsPrimary } from '@/lib/db/queries/admin-mappings';
+import { db } from '@/lib/db';
+import { cards, cardTalkMappings } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -21,7 +25,20 @@ export async function DELETE(
       );
     }
 
+    // Get card slug before deleting to revalidate the page
+    const cardData = await db
+      .select({ slug: cards.slug })
+      .from(cardTalkMappings)
+      .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+      .where(eq(cardTalkMappings.id, id))
+      .limit(1);
+
     await deleteMapping(id);
+
+    // Revalidate the card detail page
+    if (cardData.length > 0) {
+      revalidatePath(`/cards/${cardData[0].slug}`);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -55,6 +72,19 @@ export async function PATCH(
     // If setting as primary
     if (body.setAsPrimary === true) {
       const mapping = await setMappingAsPrimary(id);
+
+      // Revalidate the card detail page to bust the cache
+      const cardData = await db
+        .select({ slug: cards.slug })
+        .from(cardTalkMappings)
+        .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+        .where(eq(cardTalkMappings.id, id))
+        .limit(1);
+
+      if (cardData.length > 0) {
+        revalidatePath(`/cards/${cardData[0].slug}`);
+      }
+
       return NextResponse.json({ mapping });
     }
 
