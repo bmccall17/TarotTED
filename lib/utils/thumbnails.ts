@@ -1,20 +1,17 @@
 /**
  * Get the best thumbnail URL for a talk
- * Prefers YouTube thumbnails over TED S3-hosted images for better mobile compatibility
+ * Always prefers YouTube thumbnails when available for maximum reliability
  */
 export function getThumbnailUrl(
   thumbnailUrl: string | null,
   youtubeVideoId: string | null
 ): string | null {
-  // If we have a YouTube video ID and the thumbnail is from TED's S3 bucket,
-  // use YouTube's thumbnail instead (more reliable on mobile)
-  if (
-    youtubeVideoId &&
-    thumbnailUrl?.includes('talkstar-photos.s3.amazonaws.com')
-  ) {
+  // If we have a YouTube video ID, always use YouTube's thumbnail
+  // (more reliable across all devices and doesn't have CORS/CDN issues)
+  if (youtubeVideoId) {
     return `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
   }
 
-  // Otherwise use the provided thumbnail URL
+  // Fall back to the provided thumbnail URL if no YouTube ID
   return thumbnailUrl;
 }
