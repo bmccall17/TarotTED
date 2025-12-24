@@ -1,19 +1,79 @@
-import { notFound } from 'next/navigation';
-import { getTalkByIdForAdmin } from '@/lib/db/queries/admin-talks';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { TalkForm } from '@/components/admin/talks/TalkForm';
 
-type Props = {
-  params: Promise<{
-    id: string;
-  }>;
+type Talk = {
+  id: string;
+  title: string;
+  speakerName: string;
+  tedUrl: string | null;
+  youtubeUrl: string | null;
+  youtubeVideoId: string | null;
+  description: string | null;
+  durationSeconds: number | null;
+  year: number | null;
+  eventName: string | null;
+  thumbnailUrl: string | null;
+  language: string | null;
 };
 
-export default async function EditTalkPage({ params }: Props) {
-  const { id } = await params;
-  const talk = await getTalkByIdForAdmin(id);
+export default function EditTalkPage() {
+  const params = useParams();
+  const router = useRouter();
+  const [talk, setTalk] = useState<Talk | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!talk) {
-    notFound();
+  useEffect(() => {
+    const fetchTalk = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/admin/talks/${params.id}`);
+
+        if (response.status === 404) {
+          router.push('/admin/talks');
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch talk');
+        }
+
+        const data = await response.json();
+        setTalk(data.talk);
+      } catch (err) {
+        console.error('Error fetching talk:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load talk');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchTalk();
+    }
+  }, [params.id, router]);
+
+  if (loading) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-gray-400">Loading talk...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !talk) {
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-red-400">Error: {error || 'Talk not found'}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
