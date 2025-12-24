@@ -18,12 +18,24 @@ export default function AdminLayout({
       <main className="flex-1 overflow-auto">
         {/* Diagnostic Banner - Only on Edit pages */}
         {isEditPage && (
-          <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-2">
+          <div className="bg-yellow-500/20 border-b border-yellow-500/30 px-4 py-2 flex gap-4 items-center">
             <button
-              onClick={() => alert('Click handler is working!')}
+              onClick={() => alert('Regular button works!')}
               className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded font-bold"
             >
-              🔧 TEST: Click Me (If this works, navigation should too)
+              🔧 TEST 1: Button
+            </button>
+            <a
+              href="/admin/talks"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold"
+            >
+              🔧 TEST 2: Regular &lt;a&gt; tag
+            </a>
+            <button
+              onClick={() => window.location.href = '/admin/talks'}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-bold"
+            >
+              🔧 TEST 3: window.location
             </button>
           </div>
         )}
