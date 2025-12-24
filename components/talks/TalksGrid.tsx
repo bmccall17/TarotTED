@@ -115,12 +115,12 @@ export function TalksGrid({ talks }: TalksGridProps) {
                 >
                   {talk.thumbnailUrl ? (
                     <>
-                      <Image
+                      <img
                         src={talk.thumbnailUrl}
                         alt={talk.title}
-                        fill
-                        className="object-cover"
-                        sizes="128px"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
                         <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />

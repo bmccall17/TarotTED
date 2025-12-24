@@ -107,12 +107,12 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 <div className="relative w-28 h-20 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-lg overflow-hidden border border-indigo-500/30 group-hover:border-indigo-400/50 transition-all">
                   {primaryMapping.talk.thumbnailUrl ? (
                     <>
-                      <Image
+                      <img
                         src={primaryMapping.talk.thumbnailUrl}
                         alt={primaryMapping.talk.title}
-                        fill
-                        className="object-cover"
-                        sizes="112px"
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
                         <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
