@@ -153,7 +153,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 <div className="flex flex-col sm:flex-row gap-3">
                   {(primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl) ? (
                     <a
-                      href={primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl}
+                      href={(primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl) as string}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-center font-medium inline-flex items-center justify-center gap-2"
