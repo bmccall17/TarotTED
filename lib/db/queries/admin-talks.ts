@@ -106,6 +106,12 @@ export async function searchTalksForAdmin(query: string, includeDeleted: boolean
       thumbnailUrl: talks.thumbnailUrl,
       year: talks.year,
       isDeleted: talks.isDeleted,
+      // Count of mappings for this talk
+      mappingsCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM card_talk_mappings
+        WHERE card_talk_mappings.talk_id = talks.id
+      )`,
     })
     .from(talks)
     .where(whereClause)
