@@ -64,7 +64,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
           {/* Thumbnail Banner */}
           {talk.thumbnailUrl && (talk.tedUrl || talk.youtubeUrl) && (
             <a
-              href={talk.tedUrl || talk.youtubeUrl}
+              href={(talk.tedUrl || talk.youtubeUrl) as string}
               target="_blank"
               rel="noopener noreferrer"
               className="block relative w-full bg-gray-900 group cursor-pointer"
@@ -128,7 +128,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
 
             {(talk.tedUrl || talk.youtubeUrl) ? (
               <a
-                href={talk.tedUrl || talk.youtubeUrl}
+                href={(talk.tedUrl || talk.youtubeUrl) as string}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
