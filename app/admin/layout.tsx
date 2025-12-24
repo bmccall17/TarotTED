@@ -8,7 +8,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 overflow-hidden">
-      <div className="relative z-10 flex-shrink-0">
+      <div className="relative z-[100] flex-shrink-0 pointer-events-auto">
         <AdminNav />
       </div>
       <main className="flex-1 overflow-auto relative z-0">

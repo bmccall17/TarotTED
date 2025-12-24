@@ -81,17 +81,6 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Explicitly allow navigation (disable browser's unsaved changes warning)
-  useEffect(() => {
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Delete the returnValue property to allow navigation
-      delete e.returnValue;
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
-
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
@@ -179,7 +168,7 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8 pb-24">
+    <div className="max-w-7xl mx-auto p-8 pb-24 relative">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-100">
           {mode === 'create' ? 'Create New Talk' : 'Edit Talk'}
@@ -193,7 +182,7 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Column */}
-        <div className="space-y-6">
+        <div className="space-y-6 relative z-0">
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             {/* URLs Section */}
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
@@ -378,10 +367,12 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
         </div>
 
         {/* Preview Column */}
-        <div className="lg:sticky lg:top-8 lg:self-start">
-          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-            <h2 className="text-lg font-semibold text-gray-100 mb-4">Preview</h2>
-            <TalkPreview data={formData} />
+        <div className="relative z-0">
+          <div className="lg:sticky lg:top-8">
+            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-gray-100 mb-4">Preview</h2>
+              <TalkPreview data={formData} />
+            </div>
           </div>
         </div>
       </div>
