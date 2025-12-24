@@ -9,17 +9,18 @@ import { Video, Link as LinkIcon, AlertTriangle, LayoutGrid, Sparkles, CheckCirc
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
-  // Fetch comprehensive statistics
-  const [
-    cardsCount,
-    talksStats,
-    mappingsCount,
-    themesCount,
-    cardThemesCount,
-    talkThemesCount,
-    primaryMappingsCount,
-    validationCounts
-  ] = await Promise.all([
+  try {
+    // Fetch comprehensive statistics
+    const [
+      cardsCount,
+      talksStats,
+      mappingsCount,
+      themesCount,
+      cardThemesCount,
+      talkThemesCount,
+      primaryMappingsCount,
+      validationCounts
+    ] = await Promise.all([
     db.select({ count: count() }).from(cards),
     getTalksStats(),
     db.select({ count: count() }).from(cardTalkMappings),
@@ -347,4 +348,28 @@ export default async function AdminDashboard() {
       </div>
     </div>
   );
+  } catch (error) {
+    console.error('Admin dashboard error:', error);
+    return (
+      <div className="p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-xl p-6">
+            <h1 className="text-2xl font-bold text-red-400 mb-4">Dashboard Error</h1>
+            <p className="text-gray-300 mb-4">Failed to load dashboard statistics.</p>
+            <pre className="bg-gray-900 p-4 rounded text-sm text-gray-400 overflow-auto">
+              {error instanceof Error ? error.message : 'Unknown error'}
+            </pre>
+            <div className="mt-4">
+              <p className="text-gray-400 text-sm">Possible causes:</p>
+              <ul className="list-disc list-inside text-gray-400 text-sm mt-2 space-y-1">
+                <li>Database connection issue</li>
+                <li>Missing POSTGRES_URL or DATABASE_URL environment variable</li>
+                <li>Database query timeout</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
