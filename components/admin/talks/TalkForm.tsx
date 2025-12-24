@@ -81,6 +81,17 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Explicitly allow navigation (disable browser's unsaved changes warning)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Delete the returnValue property to allow navigation
+      delete e.returnValue;
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
