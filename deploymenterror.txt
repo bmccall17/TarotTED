@@ -1,0 +1,13 @@
+   Collecting page data ...
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+   Generating static pages (0/194) ...
+[dotenv@17.2.3] injecting env (0) from .env.local -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+   Generating static pages (48/194) 
+Failed to build /talks/[slug]/page: /talks/rose-cain-ignite-your-curiosity (attempt 1 of 3) because it took more than 60 seconds. Retrying again shortly.
+   Generating static pages (96/194) 
+   Generating static pages (145/194) 
+Failed to build /admin/page: /admin (attempt 1 of 3) because it took more than 60 seconds. Retrying again shortly.
+Failed to build /admin/page: /admin (attempt 2 of 3) because it took more than 60 seconds. Retrying again shortly.
+Failed to build /admin/page: /admin after 3 attempts.
+Export encountered an error on /admin/page: /admin, exiting the build.
+ ⨯ Next.js build worker exited with code: 1 and signal: null

@@ -37,7 +37,8 @@ interface SearchResults {
     slug: string;
     title: string;
     speakerName: string;
-    tedUrl: string;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
     durationSeconds: number | null;
     year: number | null;
   }>;
@@ -294,7 +295,7 @@ function SearchContent() {
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {results.cards.map((card) => {
-                  const keywords = JSON.parse(card.keywords);
+                  const keywords = card.keywords ? JSON.parse(card.keywords) : [];
                   return (
                     <Link
                       key={card.id}

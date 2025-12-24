@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { getThemeWithCardsAndTalks, getAllThemes } from '@/lib/db/queries/themes';
 import { ArrowLeft, Sparkles, Play, ExternalLink } from 'lucide-react';
 
-// Revalidate every 60 seconds to pick up admin changes
-export const revalidate = 60;
+// Revalidate every 1 hour - theme collections are static
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const themes = await getAllThemes();

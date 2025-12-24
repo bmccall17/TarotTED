@@ -5,6 +5,9 @@ import { getTalksStats } from '@/lib/db/queries/admin-talks';
 import Link from 'next/link';
 import { Video, Link as LinkIcon, AlertTriangle, LayoutGrid, Sparkles, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 
+// Force dynamic rendering - admin page should not be statically generated
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboard() {
   // Fetch comprehensive statistics
   const [

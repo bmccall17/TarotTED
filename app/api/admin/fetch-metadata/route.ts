@@ -104,10 +104,10 @@ async function fetchYoutubeMetadata(
         return { error: 'YouTube API quota exceeded - try again tomorrow' };
       }
       if (reason === 'keyInvalid') {
-        return { error: 'YouTube API key is invalid - check Vercel environment variables' };
+        return { error: 'Unable to fetch metadata - API configuration error' };
       }
       if (reason === 'ipRefererBlocked') {
-        return { error: 'API key has IP/referrer restrictions - remove restrictions in Google Cloud Console' };
+        return { error: 'Unable to fetch metadata - API access restricted' };
       }
 
       // Return actual error from Google for debugging

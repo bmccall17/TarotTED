@@ -29,6 +29,7 @@ export interface SearchResults {
     title: string;
     speakerName: string;
     tedUrl: string | null;
+    youtubeUrl: string | null;
     durationSeconds: number | null;
     year: number | null;
   }>;
@@ -122,6 +123,7 @@ export async function searchWithFilters(
         title: talks.title,
         speakerName: talks.speakerName,
         tedUrl: talks.tedUrl,
+        youtubeUrl: talks.youtubeUrl,
         durationSeconds: talks.durationSeconds,
         year: talks.year,
       })

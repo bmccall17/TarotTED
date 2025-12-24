@@ -82,7 +82,11 @@ export async function GET(request: NextRequest) {
     // Execute search with filters
     const results = await searchWithFilters(query, filters);
 
-    return NextResponse.json(results);
+    return NextResponse.json(results, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=600',
+      },
+    });
   } catch (error) {
     console.error('Error searching:', error);
     return NextResponse.json(

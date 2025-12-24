@@ -5,7 +5,7 @@ import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
 import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
 
 // Revalidate every 60 seconds to pick up admin changes
-export const revalidate = 60;
+export const revalidate = 3600; // 1 hour - talk metadata changes infrequently
 
 export async function generateStaticParams() {
   const talks = await getAllTalks();
@@ -62,9 +62,9 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
         {/* Talk Hero */}
         <div className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl overflow-hidden border border-indigo-500/30">
           {/* Thumbnail Banner */}
-          {talk.thumbnailUrl && (
+          {talk.thumbnailUrl && (talk.tedUrl || talk.youtubeUrl) && (
             <a
-              href={talk.tedUrl || talk.youtubeUrl || '#'}
+              href={talk.tedUrl || talk.youtubeUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block relative w-full bg-gray-900 group cursor-pointer"
@@ -126,15 +126,21 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
               <p className="text-gray-300 mb-6 leading-relaxed">{talk.description}</p>
             )}
 
-            <a
-              href={talk.tedUrl || talk.youtubeUrl || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
-            >
-              Watch on TED
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            {(talk.tedUrl || talk.youtubeUrl) ? (
+              <a
+                href={talk.tedUrl || talk.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+              >
+                Watch on TED
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <div className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-gray-700 text-gray-400 px-6 py-3 rounded-lg font-medium cursor-not-allowed">
+                No Video Available
+              </div>
+            )}
           </div>
         </div>
 
@@ -143,7 +149,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
           <div className="space-y-4">
             <h2 className="text-xl font-bold text-gray-100">Tarot Mapping</h2>
             {talk.mappedCards.map((item) => {
-              const keywords = JSON.parse(item.card.keywords);
+              const keywords = item.card.keywords ? JSON.parse(item.card.keywords) : [];
 
               return (
                 <div

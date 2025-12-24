@@ -6,7 +6,7 @@ import { CardDetailClient } from '@/components/cards/CardDetailClient';
 import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 
 // Revalidate every 60 seconds to pick up new mappings
-export const revalidate = 60;
+export const revalidate = 3600; // 1 hour - card meanings are static
 
 export async function generateStaticParams() {
   const cards = await getAllCards();
@@ -39,7 +39,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
     notFound();
   }
 
-  const keywords = JSON.parse(card.keywords);
+  const keywords = card.keywords ? JSON.parse(card.keywords) : [];
   const primaryMapping = card.mappings.find((m) => m.mapping.isPrimary);
   const otherMappings = card.mappings.filter((m) => !m.mapping.isPrimary);
 
@@ -151,15 +151,21 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                   &ldquo;{primaryMapping.mapping.rationaleShort}&rdquo;
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <a
-                    href={primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl || '#'}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-center font-medium inline-flex items-center justify-center gap-2"
-                  >
-                    Watch Talk
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
+                  {(primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl) ? (
+                    <a
+                      href={primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-indigo-600 text-white py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors text-center font-medium inline-flex items-center justify-center gap-2"
+                    >
+                      Watch Talk
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <div className="flex-1 bg-gray-700 text-gray-400 py-3 px-4 rounded-lg text-center font-medium inline-flex items-center justify-center gap-2 cursor-not-allowed">
+                      No Video Available
+                    </div>
+                  )}
                   <Link
                     href={`/talks/${primaryMapping.talk.slug}`}
                     className="flex-1 bg-gray-800 text-gray-100 py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors text-center font-medium border border-gray-700"
