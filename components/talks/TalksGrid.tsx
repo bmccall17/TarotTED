@@ -115,21 +115,14 @@ export function TalksGrid({ talks }: TalksGridProps) {
                 >
                   {talk.thumbnailUrl ? (
                     <>
-                      <img
+                      <Image
                         src={talk.thumbnailUrl}
                         alt={talk.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          // Fallback to placeholder if image fails to load
-                          e.currentTarget.style.display = 'none';
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            const icon = parent.querySelector('.play-icon');
-                            if (icon) (icon as HTMLElement).style.display = 'block';
-                          }
-                        }}
+                        fill
+                        className="object-cover"
+                        sizes="128px"
                       />
-                      <div className="play-icon absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
                         <Play className="w-8 h-8 text-white/90 drop-shadow-lg" />
                       </div>
                     </>

@@ -145,10 +145,12 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                     >
                       {talk.thumbnailUrl ? (
                         <>
-                          <img
+                          <Image
                             src={talk.thumbnailUrl}
                             alt={talk.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="112px"
                           />
                           <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
                             <Play className="w-6 h-6 text-white/90 drop-shadow-lg" />

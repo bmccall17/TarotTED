@@ -70,10 +70,13 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
               className="block relative w-full bg-gray-900 group cursor-pointer"
             >
               <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <img
+                <Image
                   src={talk.thumbnailUrl}
                   alt={talk.title}
-                  className="absolute inset-0 w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                  fill
+                  className="object-contain opacity-90 group-hover:opacity-100 transition-opacity"
+                  sizes="(max-width: 1024px) 100vw, 896px"
+                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
