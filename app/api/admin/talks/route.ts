@@ -5,6 +5,7 @@ import {
   createTalk,
   type InsertTalk,
 } from '@/lib/db/queries/admin-talks';
+import { downloadTalkThumbnail } from '@/lib/utils/download-image';
 
 /**
  * GET /api/admin/talks
@@ -59,7 +60,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Download thumbnail if it's an external URL
+    if (body.thumbnailUrl && (body.thumbnailUrl.startsWith('http://') || body.thumbnailUrl.startsWith('https://'))) {
+      console.log('📥 Downloading thumbnail for new talk...');
+      // Create a temporary ID for the filename (will use actual ID after creation)
+      const tempId = `temp-${Date.now()}`;
+      const localPath = await downloadTalkThumbnail(tempId, body.thumbnailUrl);
+      if (localPath) {
+        body.thumbnailUrl = localPath;
+        console.log('✅ Thumbnail downloaded:', localPath);
+      } else {
+        console.warn('⚠️  Failed to download thumbnail, keeping external URL');
+      }
+    }
+
     const talk = await createTalk(body);
+
+    // If we used a temp ID, rename the file to use the actual talk ID
+    if (body.thumbnailUrl && body.thumbnailUrl.includes('temp-')) {
+      const fs = require('fs');
+      const path = require('path');
+      const oldPath = path.join(process.cwd(), 'public', body.thumbnailUrl);
+      const extension = body.thumbnailUrl.split('.').pop();
+      const newFilename = `${talk.id}.${extension}`;
+      const newPath = path.join(process.cwd(), 'public', 'images', 'talks', newFilename);
+
+      try {
+        fs.renameSync(oldPath, newPath);
+        const newPublicPath = `/images/talks/${newFilename}`;
+        // Update the talk with the correct path
+        const { updateTalk } = await import('@/lib/db/queries/admin-talks');
+        await updateTalk(talk.id, { thumbnailUrl: newPublicPath });
+        talk.thumbnailUrl = newPublicPath;
+      } catch (err) {
+        console.error('Failed to rename thumbnail file:', err);
+      }
+    }
 
     return NextResponse.json({ talk }, { status: 201 });
   } catch (error) {

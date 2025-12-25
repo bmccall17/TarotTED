@@ -4,6 +4,7 @@ import {
   updateTalk,
   softDeleteTalk,
 } from '@/lib/db/queries/admin-talks';
+import { downloadTalkThumbnail } from '@/lib/utils/download-image';
 
 /**
  * GET /api/admin/talks/[id]
@@ -51,6 +52,18 @@ export async function PUT(
         { error: 'At least one URL (tedUrl or youtubeUrl) must be provided' },
         { status: 400 }
       );
+    }
+
+    // Download thumbnail if it's an external URL
+    if (body.thumbnailUrl && (body.thumbnailUrl.startsWith('http://') || body.thumbnailUrl.startsWith('https://'))) {
+      console.log('📥 Downloading thumbnail for talk update...');
+      const localPath = await downloadTalkThumbnail(id, body.thumbnailUrl);
+      if (localPath) {
+        body.thumbnailUrl = localPath;
+        console.log('✅ Thumbnail downloaded:', localPath);
+      } else {
+        console.warn('⚠️  Failed to download thumbnail, keeping external URL');
+      }
     }
 
     const talk = await updateTalk(id, body);
