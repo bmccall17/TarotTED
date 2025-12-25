@@ -43,6 +43,16 @@ export interface ValidationIssues {
     youtubeVideoId: string | null;
     thumbnailUrl: string | null;
   }>;
+  externalThumbnails: Array<{
+    id: string;
+    title: string;
+    speakerName: string;
+    slug: string;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
+  }>;
   shortDescriptions: Array<{
     id: string;
     title: string;
@@ -97,6 +107,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
     talksWithOnlyYoutubeUrl,
     missingBothUrls,
     missingThumbnails,
+    externalThumbnails,
     shortDescriptions,
     cardsWithoutPrimaryMapping,
     talksNotMappedToAnyCard,
@@ -106,6 +117,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
     getTalksWithOnlyYoutubeUrl(),
     getMissingBothUrls(),
     getMissingThumbnails(),
+    getExternalThumbnails(),
     getShortDescriptions(),
     getCardsWithoutPrimaryMapping(),
     getTalksNotMappedToAnyCard(),
@@ -117,6 +129,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
     talksWithOnlyYoutubeUrl,
     missingBothUrls,
     missingThumbnails,
+    externalThumbnails,
     shortDescriptions,
     cardsWithoutPrimaryMapping,
     talksNotMappedToAnyCard,
@@ -250,6 +263,35 @@ async function getMissingThumbnails() {
 }
 
 /**
+ * Get talks with external thumbnail URLs (not stored locally)
+ * These need to be downloaded for reliability
+ */
+async function getExternalThumbnails() {
+  return await db
+    .select({
+      id: talks.id,
+      title: talks.title,
+      speakerName: talks.speakerName,
+      slug: talks.slug,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
+    })
+    .from(talks)
+    .where(
+      and(
+        eq(talks.isDeleted, false),
+        sql`${talks.thumbnailUrl} IS NOT NULL`,
+        sql`${talks.thumbnailUrl} != ''`,
+        // External URLs start with http:// or https://
+        sql`(${talks.thumbnailUrl} LIKE 'http://%' OR ${talks.thumbnailUrl} LIKE 'https://%')`
+      )
+    )
+    .orderBy(talks.title);
+}
+
+/**
  * Get talks with short or missing descriptions
  */
 async function getShortDescriptions() {
@@ -366,6 +408,7 @@ export async function getValidationSummary() {
       issues.talksWithOnlyYoutubeUrl.length +
       issues.missingBothUrls.length +
       issues.missingThumbnails.length +
+      issues.externalThumbnails.length +
       issues.shortDescriptions.length,
     mappings:
       issues.cardsWithoutPrimaryMapping.length +
@@ -376,6 +419,7 @@ export async function getValidationSummary() {
       issues.talksWithOnlyYoutubeUrl.length +
       issues.missingBothUrls.length +
       issues.missingThumbnails.length +
+      issues.externalThumbnails.length +
       issues.shortDescriptions.length +
       issues.cardsWithoutPrimaryMapping.length +
       issues.talksNotMappedToAnyCard.length +
@@ -385,6 +429,7 @@ export async function getValidationSummary() {
       talksWithOnlyYoutubeUrl: issues.talksWithOnlyYoutubeUrl.length,
       missingBothUrls: issues.missingBothUrls.length,
       missingThumbnails: issues.missingThumbnails.length,
+      externalThumbnails: issues.externalThumbnails.length,
       shortDescriptions: issues.shortDescriptions.length,
       cardsWithoutPrimaryMapping: issues.cardsWithoutPrimaryMapping.length,
       talksNotMappedToAnyCard: issues.talksNotMappedToAnyCard.length,

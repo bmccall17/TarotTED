@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         issues.talksWithOnlyYoutubeUrl.length +
         issues.missingBothUrls.length +
         issues.missingThumbnails.length +
+        issues.externalThumbnails.length +
         issues.shortDescriptions.length,
       mappings:
         issues.cardsWithoutPrimaryMapping.length +

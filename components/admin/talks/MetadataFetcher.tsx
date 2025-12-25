@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
+import { Download, AlertCircle, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
 
 type FetchedMetadata = {
   title: string | null;
@@ -36,7 +36,7 @@ type Props = {
 export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) {
   const [loading, setLoading] = useState(false);
   const [fetchedData, setFetchedData] = useState<FetchedMetadata | null>(null);
-  const [errors, setErrors] = useState<{ ted?: string; youtube?: string }>({});
+  const [errors, setErrors] = useState<{ ted?: string; youtube?: string; tedThumbnail?: string }>({});
   const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>({
     title: true,
     speakerName: true,
@@ -75,18 +75,22 @@ export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) 
       setFetchedData(data.merged);
 
       // Only set errors for APIs we actually tried to fetch from
-      const newErrors: { ted?: string; youtube?: string } = {};
+      const newErrors: { ted?: string; youtube?: string; tedThumbnail?: string } = {};
       if (tedUrl.trim() && data.errors?.ted) {
         newErrors.ted = data.errors.ted;
       }
       if (youtubeUrl.trim() && data.errors?.youtube) {
         newErrors.youtube = data.errors.youtube;
       }
+      // Thumbnail-specific warning (not a blocking error)
+      if (data.errors?.tedThumbnail) {
+        newErrors.tedThumbnail = data.errors.tedThumbnail;
+      }
       setErrors(newErrors);
     } catch (error) {
       console.error('Error fetching metadata:', error);
       // General error - only show for the URL types we tried
-      const newErrors: { ted?: string; youtube?: string } = {};
+      const newErrors: { ted?: string; youtube?: string; tedThumbnail?: string } = {};
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       if (tedUrl.trim()) newErrors.ted = errorMessage;
       if (youtubeUrl.trim()) newErrors.youtube = errorMessage;
@@ -158,8 +162,8 @@ export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) 
         )}
       </div>
 
-      {/* Errors */}
-      {(errors.ted || errors.youtube) && (
+      {/* Errors and Warnings */}
+      {(errors.ted || errors.youtube || errors.tedThumbnail) && (
         <div className="space-y-2">
           {errors.ted && (
             <div className="flex items-start gap-2 p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
@@ -176,6 +180,15 @@ export function MetadataFetcher({ tedUrl, youtubeUrl, onApplyMetadata }: Props) 
               <div>
                 <p className="text-sm font-medium text-red-300">YouTube Error</p>
                 <p className="text-xs text-red-400">{errors.youtube}</p>
+              </div>
+            </div>
+          )}
+          {errors.tedThumbnail && (
+            <div className="flex items-start gap-2 p-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+              <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-yellow-300">TED Thumbnail Warning</p>
+                <p className="text-xs text-yellow-400">{errors.tedThumbnail} - Using YouTube thumbnail instead</p>
               </div>
             </div>
           )}

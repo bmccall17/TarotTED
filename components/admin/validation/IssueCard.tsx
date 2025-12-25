@@ -8,6 +8,7 @@ type IssueType =
   | 'youtubeOnly'
   | 'missingUrls'
   | 'missingThumbnail'
+  | 'externalThumbnail'
   | 'shortDescription'
   | 'cardNoPrimary'
   | 'unmappedTalk'
@@ -126,6 +127,7 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
     type === 'youtubeOnly' ||
     type === 'missingUrls' ||
     type === 'missingThumbnail' ||
+    type === 'externalThumbnail' ||
     type === 'shortDescription' ||
     type === 'unmappedTalk' ||
     type === 'softDeleted'
@@ -143,6 +145,8 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
           return 'Add URLs';
         case 'missingThumbnail':
           return 'Fetch Thumbnail';
+        case 'externalThumbnail':
+          return 'Download to Local';
         case 'shortDescription':
           return 'Edit Description';
         case 'unmappedTalk':
@@ -177,6 +181,11 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
             {type === 'shortDescription' && item.description && (
               <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
                 Current: "{item.description}"
+              </p>
+            )}
+            {type === 'externalThumbnail' && item.thumbnailUrl && (
+              <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
+                External: {item.thumbnailUrl.substring(0, 60)}...
               </p>
             )}
             {type === 'softDeleted' && item.deletedAt && (

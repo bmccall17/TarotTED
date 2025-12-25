@@ -3,6 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { talks, cardTalkMappings, cards } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { downloadTalkThumbnail } from '@/lib/utils/download-image';
 
 // Validation fix actions:
 // - resolve-duplicate-youtube: Remove YouTube ID from specified talk
@@ -107,13 +108,32 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        let finalThumbnailUrl = thumbnailUrl;
+
+        // If it's an external URL, download it locally
+        if (thumbnailUrl.startsWith('http://') || thumbnailUrl.startsWith('https://')) {
+          console.log('📥 Downloading thumbnail for validation fix...');
+          const localPath = await downloadTalkThumbnail(talkId, thumbnailUrl);
+          if (localPath) {
+            finalThumbnailUrl = localPath;
+            console.log('✅ Thumbnail downloaded:', localPath);
+          } else {
+            console.warn('⚠️  Failed to download thumbnail, keeping external URL');
+          }
+        }
+
         // Update the thumbnail URL
         await db
           .update(talks)
-          .set({ thumbnailUrl })
+          .set({ thumbnailUrl: finalThumbnailUrl })
           .where(eq(talks.id, talkId));
 
-        return NextResponse.json({ success: true, message: 'Thumbnail updated' });
+        return NextResponse.json({
+          success: true,
+          message: finalThumbnailUrl !== thumbnailUrl
+            ? 'Thumbnail downloaded and saved locally'
+            : 'Thumbnail updated'
+        });
       }
 
       case 'update-field': {

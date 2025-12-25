@@ -6,6 +6,7 @@ import {
   AlertCircle,
   Link2,
   Image,
+  Download,
   FileText,
   Map,
   Trash2,
@@ -22,6 +23,7 @@ import {
   DuplicateYoutubeModal,
   SetPrimaryModal,
   FetchThumbnailModal,
+  DownloadThumbnailModal,
   AddMappingModal,
 } from './modals';
 
@@ -51,6 +53,16 @@ type ValidationIssues = {
     thumbnailUrl?: string | null;
   }>;
   missingThumbnails: Array<{
+    id: string;
+    title: string;
+    speakerName: string;
+    slug: string;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+    youtubeVideoId?: string | null;
+    thumbnailUrl?: string | null;
+  }>;
+  externalThumbnails: Array<{
     id: string;
     title: string;
     speakerName: string;
@@ -112,6 +124,7 @@ type IssueType =
   | 'youtubeOnly'
   | 'missingUrls'
   | 'missingThumbnail'
+  | 'externalThumbnail'
   | 'shortDescription'
   | 'cardNoPrimary'
   | 'unmappedTalk'
@@ -124,6 +137,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
     talksWithOnlyYoutubeUrl: false,
     missingBothUrls: true,
     missingThumbnails: false,
+    externalThumbnails: true,
     shortDescriptions: false,
     cardsWithoutPrimaryMapping: true,
     talksNotMappedToAnyCard: false,
@@ -218,6 +232,11 @@ export function ValidationDashboard({ initialIssues }: Props) {
     missingThumbnails: {
       title: 'Missing Thumbnails',
       icon: <Image className="w-5 h-5" />,
+      severity: 'important',
+    },
+    externalThumbnails: {
+      title: 'External Thumbnails (Need Download)',
+      icon: <Download className="w-5 h-5" />,
       severity: 'important',
     },
     shortDescriptions: {
@@ -344,6 +363,21 @@ export function ValidationDashboard({ initialIssues }: Props) {
                 );
               })}
 
+            {key === 'externalThumbnails' &&
+              issues.externalThumbnails.map((item) => {
+                const issueId = getIssueId('externalThumbnail', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="externalThumbnail"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
+
             {key === 'shortDescriptions' &&
               issues.shortDescriptions.map((item) => {
                 const issueId = getIssueId('shortDescription', item);
@@ -460,6 +494,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
           {/* Important Issues */}
           {(issues.talksWithOnlyYoutubeUrl.length > 0 ||
             issues.missingThumbnails.length > 0 ||
+            issues.externalThumbnails.length > 0 ||
             issues.shortDescriptions.length > 0) && (
             <div>
               <h2 className="text-sm font-medium text-yellow-400 mb-3 flex items-center gap-2">
@@ -469,6 +504,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
               <div className="space-y-4">
                 {renderSection('talksWithOnlyYoutubeUrl')}
                 {renderSection('missingThumbnails')}
+                {renderSection('externalThumbnails')}
                 {renderSection('shortDescriptions')}
               </div>
             </div>
@@ -565,6 +601,14 @@ export function ValidationDashboard({ initialIssues }: Props) {
 
       {activeModal === 'missingThumbnail' && selectedIssue && (
         <FetchThumbnailModal
+          talk={selectedIssue}
+          onClose={handleModalClose}
+          onSuccess={handleFixSuccess}
+        />
+      )}
+
+      {activeModal === 'externalThumbnail' && selectedIssue && (
+        <DownloadThumbnailModal
           talk={selectedIssue}
           onClose={handleModalClose}
           onSuccess={handleFixSuccess}

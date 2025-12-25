@@ -32,6 +32,29 @@ function extractYoutubeVideoId(url: string): string | null {
 }
 
 /**
+ * Validate that a thumbnail URL is accessible
+ * Returns true if the image can be loaded, false otherwise
+ */
+async function validateThumbnailUrl(url: string): Promise<boolean> {
+  if (!url) return false;
+
+  try {
+    const response = await fetch(url, {
+      method: 'HEAD',
+      signal: AbortSignal.timeout(5000), // 5 second timeout for validation
+    });
+
+    // Check if response is OK and content-type is an image
+    if (!response.ok) return false;
+
+    const contentType = response.headers.get('content-type');
+    return contentType?.startsWith('image/') ?? false;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Fetch metadata from TED oEmbed API
  */
 async function fetchTedMetadata(url: string): Promise<TedMetadata | { error: string }> {
@@ -49,10 +72,25 @@ async function fetchTedMetadata(url: string): Promise<TedMetadata | { error: str
     }
 
     const data = await response.json();
+    const thumbnailUrl = data.thumbnail_url || null;
+
+    // Validate that the thumbnail is actually accessible
+    let validatedThumbnailUrl = thumbnailUrl;
+    let thumbnailError: string | null = null;
+
+    if (thumbnailUrl) {
+      const isValid = await validateThumbnailUrl(thumbnailUrl);
+      if (!isValid) {
+        validatedThumbnailUrl = null;
+        thumbnailError = 'TED thumbnail image could not be loaded';
+      }
+    }
+
     return {
       title: data.title || null,
-      thumbnailUrl: data.thumbnail_url || null,
+      thumbnailUrl: validatedThumbnailUrl,
       authorName: data.author_name || null,
+      thumbnailError,
     };
   } catch (error) {
     if (error instanceof Error && error.name === 'TimeoutError') {
@@ -156,6 +194,7 @@ type TedMetadata = {
   title: string | null;
   thumbnailUrl: string | null;
   authorName: string | null;
+  thumbnailError?: string | null;
 };
 
 type YoutubeMetadata = {
@@ -229,7 +268,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const errors: { ted?: string; youtube?: string } = {};
+    const errors: { ted?: string; youtube?: string; tedThumbnail?: string } = {};
     let tedData: TedMetadata | null = null;
     let youtubeData: YoutubeMetadata | null = null;
 
@@ -240,6 +279,10 @@ export async function POST(request: NextRequest) {
         errors.ted = result.error;
       } else {
         tedData = result;
+        // Report thumbnail validation error separately (not a full failure)
+        if (result.thumbnailError) {
+          errors.tedThumbnail = result.thumbnailError;
+        }
       }
     }
 
