@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, X } from 'lucide-react';
+import { Save, X, CheckCircle, ImageIcon, Link2 } from 'lucide-react';
 import { UrlInputs } from './UrlInputs';
 import { MetadataFetcher } from './MetadataFetcher';
 import { TalkPreview } from './TalkPreview';
@@ -311,18 +311,101 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
                 />
               </div>
 
-              {/* Thumbnail URL */}
+              {/* Thumbnail URL - Smart Display */}
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Thumbnail URL
+                  Thumbnail
                 </label>
-                <input
-                  type="url"
-                  value={formData.thumbnailUrl}
-                  onChange={(e) => updateField('thumbnailUrl', e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                  placeholder="https://..."
-                />
+
+                {/* Check if we have a local image */}
+                {formData.thumbnailUrl && formData.thumbnailUrl.startsWith('/images/talks/') ? (
+                  // LOCAL IMAGE - Show badge, preview, and option to replace
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-4 py-3 bg-green-900/20 border border-green-500/30 rounded-lg">
+                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-green-300">Using Local Image</p>
+                        <p className="text-xs text-green-400/70 font-mono">{formData.thumbnailUrl}</p>
+                      </div>
+                    </div>
+
+                    {/* Preview of local image */}
+                    <div className="relative w-full max-w-xs">
+                      <img
+                        src={formData.thumbnailUrl}
+                        alt="Current thumbnail"
+                        className="w-full h-auto rounded-lg border border-gray-700"
+                      />
+                    </div>
+
+                    {/* Option to replace */}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => updateField('thumbnailUrl', '')}
+                        className="text-xs text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" />
+                        Clear & use new URL
+                      </button>
+                    </div>
+                  </div>
+                ) : formData.thumbnailUrl && (formData.thumbnailUrl.startsWith('http://') || formData.thumbnailUrl.startsWith('https://')) ? (
+                  // EXTERNAL URL - Show with icon and preview
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Link2 className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      <input
+                        type="url"
+                        value={formData.thumbnailUrl}
+                        onChange={(e) => updateField('thumbnailUrl', e.target.value)}
+                        className="flex-1 px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        placeholder="https://..."
+                      />
+                      <button
+                        type="button"
+                        onClick={() => updateField('thumbnailUrl', '')}
+                        className="p-2 text-gray-400 hover:text-red-400 transition-colors"
+                        title="Clear URL"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Preview of external image */}
+                    <div className="relative w-full max-w-xs">
+                      <img
+                        src={formData.thumbnailUrl}
+                        alt="Thumbnail preview"
+                        className="w-full h-auto rounded-lg border border-gray-700"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+
+                    <p className="text-xs text-blue-400/70">
+                      💡 This external URL will be downloaded and saved locally when you save the talk.
+                    </p>
+                  </div>
+                ) : (
+                  // NO THUMBNAIL - Show empty input
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                      <input
+                        type="url"
+                        value={formData.thumbnailUrl}
+                        onChange={(e) => updateField('thumbnailUrl', e.target.value)}
+                        className="flex-1 px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        placeholder="https://... or use Fetch Metadata above"
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400">
+                      Use "Fetch Metadata" above to automatically get thumbnail from TED/YouTube
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Language */}
