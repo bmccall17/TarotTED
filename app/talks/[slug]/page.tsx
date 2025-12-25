@@ -207,7 +207,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                       <details className="mt-4 group">
                         <summary className="cursor-pointer text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors list-none flex items-center gap-2">
                           <span className="text-indigo-400 group-open:rotate-90 transition-transform">▶</span>
-                          Read More
+                          READ MORE ABOUT WHY THIS MAPPING...
                         </summary>
                         <div className="mt-3 pl-5 text-gray-300 leading-relaxed whitespace-pre-wrap">
                           {item.mapping.rationaleLong}
