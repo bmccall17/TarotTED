@@ -4,6 +4,185 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.0.4 - Local Image Storage & Admin UX Improvements 🖼️
+**Release Date:** December 25, 2024
+**Status:** Production Ready
+
+### Overview
+
+This release introduces a local image storage system for talk thumbnails, eliminating dependency on external CDNs. Also includes critical fixes for frontend caching that was preventing admin changes from appearing, and smart UX improvements to the thumbnail management workflow.
+
+### 🖼️ Local Image Storage System
+
+#### Why Local Storage?
+- **Prevents broken links** - External URLs can change or be removed
+- **Faster loading** - Images served from same domain
+- **Full control** - No reliance on third-party CDNs (TED, YouTube)
+
+#### New Infrastructure
+- **Storage location:** `public/images/talks/`
+- **File naming:** `{talk-id}.{extension}` (jpg, png, webp)
+- **Accessible at:** `/images/talks/{filename}`
+
+#### Automatic Download on Save
+When creating or updating talks via admin portal:
+1. If `thumbnailUrl` starts with `http://` or `https://`, it's automatically downloaded
+2. Image saved to `public/images/talks/{talk-id}.{ext}`
+3. Database updated to point to local path
+
+**Files Created:**
+- `lib/utils/download-image.ts` - Download utility functions
+- `scripts/download-talk-thumbnails.ts` - Bulk migration script
+- `public/images/talks/README.md` - Documentation
+
+**Files Modified:**
+- `app/api/admin/talks/route.ts` - Auto-download on create
+- `app/api/admin/talks/[id]/route.ts` - Auto-download on update
+
+#### Migration Results
+```
+Talks migrated:    67/78 (86% success)
+Failed:            11 (CDN restrictions - kept external URLs)
+Images downloaded: 67 files to public/images/talks/
+Database updated:  67 records with local paths
+```
+
+### 🎨 Smart Thumbnail Display (Admin UX)
+
+The Thumbnail field in Edit Talk now intelligently adapts based on content:
+
+#### Three Display Modes
+
+**1. Local Image (Green Badge)**
+- Shows when URL starts with `/images/talks/`
+- Green "Using Local Image" badge with ✓ checkmark
+- Preview of the local image
+- "Clear & use new URL" option if replacement needed
+
+**2. External URL (Blue Link)**
+- Shows when URL starts with `http://` or `https://`
+- Editable URL input field with preview
+- Clear (X) button to remove
+- Helpful message: "This will be downloaded when you save"
+
+**3. Empty (Gray Placeholder)**
+- Shows when no thumbnail is set
+- Empty input with hint to use Fetch Metadata
+- Gray icon indicator
+
+#### Workflow
+1. **Fetch Metadata** → Gets external URL
+2. **Apply Fields** → Form shows external URL (blue mode)
+3. **Save** → System downloads image automatically
+4. **Edit again** → Shows green "Local Image" badge
+
+### ⚡ Critical Caching Fixes
+
+#### Problem
+Admin changes to talks were not appearing on the frontend. Database showed correct data, but pages served stale content.
+
+#### Root Cause
+Pages were using Incremental Static Regeneration (ISR) with long cache times:
+- Talk pages: 1 hour cache
+- Card pages: 60 second cache
+- Themes pages: 1 hour cache
+- Some pages: No revalidation (static forever)
+
+#### Solution
+Set `revalidate = 0` on all frontend pages and `no-store` on API routes:
+
+**Pages Fixed:**
+- `app/talks/[slug]/page.tsx` - 3600s → 0
+- `app/talks/page.tsx` - 3600s → 0
+- `app/cards/[slug]/page.tsx` - 60s → 0
+- `app/cards/page.tsx` - Added revalidate = 0
+- `app/themes/[slug]/page.tsx` - 3600s → 0
+- `app/themes/page.tsx` - Added revalidate = 0
+
+**API Routes Fixed:**
+- `app/api/search/route.ts` - max-age:300 → no-store
+- `app/api/random-card/route.ts` - Added no-store headers
+
+**Impact:** Admin changes now appear immediately on frontend refresh.
+
+### 🔧 Admin Mappings Count Fix
+
+#### Problem
+Mappings count showed "0" when searching for talks in admin portal.
+
+#### Root Cause
+`searchTalksForAdmin()` query was missing the `mappingsCount` SQL subquery that existed in `getAllTalksForAdmin()`.
+
+#### Solution
+Added mappingsCount subquery to `lib/db/queries/admin-talks.ts`:
+```typescript
+mappingsCount: sql<number>`(
+  SELECT COUNT(*)::int
+  FROM card_talk_mappings
+  WHERE card_talk_mappings.talk_id = talks.id
+)`
+```
+
+**Impact:** Mappings column now shows correct count when searching talks.
+
+### 🚧 Known Issue: Edit Talk Navigation
+
+#### Symptom
+Next.js Link components don't respond to clicks on the Edit Talk page. Hover states work, but clicks do nothing. Affects both Chrome and Edge.
+
+#### Workaround Implemented
+Added a prominent "BACK TO TALKS" button (using regular `<a>` tag) at the top of Edit Talk pages. This works because:
+- ✅ Regular `<a>` tags work
+- ✅ `window.location` navigation works
+- ❌ Next.js `<Link>` components don't work (under investigation)
+
+**Location:** `app/admin/layout.tsx` - Shows only on `/edit` pages
+
+#### Investigation Notes
+- Converted AdminNav from Link to div+router.push → Still broken
+- Converted Edit page to client component → Still broken
+- Issue is specific to Next.js Link/router on this page
+- Root cause TBD in future release
+
+### 📊 Summary
+
+```
+New Files:           4
+Modified Files:      12
+Images Downloaded:   67
+Database Updates:    67 talks with local paths
+Cache Fix:           8 pages + 2 APIs
+```
+
+### 🎯 Impact
+
+**For Admins:**
+- Changes appear immediately (no more waiting for cache)
+- Smart thumbnail display shows what's actually being used
+- Mappings counts accurate when searching
+- Can navigate away from Edit Talk page (workaround button)
+
+**For Users:**
+- Faster image loading (same domain)
+- No broken thumbnail links
+- Always see latest content
+
+**For Reliability:**
+- Images stored locally - no external dependencies
+- 67 talks no longer depend on TED/YouTube CDN availability
+
+### 🔮 What's Next
+
+**Immediate (v1.0.5):**
+- Investigate and fix Next.js Link issue on Edit Talk page
+- Remove workaround button once fixed
+
+**Future:**
+- Re-run migration script for 11 failed thumbnails
+- Consider image optimization (WebP conversion, resizing)
+
+---
+
 ## v1.0.2 - Security Hardening & Performance Optimization 🔒
 **Release Date:** December 24, 2024
 **Status:** Production Ready
