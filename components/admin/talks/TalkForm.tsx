@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, X, CheckCircle, ImageIcon, Link2 } from 'lucide-react';
+import { Save, X, CheckCircle, ImageIcon, Link2, CloudOff, Cloud } from 'lucide-react';
+import { isSupabaseStorageUrl } from '@/lib/supabase';
 import { UrlInputs } from './UrlInputs';
 import { MetadataFetcher } from './MetadataFetcher';
 import { TalkPreview } from './TalkPreview';
@@ -317,19 +318,20 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
                   Thumbnail
                 </label>
 
-                {/* Check if we have a local image */}
-                {formData.thumbnailUrl && formData.thumbnailUrl.startsWith('/images/talks/') ? (
-                  // LOCAL IMAGE - Show badge, preview, and option to replace
+                {/* Check if we have a Supabase Storage image */}
+                {formData.thumbnailUrl && isSupabaseStorageUrl(formData.thumbnailUrl) ? (
+                  // SECURED IN STORAGE - Show green badge and preview
                   <div className="space-y-3">
                     <div className="flex items-center gap-2 px-4 py-3 bg-green-900/20 border border-green-500/30 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                      <Cloud className="w-5 h-5 text-green-400 flex-shrink-0" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-green-300">Using Local Image</p>
-                        <p className="text-xs text-green-400/70 font-mono">{formData.thumbnailUrl}</p>
+                        <p className="text-sm font-medium text-green-300">Secured in Storage</p>
+                        <p className="text-xs text-green-400/70">Image saved to Supabase Storage</p>
                       </div>
+                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                     </div>
 
-                    {/* Preview of local image */}
+                    {/* Preview of stored image */}
                     <div className="relative w-full max-w-xs">
                       <img
                         src={formData.thumbnailUrl}
@@ -351,15 +353,23 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
                     </div>
                   </div>
                 ) : formData.thumbnailUrl && (formData.thumbnailUrl.startsWith('http://') || formData.thumbnailUrl.startsWith('https://')) ? (
-                  // EXTERNAL URL - Show with icon and preview
+                  // EXTERNAL URL - Show warning that needs to be uploaded
                   <div className="space-y-3">
+                    <div className="flex items-center gap-2 px-4 py-3 bg-yellow-900/20 border border-yellow-500/30 rounded-lg">
+                      <CloudOff className="w-5 h-5 text-yellow-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-yellow-300">External Source</p>
+                        <p className="text-xs text-yellow-400/70">Will be uploaded to storage on save</p>
+                      </div>
+                    </div>
+
                     <div className="flex items-center gap-2">
-                      <Link2 className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      <Link2 className="w-4 h-4 text-yellow-400 flex-shrink-0" />
                       <input
                         type="url"
                         value={formData.thumbnailUrl}
                         onChange={(e) => updateField('thumbnailUrl', e.target.value)}
-                        className="flex-1 px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                        className="flex-1 px-4 py-2 bg-gray-900 border border-yellow-600/50 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                         placeholder="https://..."
                       />
                       <button
@@ -377,16 +387,12 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
                       <img
                         src={formData.thumbnailUrl}
                         alt="Thumbnail preview"
-                        className="w-full h-auto rounded-lg border border-gray-700"
+                        className="w-full h-auto rounded-lg border border-yellow-700/50"
                         onError={(e) => {
                           (e.target as HTMLImageElement).style.display = 'none';
                         }}
                       />
                     </div>
-
-                    <p className="text-xs text-blue-400/70">
-                      💡 This external URL will be downloaded and saved locally when you save the talk.
-                    </p>
                   </div>
                 ) : (
                   // NO THUMBNAIL - Show empty input
