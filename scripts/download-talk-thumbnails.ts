@@ -1,17 +1,20 @@
 /**
- * Download all talk thumbnails from external URLs and save them locally
- * This updates the database to point to local images instead of external URLs
+ * Upload all talk thumbnails from external URLs to Supabase Storage
+ * This updates the database to point to Supabase URLs instead of external URLs
+ *
+ * Run: npx dotenv -e .env.local -- tsx scripts/download-talk-thumbnails.ts
  */
 
 import { db } from '../lib/db';
 import { talks } from '../lib/db/schema';
-import { eq, isNotNull, or, and, sql } from 'drizzle-orm';
+import { eq, isNotNull, and, sql } from 'drizzle-orm';
 import { downloadTalkThumbnail } from '../lib/utils/download-image';
+import { isSupabaseStorageUrl } from '../lib/supabase';
 
-async function downloadAllThumbnails() {
-  console.log('🖼️  Starting talk thumbnail download...\n');
+async function uploadAllThumbnails() {
+  console.log('🖼️  Starting talk thumbnail upload to Supabase Storage...\n');
 
-  // Get all talks that have external thumbnail URLs
+  // Get all talks that have external thumbnail URLs (excluding Supabase URLs)
   const talksWithThumbnails = await db
     .select({
       id: talks.id,
@@ -22,54 +25,64 @@ async function downloadAllThumbnails() {
     .where(
       and(
         isNotNull(talks.thumbnailUrl),
-        // Only download external URLs (not already local)
-        or(
-          sql`${talks.thumbnailUrl} LIKE 'http%'`,
-          sql`${talks.thumbnailUrl} LIKE 'https://%'`
-        )
+        sql`${talks.thumbnailUrl} != ''`,
+        // Only process external URLs
+        sql`(${talks.thumbnailUrl} LIKE 'http://%' OR ${talks.thumbnailUrl} LIKE 'https://%')`
       )
     );
 
-  console.log(`Found ${talksWithThumbnails.length} talks with external thumbnails\n`);
+  // Filter out already-migrated Supabase URLs
+  const talksToMigrate = talksWithThumbnails.filter(
+    (talk) => !isSupabaseStorageUrl(talk.thumbnailUrl)
+  );
+
+  console.log(`Found ${talksWithThumbnails.length} talks with external thumbnails`);
+  console.log(`Skipping ${talksWithThumbnails.length - talksToMigrate.length} already in Supabase`);
+  console.log(`Will migrate ${talksToMigrate.length} thumbnails\n`);
+
+  if (talksToMigrate.length === 0) {
+    console.log('✨ All thumbnails are already in Supabase Storage!');
+    return;
+  }
 
   let successCount = 0;
   let failCount = 0;
 
-  for (const talk of talksWithThumbnails) {
+  for (const talk of talksToMigrate) {
     console.log(`Processing: ${talk.title}`);
-    console.log(`  External URL: ${talk.thumbnailUrl}`);
+    console.log(`  External URL: ${talk.thumbnailUrl?.substring(0, 60)}...`);
 
     if (!talk.thumbnailUrl) continue;
 
-    // Download the image
-    const localPath = await downloadTalkThumbnail(talk.id, talk.thumbnailUrl);
+    // Download from external URL and upload to Supabase
+    const supabaseUrl = await downloadTalkThumbnail(talk.id, talk.thumbnailUrl);
 
-    if (localPath) {
-      // Update the database with the local path
+    if (supabaseUrl) {
+      // Update the database with the Supabase URL
       await db
         .update(talks)
-        .set({ thumbnailUrl: localPath })
+        .set({ thumbnailUrl: supabaseUrl })
         .where(eq(talks.id, talk.id));
 
-      console.log(`  ✅ Updated to: ${localPath}\n`);
+      console.log(`  ✅ Uploaded to: ${supabaseUrl.substring(0, 60)}...\n`);
       successCount++;
     } else {
-      console.log(`  ❌ Failed to download\n`);
+      console.log(`  ❌ Failed to upload\n`);
       failCount++;
     }
 
-    // Small delay to avoid overwhelming servers
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Small delay to avoid rate limiting
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   console.log('\n📊 Summary:');
-  console.log(`  ✅ Successfully downloaded: ${successCount}`);
+  console.log(`  ✅ Successfully uploaded: ${successCount}`);
   console.log(`  ❌ Failed: ${failCount}`);
-  console.log(`  📁 Images saved to: public/images/talks/`);
+  console.log(`  📦 Images stored in: Supabase Storage (talk-thumbnails bucket)`);
 }
 
 // Run the script
-downloadAllThumbnails()
+uploadAllThumbnails()
   .then(() => {
     console.log('\n✨ Done!');
     process.exit(0);

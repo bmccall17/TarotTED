@@ -1,65 +1,44 @@
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+/**
+ * Image Download & Upload Utilities
+ *
+ * Downloads images from external URLs and uploads them to Supabase Storage.
+ * Replaces the previous filesystem-based approach which doesn't work on Vercel.
+ */
+
+import { downloadAndUploadImage } from '@/lib/supabase/storage';
 
 /**
- * Download an image from a URL and save it locally
+ * Download an image from a URL and upload it to Supabase Storage
  * @param imageUrl - The URL of the image to download
- * @param filename - The filename to save (without extension)
- * @param directory - Directory relative to public/ (default: 'images/talks')
- * @returns The local path (relative to public/) or null if failed
+ * @param filename - The filename to use (will be used as the storage key)
+ * @param bucket - Optional bucket name (defaults to talk-thumbnails)
+ * @returns The Supabase Storage public URL or null if failed
  */
 export async function downloadImage(
   imageUrl: string,
   filename: string,
-  directory: string = 'images/talks'
+  bucket?: string
 ): Promise<string | null> {
-  try {
-    // Fetch the image
-    const response = await fetch(imageUrl);
-    if (!response.ok) {
-      console.error(`Failed to fetch image: ${response.statusText}`);
-      return null;
-    }
+  const result = await downloadAndUploadImage(imageUrl, filename, bucket);
 
-    // Get the content type to determine file extension
-    const contentType = response.headers.get('content-type');
-    let extension = 'jpg'; // default
-    if (contentType?.includes('png')) extension = 'png';
-    else if (contentType?.includes('webp')) extension = 'webp';
-    else if (contentType?.includes('gif')) extension = 'gif';
-
-    // Convert response to buffer
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Construct file path
-    const publicDir = join(process.cwd(), 'public');
-    const targetDir = join(publicDir, directory);
-    const fullFilename = `${filename}.${extension}`;
-    const filePath = join(targetDir, fullFilename);
-
-    // Save the file
-    await writeFile(filePath, buffer);
-
-    // Return the public URL path
-    const publicPath = `/${directory}/${fullFilename}`;
-    console.log(`✅ Downloaded: ${publicPath}`);
-    return publicPath;
-  } catch (error) {
-    console.error(`Failed to download image from ${imageUrl}:`, error);
-    return null;
+  if (result.success && result.url) {
+    console.log(`✅ Uploaded to Supabase: ${result.url}`);
+    return result.url;
   }
+
+  console.error(`❌ Failed to upload: ${result.error}`);
+  return null;
 }
 
 /**
- * Download a talk thumbnail and return the local path
- * @param talkId - The ID of the talk
+ * Download a talk thumbnail and upload to Supabase Storage
+ * @param talkId - The ID of the talk (used as filename)
  * @param imageUrl - The URL of the thumbnail
- * @returns The local path or null if failed
+ * @returns The Supabase Storage public URL or null if failed
  */
 export async function downloadTalkThumbnail(
   talkId: string,
   imageUrl: string
 ): Promise<string | null> {
-  return downloadImage(imageUrl, talkId, 'images/talks');
+  return downloadImage(imageUrl, talkId);
 }

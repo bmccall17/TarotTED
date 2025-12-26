@@ -1,17 +1,27 @@
+import { isSupabaseStorageUrl } from '@/lib/supabase';
+
 /**
  * Get the best thumbnail URL for a talk
- * Always prefers YouTube thumbnails when available for maximum reliability
+ *
+ * Priority order:
+ * 1. Supabase Storage URLs (our controlled, reliable storage)
+ * 2. YouTube thumbnails (reliable fallback)
+ * 3. Any other stored URL (external URLs that haven't been migrated)
  */
 export function getThumbnailUrl(
   thumbnailUrl: string | null,
   youtubeVideoId: string | null
 ): string | null {
-  // If we have a YouTube video ID, always use YouTube's thumbnail
-  // (more reliable across all devices and doesn't have CORS/CDN issues)
+  // 1. Prefer Supabase Storage URLs (our controlled storage)
+  if (thumbnailUrl && isSupabaseStorageUrl(thumbnailUrl)) {
+    return thumbnailUrl;
+  }
+
+  // 2. YouTube thumbnail as reliable fallback
   if (youtubeVideoId) {
     return `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
   }
 
-  // Fall back to the provided thumbnail URL if no YouTube ID
+  // 3. Fall back to whatever URL is stored
   return thumbnailUrl;
 }

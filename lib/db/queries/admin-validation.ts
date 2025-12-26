@@ -1,6 +1,7 @@
 import { db } from '../index';
 import { talks, cards, cardTalkMappings } from '../schema';
 import { eq, and, sql, isNull, or, lt, count } from 'drizzle-orm';
+import { isSupabaseStorageUrl } from '@/lib/supabase';
 
 /**
  * Validation Issues Interface
@@ -263,11 +264,12 @@ async function getMissingThumbnails() {
 }
 
 /**
- * Get talks with external thumbnail URLs (not stored locally)
- * These need to be downloaded for reliability
+ * Get talks with external thumbnail URLs (not in Supabase Storage)
+ * These need to be uploaded to Supabase for reliability
  */
 async function getExternalThumbnails() {
-  return await db
+  // First, get all talks with external URLs
+  const allExternalThumbnails = await db
     .select({
       id: talks.id,
       title: talks.title,
@@ -289,6 +291,11 @@ async function getExternalThumbnails() {
       )
     )
     .orderBy(talks.title);
+
+  // Filter out Supabase Storage URLs (those are already uploaded)
+  return allExternalThumbnails.filter(
+    (talk) => !isSupabaseStorageUrl(talk.thumbnailUrl)
+  );
 }
 
 /**
