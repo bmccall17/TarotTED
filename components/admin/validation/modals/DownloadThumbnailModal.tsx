@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Download, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Upload, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface DownloadThumbnailModalProps {
   talk: {
@@ -32,8 +32,8 @@ export default function DownloadThumbnailModal({
     setError(null);
 
     try {
-      // Triggering an update with the same external URL will cause
-      // the backend to download it locally
+      // Triggering an update with the external URL will cause
+      // the backend to upload it to Supabase Storage
       const response = await fetch('/api/admin/validation/fix', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,8 +65,8 @@ export default function DownloadThumbnailModal({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <div className="flex items-center gap-2">
-            <Download className="w-5 h-5 text-yellow-400" />
-            <h2 className="text-lg font-semibold text-gray-100">Download Thumbnail</h2>
+            <Upload className="w-5 h-5 text-yellow-400" />
+            <h2 className="text-lg font-semibold text-gray-100">Upload to Storage</h2>
           </div>
           <button
             onClick={onClose}
@@ -111,7 +111,7 @@ export default function DownloadThumbnailModal({
             <div className="flex gap-2">
               <CheckCircle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-gray-300">
-                This will download the image and store it locally for better reliability and performance.
+                This will upload the image to Supabase Storage for better reliability and performance.
               </p>
             </div>
           </div>
@@ -143,12 +143,12 @@ export default function DownloadThumbnailModal({
             {isDownloading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Downloading...
+                Uploading...
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
-                Download to Local
+                <Upload className="w-4 h-4" />
+                Upload to Storage
               </>
             )}
           </button>
