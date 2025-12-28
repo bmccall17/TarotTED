@@ -126,13 +126,11 @@ export function MappingsList({ mappings, onEdit, onDelete, onSetPrimary }: Props
       {/* Actions */}
       <div className="flex items-center justify-between px-4 py-3 bg-gray-800/50 border-t border-gray-700">
         <a
-          href={`/talks/${mapping.talkSlug}`}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={`/admin/talks/${mapping.talkId}/edit`}
           className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-200"
         >
-          <ExternalLink className="w-3 h-3" />
-          View Talk
+          <Edit2 className="w-3 h-3" />
+          Edit Talk
         </a>
         <div className="flex items-center gap-2">
           {!isPrimary && (
