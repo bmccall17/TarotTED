@@ -141,7 +141,9 @@ export function CardForm({ initialData }: Props) {
 
   const arcanaLabel = initialData.arcanaType === 'major'
     ? 'Major Arcana'
-    : initialData.suit?.charAt(0).toUpperCase() + initialData.suit?.slice(1);
+    : initialData.suit
+      ? initialData.suit.charAt(0).toUpperCase() + initialData.suit.slice(1)
+      : 'Minor Arcana';
 
   const primaryMapping = initialData.mappings.find(m => m.isPrimary);
   const otherMappings = initialData.mappings.filter(m => !m.isPrimary);

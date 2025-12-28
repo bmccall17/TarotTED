@@ -25,7 +25,9 @@ export function CardRow({ card }: Props) {
 
   const arcanaLabel = card.arcanaType === 'major'
     ? 'Major Arcana'
-    : card.suit?.charAt(0).toUpperCase() + card.suit?.slice(1);
+    : card.suit
+      ? card.suit.charAt(0).toUpperCase() + card.suit.slice(1)
+      : 'Minor Arcana';
 
   return (
     <tr className="hover:bg-gray-800/50">
