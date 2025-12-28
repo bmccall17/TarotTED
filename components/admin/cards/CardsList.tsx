@@ -4,6 +4,15 @@ import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { CardRow } from './CardRow';
 
+type Mapping = {
+  cardId: string;
+  isPrimary: boolean;
+  talkThumbnailUrl: string | null;
+  talkTitle: string;
+  talkSlug: string;
+  talkId: string;
+};
+
 type Card = {
   id: string;
   slug: string;
@@ -13,7 +22,7 @@ type Card = {
   number: number | null;
   imageUrl: string;
   summary: string;
-  mappingsCount?: number;
+  mappings: Mapping[];
 };
 
 export function CardsList() {

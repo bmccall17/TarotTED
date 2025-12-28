@@ -4,6 +4,15 @@ import { useRouter } from 'next/navigation';
 import { Edit2 } from 'lucide-react';
 import Image from 'next/image';
 
+type Mapping = {
+  cardId: string;
+  isPrimary: boolean;
+  talkThumbnailUrl: string | null;
+  talkTitle: string;
+  talkSlug: string;
+  talkId: string;
+};
+
 type Card = {
   id: string;
   slug: string;
@@ -13,7 +22,7 @@ type Card = {
   number: number | null;
   imageUrl: string;
   summary: string;
-  mappingsCount?: number;
+  mappings: Mapping[];
 };
 
 type Props = {
@@ -55,9 +64,38 @@ export function CardRow({ card }: Props) {
         </p>
       </td>
       <td className="px-6 py-4">
-        <p className="text-gray-400 text-sm">
-          {card.mappingsCount || 0}
-        </p>
+        <div className="flex items-center gap-1">
+          {card.mappings.length === 0 ? (
+            <span className="text-gray-500 text-sm">None</span>
+          ) : (
+            <>
+              {card.mappings.slice(0, 3).map((mapping) => (
+                <div
+                  key={mapping.talkId}
+                  className="relative group"
+                  title={mapping.talkTitle}
+                >
+                  {mapping.talkThumbnailUrl ? (
+                    <img
+                      src={mapping.talkThumbnailUrl}
+                      alt={mapping.talkTitle}
+                      className="w-12 h-8 object-cover rounded border border-gray-600"
+                    />
+                  ) : (
+                    <div className="w-12 h-8 bg-gray-700 rounded border border-gray-600 flex items-center justify-center">
+                      <span className="text-[8px] text-gray-500">No img</span>
+                    </div>
+                  )}
+                </div>
+              ))}
+              {card.mappings.length > 3 && (
+                <span className="text-xs text-gray-400 ml-1">
+                  +{card.mappings.length - 3}
+                </span>
+              )}
+            </>
+          )}
+        </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center justify-end gap-2">

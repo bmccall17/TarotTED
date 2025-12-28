@@ -13,11 +13,6 @@ export async function getAllCardsForAdmin(searchQuery?: string) {
       number: cards.number,
       imageUrl: cards.imageUrl,
       summary: cards.summary,
-      mappingsCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM ${cardTalkMappings}
-        WHERE ${cardTalkMappings.cardId} = ${cards.id}
-      )`,
     })
     .from(cards);
 
@@ -30,7 +25,43 @@ export async function getAllCardsForAdmin(searchQuery?: string) {
     );
   }
 
-  return await query.orderBy(cards.sequenceIndex);
+  const allCards = await query.orderBy(cards.sequenceIndex);
+
+  // Get all mappings with talk info for these cards
+  const cardIds = allCards.map(c => c.id);
+
+  if (cardIds.length === 0) {
+    return [];
+  }
+
+  const allMappings = await db
+    .select({
+      cardId: cardTalkMappings.cardId,
+      isPrimary: cardTalkMappings.isPrimary,
+      talkThumbnailUrl: talks.thumbnailUrl,
+      talkTitle: talks.title,
+      talkSlug: talks.slug,
+      talkId: talks.id,
+    })
+    .from(cardTalkMappings)
+    .innerJoin(talks, eq(cardTalkMappings.talkId, talks.id))
+    .where(sql`${cardTalkMappings.cardId} = ANY(${cardIds})`)
+    .orderBy(desc(cardTalkMappings.isPrimary));
+
+  // Group mappings by card
+  const mappingsByCard = allMappings.reduce((acc, mapping) => {
+    if (!acc[mapping.cardId]) {
+      acc[mapping.cardId] = [];
+    }
+    acc[mapping.cardId].push(mapping);
+    return acc;
+  }, {} as Record<string, typeof allMappings>);
+
+  // Attach mappings to cards
+  return allCards.map(card => ({
+    ...card,
+    mappings: mappingsByCard[card.id] || [],
+  }));
 }
 
 export async function getCardForAdmin(cardId: string) {
