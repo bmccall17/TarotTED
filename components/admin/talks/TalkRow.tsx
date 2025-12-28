@@ -106,8 +106,11 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className={`font-medium ${talk.isDeleted ? 'text-gray-500' : 'text-gray-100'}`}>
-                  {talk.title}
+                <p
+                  className={`font-medium ${talk.isDeleted ? 'text-gray-500' : 'text-gray-100'}`}
+                  title={talk.title}
+                >
+                  /{talk.slug}
                 </p>
                 {url && (
                   <a
@@ -115,12 +118,12 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-indigo-400 hover:text-indigo-300"
+                    title={talk.title}
                   >
                     <ExternalLink className="w-3 h-3" />
                   </a>
                 )}
               </div>
-              <p className="text-xs text-gray-500 mt-1">/{talk.slug}</p>
             </div>
           </div>
         </td>
