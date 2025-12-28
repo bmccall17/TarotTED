@@ -159,6 +159,20 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
                 <p className="text-sm text-gray-300 italic mb-4">
                   &ldquo;{primaryMapping.mapping.rationaleShort}&rdquo;
                 </p>
+
+                {/* Extended Rationale - Collapsible */}
+                {primaryMapping.mapping.rationaleLong && (
+                  <details className="mb-4 group">
+                    <summary className="cursor-pointer text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors list-none flex items-center gap-2">
+                      <span className="text-indigo-400 group-open:rotate-90 transition-transform">▶</span>
+                      READ MORE ABOUT WHY THIS MAPPING...
+                    </summary>
+                    <div className="mt-3 pl-5 text-gray-300 leading-relaxed whitespace-pre-wrap">
+                      {primaryMapping.mapping.rationaleLong}
+                    </div>
+                  </details>
+                )}
+
                 <div className="flex flex-col sm:flex-row gap-3">
                   {(primaryMapping.talk.tedUrl || primaryMapping.talk.youtubeUrl) ? (
                     <a

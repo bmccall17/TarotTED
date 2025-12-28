@@ -4,6 +4,146 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## Scripts Directory Cleanup 🧹
+**Date:** December 28, 2024
+**Status:** Maintenance Complete
+
+### Overview
+
+Comprehensive audit and reorganization of the `/scripts` directory. Moved completed one-time migration scripts to archives, removed obsolete testing scripts, and identified the 7 active scripts that remain part of the ongoing workflow.
+
+### 📊 Cleanup Summary
+
+```
+Total Scripts Audited:    33 files
+Active (Kept):            7 scripts
+Archived (Migrations):    18 scripts
+Deleted (Obsolete):       8 scripts
+```
+
+### 🗂️ Scripts Directory Structure
+
+**Before Cleanup:**
+- 33 scripts in flat directory
+- Mix of active, completed migrations, and test files
+- Difficult to identify current vs. historical scripts
+
+**After Cleanup:**
+```
+scripts/
+├── Active Workflow (7 scripts)
+│   ├── upsert-talks.ts
+│   ├── upsert-mappings.ts
+│   ├── upsert-card-themes.ts
+│   ├── export-db-to-seed-files.ts
+│   ├── manage-themes.ts
+│   ├── restore-ted-thumbnails.ts
+│   └── list-card-slugs.ts
+│
+└── archive/
+    ├── migrations/              (8 scripts - schema changes)
+    ├── legacy-local-storage/    (6 scripts - pre-Supabase)
+    └── card-meanings/           (4 scripts - v1.2.0 import)
+```
+
+### ✅ Active Scripts (7 Kept)
+
+Scripts that remain part of the ongoing content management workflow:
+
+| Script | Purpose | Reason to Keep |
+|--------|---------|----------------|
+| `upsert-talks.ts` | Bulk import talks from seed files | Admin portal only handles one-at-a-time |
+| `upsert-mappings.ts` | Bulk import card-to-talk mappings | Admin portal only handles one-at-a-time |
+| `upsert-card-themes.ts` | Assign cards to themes | Theme management UI = 0% (deferred to v0.3.0+) |
+| `export-db-to-seed-files.ts` | Export DB to version-controlled seed files | No export feature in admin portal |
+| `manage-themes.ts` | Interactive CLI for theme CRUD | No theme admin UI exists yet |
+| `restore-ted-thumbnails.ts` | Bulk restore TED.com thumbnails | Bulk operations not in admin portal |
+| `list-card-slugs.ts` | Export card slugs for content creation | Utility script |
+
+**Key Finding:** Admin portal (v0.2.0) only supports **one-at-a-time** operations. No bulk/batch features exist yet (deferred to v0.3.0+). Scripts remain essential for bulk operations and theme management.
+
+### 📦 Archived Scripts (18 Moved to `scripts/archive/`)
+
+#### Migrations (8 scripts) → `scripts/archive/migrations/`
+Completed database schema changes:
+- `migrate-thumbnails-to-supabase.ts` - ✅ 81/81 talks migrated (v1.0.5)
+- `migrate-cards-to-supabase.ts` - ✅ 78/78 cards migrated (v1.0.5)
+- `add-youtube-video-id-field.ts` - ✅ Schema change complete (v1.1.0)
+- `add-youtube-video-id-to-talk.ts` - ✅ Manual tool (superseded)
+- `auto-populate-youtube-ids.ts` - ✅ 62 video IDs populated (v1.1.0)
+- `apply-migration-0002.ts` - ✅ Migration applied (v0.2.0)
+- `complete-migration-0002.ts` - ✅ Migration completed (v0.2.0)
+- `verify-migration.ts` - ✅ Migration verified (v0.2.0)
+
+#### Legacy Local Storage (6 scripts) → `scripts/archive/legacy-local-storage/`
+Pre-Supabase filesystem-based thumbnail management:
+- `download-talk-thumbnails.ts` - Superseded by Supabase Storage (v1.0.5)
+- `update-talk-thumbnails.ts` - Superseded by Supabase Storage
+- `verify-and-fix-thumbnails.ts` - Superseded by Supabase Storage
+- `fetch-thumbnails.ts` - Superseded by specific fetchers
+- `fetch-youtube-metadata.ts` - Replaced by admin portal MetadataFetcher
+- `fetch-ted-thumbnails.ts` - Replaced by admin portal MetadataFetcher
+
+#### Card Meanings Import (4 scripts) → `scripts/archive/card-meanings/`
+One-time card data migration (v1.2.0):
+- `import-card-meanings-from-jsonl.ts` - ✅ 78/78 cards imported
+- `update-cards-seed-from-json.ts` - ✅ Seed file generated
+- `restore-all-card-meanings.ts` - ✅ Data loss recovery complete
+- `seed-cards-only.ts` - ✅ Cards table frozen (read-only)
+
+**Note:** Cards table is now **frozen** per SHIP_LOG v1.2.0. All 78 cards complete with full meanings.
+
+### 🗑️ Deleted Scripts (8 Removed)
+
+#### Test/Debugging Scripts (5 deleted)
+Never committed, one-time environment validation:
+- `test-new-service-key.ts` - Supabase key validation (one-time)
+- `check-key-format.ts` - API key format check (one-time)
+- `check-both-env-files.ts` - Environment comparison (one-time)
+- `test-youtube-api.ts` - YouTube API connection test (one-time)
+- `test-json-parsing.py` - Python parser test (not part of TS workflow)
+
+#### Redundant Scripts (3 deleted)
+Functionality replaced by admin portal:
+- `fetch-youtube-metadata.ts` - Admin portal MetadataFetcher handles this
+- `fetch-ted-thumbnails.ts` - Admin portal MetadataFetcher handles this
+- (One additional untracked test script)
+
+### 📝 Documentation Created
+
+**`devnotes/SCRIPTS_AUDIT_2024-12-28.md`**
+- Complete analysis of all 33 scripts
+- Categorization by status (active/archive/delete)
+- Rationale for each decision
+- Comparison of admin portal vs. script capabilities
+
+### 🎯 Why Archive Instead of Delete?
+
+Migration scripts preserved for:
+1. **Historical record** - Documents schema evolution
+2. **Future reference** - Template for similar migrations
+3. **Rollback scenarios** - Understanding what changed
+4. **Onboarding** - New developers can see codebase evolution
+
+### 🔮 Impact
+
+**For Developers:**
+- Clear separation: active workflow vs. historical migrations
+- Easy to identify which scripts to use
+- Archive preserves institutional knowledge
+
+**For Content Managers:**
+- 7 active scripts for bulk operations
+- Theme management via CLI until admin UI built
+- Export workflow maintains version-controlled seed files
+
+**For Project Maintenance:**
+- Reduced clutter in main scripts directory
+- Git history intact for all files
+- Clear organization for future additions
+
+---
+
 ## v1.0.5 - Supabase Storage Integration ☁️
 **Release Date:** December 26, 2024
 **Status:** Production Ready
