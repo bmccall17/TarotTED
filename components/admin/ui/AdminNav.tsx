@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react';
 // import { Palette } from 'lucide-react'; // TODO: Uncomment when Theme management is implemented
 
 export function AdminNav() {
@@ -42,6 +42,10 @@ export function AdminNav() {
             <div onClick={() => navigate('/admin')} className={navLinkClass('/admin')}>
               <Home className="w-4 h-4" />
               <span>Dashboard</span>
+            </div>
+            <div onClick={() => navigate('/admin/cards')} className={navLinkClass('/admin/cards')}>
+              <Sparkles className="w-4 h-4" />
+              <span>Cards</span>
             </div>
             <div onClick={() => navigate('/admin/talks')} className={navLinkClass('/admin/talks')}>
               <Video className="w-4 h-4" />
