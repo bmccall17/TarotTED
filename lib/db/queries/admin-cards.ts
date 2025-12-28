@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { cards, cardTalkMappings, talks } from '@/lib/db/schema';
-import { eq, ilike, or, desc, sql } from 'drizzle-orm';
+import { eq, ilike, or, desc, sql, inArray } from 'drizzle-orm';
 
 export async function getAllCardsForAdmin(searchQuery?: string) {
   const query = db
@@ -45,7 +45,7 @@ export async function getAllCardsForAdmin(searchQuery?: string) {
     })
     .from(cardTalkMappings)
     .innerJoin(talks, eq(cardTalkMappings.talkId, talks.id))
-    .where(sql`${cardTalkMappings.cardId} = ANY(${cardIds})`)
+    .where(inArray(cardTalkMappings.cardId, cardIds))
     .orderBy(desc(cardTalkMappings.isPrimary));
 
   // Group mappings by card
