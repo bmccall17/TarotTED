@@ -4,6 +4,101 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.0.6 - Admin Portal Enhancement & UX Improvements ⚡
+**Date:** December 28, 2024
+**Status:** Deployed
+
+### Overview
+Major expansion of the admin portal with a complete Cards management section, visual relationship indicators, and improved navigation workflows. This release focuses on making the admin experience more intuitive and efficient through visual thumbnails, compact tables, and contextual navigation.
+
+### ✨ New Features
+
+#### **Cards Management Section**
+- **Full CRUD for Cards**: Added complete Cards section to admin portal
+  - Edit all card text content (meanings, symbolism, prompts, correspondences)
+  - View card image and metadata alongside form fields
+  - Track all mapped talks directly from card edit page
+- **Quick Navigation**: "Manage Mappings" button jumps directly to Card-Talk Mappings with card pre-selected
+
+#### **Visual Relationship Indicators**
+- **Talk Thumbnails in Cards Table**: Shows up to 3 talk thumbnails per card
+  - Clickable thumbnails navigate to Edit Talk
+  - "+X" indicator for additional mappings
+  - Hover tooltips show talk titles
+- **Card Thumbnails in Talks Table**: Shows up to 3 card images per talk
+  - Clickable thumbnails navigate to Edit Card
+  - Visual indication of card-talk relationships
+  - Immediate understanding of mapping coverage
+
+#### **Mappings Deep-Linking**
+- URL parameter support: `/admin/mappings?cardId={id}` auto-selects card
+- "Manage Mappings" buttons on both Edit Card and Edit Talk pages
+- Smart card selection for talks (prefers primary mapping)
+
+### 🎨 UX Improvements
+
+#### **Compact Table Views**
+- **Manage Talks Table**: Removed slug display for cleaner, more compact view
+  - Thumbnail now clickable to edit talk
+  - Hover on row shows full talk title tooltip
+  - External link icon (no text label)
+  - Focus on visual scanning efficiency
+
+#### **Enhanced Edit Layouts**
+- **Edit Talk Page**: Moved action buttons to right column
+  - Buttons positioned below Preview and Mapped Cards
+  - Cleaner left column with form fields only
+  - Better visual hierarchy and grouping
+- **Edit Card Page**: Two-column layout with sidebar
+  - Form content flows in left column (2/3 width)
+  - Mapped Talks as sticky sidebar (1/3 width)
+  - Better space utilization on desktop
+  - Callout design highlights talk relationships
+
+#### **Clickable Elements**
+- Card thumbnails in Manage Cards table → Edit Card
+- Talk thumbnails in Manage Talks table → Edit Talk
+- Card thumbnails in mappings column → Edit Card
+- Talk thumbnails in mappings column → Edit Talk
+
+### 🔧 Technical Improvements
+
+#### **Database Queries**
+- Enhanced `getAllCardsForAdmin()` to fetch card mappings with talk thumbnails
+- Enhanced `getAllTalksForAdmin()` to fetch talk mappings with card images
+- Enhanced `getTalkByIdForAdmin()` to include card images
+- Used efficient `inArray()` queries for batch fetching
+
+#### **Component Architecture**
+- New `CardForm` with two-column grid layout
+- New `CardsList` and `CardRow` components
+- Updated `MappingEditor` to support `initialSelectedCardId` prop
+- Sticky positioning for sidebars on desktop
+
+#### **Type Safety**
+- Comprehensive TypeScript types for card/talk mappings
+- Updated all admin component interfaces
+- Zero type errors across admin portal
+
+### 📊 Admin Portal Coverage
+
+```
+Manage Cards:     ✅ List, Edit, Mappings navigation
+Manage Talks:     ✅ List, Edit, Create, Mappings navigation
+Manage Mappings:  ✅ Deep-linking from Cards/Talks
+Validation:       ✅ Data integrity checks
+```
+
+### 🎯 Impact
+
+- **Faster Navigation**: One-click access to related entities via thumbnails
+- **Visual Clarity**: Immediate understanding of card-talk relationships
+- **Reduced Clicks**: Direct links from any view to any related entity
+- **Better Space Usage**: Two-column layouts on desktop
+- **Improved Workflow**: Contextual "Manage Mappings" buttons reduce navigation steps
+
+---
+
 ## Scripts Directory Cleanup 🧹
 **Date:** December 28, 2024
 **Status:** Maintenance Complete
