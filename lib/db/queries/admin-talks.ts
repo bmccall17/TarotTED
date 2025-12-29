@@ -96,13 +96,15 @@ export async function getTalkByIdForAdmin(id: string) {
       cardId: cardTalkMappings.cardId,
       cardName: cards.name,
       cardSlug: cards.slug,
+      cardImageUrl: cards.imageUrl,
       isPrimary: cardTalkMappings.isPrimary,
       strength: cardTalkMappings.strength,
       rationaleShort: cardTalkMappings.rationaleShort,
     })
     .from(cardTalkMappings)
     .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
-    .where(eq(cardTalkMappings.talkId, id));
+    .where(eq(cardTalkMappings.talkId, id))
+    .orderBy(desc(cardTalkMappings.isPrimary), desc(cardTalkMappings.strength));
 
   return {
     ...talk,

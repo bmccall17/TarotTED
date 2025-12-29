@@ -23,13 +23,25 @@ type TalkFormData = {
   language: string;
 };
 
+type Mapping = {
+  id: string;
+  cardId: string;
+  cardName: string;
+  cardSlug: string;
+  cardImageUrl: string;
+  isPrimary: boolean;
+  strength: number;
+  rationaleShort: string;
+};
+
 type Props = {
   initialData?: Partial<TalkFormData>;
   talkId?: string;
   mode: 'create' | 'edit';
+  mappings?: Mapping[];
 };
 
-export function TalkForm({ initialData, talkId, mode }: Props) {
+export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -457,11 +469,57 @@ export function TalkForm({ initialData, talkId, mode }: Props) {
 
         {/* Preview Column */}
         <div className="relative z-0">
-          <div className="lg:sticky lg:top-8">
+          <div className="lg:sticky lg:top-8 space-y-6">
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
               <h2 className="text-lg font-semibold text-gray-100 mb-4">Preview</h2>
               <TalkPreview data={formData} />
             </div>
+
+            {/* Mapped Cards */}
+            {mode === 'edit' && (
+              <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+                <h2 className="text-lg font-semibold text-gray-100 mb-4">
+                  Mapped Cards ({mappings.length})
+                </h2>
+
+                {mappings.length === 0 ? (
+                  <p className="text-gray-400 text-sm">No cards mapped to this talk yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {mappings.map((mapping) => (
+                      <a
+                        key={mapping.cardId}
+                        href={`/admin/cards/${mapping.cardId}/edit`}
+                        className="flex items-start gap-3 p-3 bg-gray-900/50 border border-gray-700 rounded-lg hover:border-indigo-500/50 transition-colors group"
+                      >
+                        <div className="w-12 h-16 relative flex-shrink-0 bg-gray-800 rounded overflow-hidden">
+                          <img
+                            src={mapping.cardImageUrl}
+                            alt={mapping.cardName}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-100 group-hover:text-indigo-400 transition-colors">
+                              {mapping.cardName}
+                            </h3>
+                            {mapping.isPrimary && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded text-xs border border-yellow-500/30">
+                                Primary
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                            {mapping.rationaleShort}
+                          </p>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

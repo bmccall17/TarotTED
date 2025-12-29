@@ -4,6 +4,17 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TalkForm } from '@/components/admin/talks/TalkForm';
 
+type Mapping = {
+  id: string;
+  cardId: string;
+  cardName: string;
+  cardSlug: string;
+  cardImageUrl: string;
+  isPrimary: boolean;
+  strength: number;
+  rationaleShort: string;
+};
+
 type Talk = {
   id: string;
   title: string;
@@ -17,6 +28,7 @@ type Talk = {
   eventName: string | null;
   thumbnailUrl: string | null;
   language: string | null;
+  mappings: Mapping[];
 };
 
 export default function EditTalkPage() {
@@ -93,6 +105,7 @@ export default function EditTalkPage() {
         thumbnailUrl: talk.thumbnailUrl || '',
         language: talk.language || 'en',
       }}
+      mappings={talk.mappings}
     />
   );
 }
