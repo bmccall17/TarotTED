@@ -42,14 +42,17 @@ export function CardRow({ card }: Props) {
     <tr className="hover:bg-gray-800/50">
       <td className="px-6 py-4">
         <div className="flex items-start gap-3">
-          <div className="w-12 h-16 relative flex-shrink-0 bg-gray-900 rounded overflow-hidden">
+          <button
+            onClick={() => router.push(`/admin/cards/${card.id}/edit`)}
+            className="w-12 h-16 relative flex-shrink-0 bg-gray-900 rounded overflow-hidden hover:ring-2 hover:ring-indigo-400 transition-all"
+          >
             <Image
               src={card.imageUrl}
               alt={card.name}
               fill
               className="object-cover"
             />
-          </div>
+          </button>
           <div className="flex-1 min-w-0">
             <p className="font-medium text-gray-100">
               {card.name}

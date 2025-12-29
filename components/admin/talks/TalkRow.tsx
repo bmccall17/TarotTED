@@ -103,36 +103,40 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
 
   return (
     <>
-      <tr className={talk.isDeleted ? 'bg-red-900/10' : 'hover:bg-gray-800/50'}>
+      <tr
+        className={talk.isDeleted ? 'bg-red-900/10' : 'hover:bg-gray-800/50'}
+        title={talk.title}
+      >
         <td className="px-6 py-4">
           <div className="flex items-start gap-3">
-            {talk.thumbnailUrl && (
-              <img
-                src={talk.thumbnailUrl}
-                alt={talk.title}
-                className="w-16 h-9 object-cover rounded"
-              />
-            )}
+            <button
+              onClick={() => router.push(`/admin/talks/${talk.id}/edit`)}
+              className="flex-shrink-0 hover:ring-2 hover:ring-indigo-400 rounded transition-all"
+            >
+              {talk.thumbnailUrl ? (
+                <img
+                  src={talk.thumbnailUrl}
+                  alt={talk.title}
+                  className="w-16 h-9 object-cover rounded"
+                />
+              ) : (
+                <div className="w-16 h-9 bg-gray-700 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-500">No img</span>
+                </div>
+              )}
+            </button>
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p
-                  className={`font-medium ${talk.isDeleted ? 'text-gray-500' : 'text-gray-100'}`}
-                  title={talk.title}
+              {url && (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
                 >
-                  /{talk.slug}
-                </p>
-                {url && (
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-400 hover:text-indigo-300"
-                    title={talk.title}
-                  >
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
+                  <ExternalLink className="w-3 h-3" />
+                  <span className="text-xs">View</span>
+                </a>
+              )}
             </div>
           </div>
         </td>
