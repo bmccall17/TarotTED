@@ -195,8 +195,12 @@ export function CardForm({ initialData }: Props) {
         </div>
       </div>
 
-      {/* Basic Info */}
-      <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 space-y-4">
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Form Content */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Basic Info */}
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 space-y-4">
         <h3 className="text-lg font-semibold text-gray-100">Basic Information</h3>
 
         <div>
@@ -331,9 +335,13 @@ export function CardForm({ initialData }: Props) {
           />
         </div>
       </div>
+        </div>
 
-      {/* Mapped Talks */}
-      <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+        {/* Right Column - Mapped Talks Callout */}
+        <div className="lg:col-span-1">
+          <div className="lg:sticky lg:top-8">
+            {/* Mapped Talks */}
+            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
         <h3 className="text-lg font-semibold text-gray-100 mb-4">
           Mapped Talks ({initialData.mappings.length})
         </h3>
@@ -416,6 +424,9 @@ export function CardForm({ initialData }: Props) {
             )}
           </div>
         )}
+      </div>
+          </div>
+        </div>
       </div>
 
       {/* Toast Notification */}
