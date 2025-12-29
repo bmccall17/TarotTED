@@ -131,10 +131,10 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1"
+                  className="text-indigo-400 hover:text-indigo-300"
+                  title={talk.title}
                 >
                   <ExternalLink className="w-3 h-3" />
-                  <span className="text-xs">View</span>
                 </a>
               )}
             </div>
