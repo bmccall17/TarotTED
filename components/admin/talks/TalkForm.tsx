@@ -444,40 +444,6 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
                 </p>
               </div>
             </div>
-
-            {/* Form Actions */}
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={loading}
-                className="px-6 py-2 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              {mode === 'edit' && mappings.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const primaryCard = mappings.find(m => m.isPrimary);
-                    const cardId = primaryCard?.cardId || mappings[0]?.cardId;
-                    router.push(cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings');
-                  }}
-                  className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-                >
-                  <Link2 className="w-4 h-4" />
-                  Manage Mappings
-                </button>
-              )}
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
-              >
-                <Save className="w-4 h-4" />
-                {loading ? 'Saving...' : mode === 'create' ? 'Create Talk' : 'Update Talk'}
-              </button>
-            </div>
           </form>
         </div>
 
@@ -534,6 +500,46 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
                 )}
               </div>
             )}
+
+            {/* Form Actions */}
+            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={loading}
+                  className="px-6 py-2 text-gray-300 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                {mode === 'edit' && mappings.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const primaryCard = mappings.find(m => m.isPrimary);
+                      const cardId = primaryCard?.cardId || mappings[0]?.cardId;
+                      router.push(cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings');
+                    }}
+                    className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  >
+                    <Link2 className="w-4 h-4" />
+                    Manage Mappings
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    formRef.current?.requestSubmit();
+                  }}
+                >
+                  <Save className="w-4 h-4" />
+                  {loading ? 'Saving...' : mode === 'create' ? 'Create Talk' : 'Update Talk'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
