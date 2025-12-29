@@ -8,7 +8,12 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function MappingsPage() {
+export default async function MappingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cardId?: string }>;
+}) {
+  const params = await searchParams;
   const [cards, stats] = await Promise.all([
     getAllCardsWithMappingCounts(),
     getMappingsStats(),
@@ -46,7 +51,10 @@ export default async function MappingsPage() {
         </div>
 
         {/* Mapping Editor */}
-        <MappingEditor initialCards={cards} />
+        <MappingEditor
+          initialCards={cards}
+          initialSelectedCardId={params.cardId || null}
+        />
       </div>
     </div>
   );

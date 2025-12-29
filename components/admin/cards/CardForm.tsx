@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, X, Edit2, Star } from 'lucide-react';
+import { Save, X, Edit2, Star, Link2 } from 'lucide-react';
 import Image from 'next/image';
 import { Toast } from '../ui/Toast';
 
@@ -175,6 +175,14 @@ export function CardForm({ initialData }: Props) {
           >
             <X className="w-4 h-4" />
             Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push(`/admin/mappings?cardId=${initialData.id}`)}
+            className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center gap-2"
+          >
+            <Link2 className="w-4 h-4" />
+            Manage Mappings
           </button>
           <button
             type="submit"

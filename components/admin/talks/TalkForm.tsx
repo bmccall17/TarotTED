@@ -455,6 +455,20 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
               >
                 Cancel
               </button>
+              {mode === 'edit' && mappings.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const primaryCard = mappings.find(m => m.isPrimary);
+                    const cardId = primaryCard?.cardId || mappings[0]?.cardId;
+                    router.push(cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings');
+                  }}
+                  className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                >
+                  <Link2 className="w-4 h-4" />
+                  Manage Mappings
+                </button>
+              )}
               <button
                 type="submit"
                 disabled={loading}

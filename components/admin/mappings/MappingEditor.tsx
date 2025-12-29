@@ -38,11 +38,12 @@ type Mapping = {
 
 type Props = {
   initialCards: Card[];
+  initialSelectedCardId?: string | null;
 };
 
-export function MappingEditor({ initialCards }: Props) {
+export function MappingEditor({ initialCards, initialSelectedCardId = null }: Props) {
   const [cards, setCards] = useState<Card[]>(initialCards);
-  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(initialSelectedCardId);
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [loadingMappings, setLoadingMappings] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
