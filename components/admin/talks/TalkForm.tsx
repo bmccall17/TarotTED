@@ -177,12 +177,11 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
   };
 
   const handleCancel = () => {
-    console.log('handleCancel called');
     window.location.href = '/admin/talks';
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-8 pb-24 relative">
+    <div className="max-w-7xl mx-auto p-8 pb-24">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-100">
           {mode === 'create' ? 'Create New Talk' : 'Edit Talk'}
@@ -517,11 +516,9 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
                   <button
                     type="button"
                     onClick={() => {
-                      console.log('Manage Mappings clicked');
                       const primaryCard = mappings.find(m => m.isPrimary);
                       const cardId = primaryCard?.cardId || mappings[0]?.cardId;
                       const url = cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings';
-                      console.log('Navigating to:', url);
                       window.location.href = url;
                     }}
                     className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
