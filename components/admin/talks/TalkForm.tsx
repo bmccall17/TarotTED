@@ -195,7 +195,7 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Form Column */}
-        <div className="space-y-6 relative z-0">
+        <div className="space-y-6">
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
             {/* URLs Section */}
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
@@ -448,7 +448,7 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
         </div>
 
         {/* Preview Column */}
-        <div className="relative z-0">
+        <div>
           <div className="lg:sticky lg:top-8 space-y-6">
             <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
               <h2 className="text-lg font-semibold text-gray-100 mb-4">Preview</h2>
