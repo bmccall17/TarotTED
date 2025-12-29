@@ -6,6 +6,15 @@ import { Edit2, Trash2, RotateCcw, AlertTriangle, ExternalLink } from 'lucide-re
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { HardDeleteDialog } from '../ui/HardDeleteDialog';
 
+type Mapping = {
+  talkId: string;
+  isPrimary: boolean;
+  cardImageUrl: string;
+  cardName: string;
+  cardSlug: string;
+  cardId: string;
+};
+
 type Talk = {
   id: string;
   slug: string;
@@ -16,7 +25,7 @@ type Talk = {
   thumbnailUrl: string | null;
   year: number | null;
   isDeleted: boolean;
-  mappingsCount?: number;
+  mappings: Mapping[];
 };
 
 type Props = {
@@ -138,9 +147,33 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
           </p>
         </td>
         <td className="px-6 py-4">
-          <p className="text-gray-400 text-sm">
-            {talk.mappingsCount || 0}
-          </p>
+          <div className="flex items-center gap-1">
+            {talk.mappings.length === 0 ? (
+              <span className="text-gray-500 text-sm">None</span>
+            ) : (
+              <>
+                {talk.mappings.slice(0, 3).map((mapping) => (
+                  <a
+                    key={mapping.cardId}
+                    href={`/admin/cards/${mapping.cardId}/edit`}
+                    className="relative group hover:ring-2 hover:ring-indigo-400 rounded transition-all"
+                    title={mapping.cardName}
+                  >
+                    <img
+                      src={mapping.cardImageUrl}
+                      alt={mapping.cardName}
+                      className="w-8 h-12 object-cover rounded border border-gray-600"
+                    />
+                  </a>
+                ))}
+                {talk.mappings.length > 3 && (
+                  <span className="text-xs text-gray-400 ml-1">
+                    +{talk.mappings.length - 3}
+                  </span>
+                )}
+              </>
+            )}
+          </div>
         </td>
         <td className="px-6 py-4">
           {talk.isDeleted ? (
@@ -223,7 +256,7 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
       {showHardDeleteDialog && (
         <HardDeleteDialog
           title={talk.title}
-          mappingsCount={talk.mappingsCount || 0}
+          mappingsCount={talk.mappings.length}
           onConfirm={handleHardDelete}
           onCancel={() => setShowHardDeleteDialog(false)}
           loading={loading}

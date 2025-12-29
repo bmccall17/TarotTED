@@ -70,9 +70,10 @@ export function CardRow({ card }: Props) {
           ) : (
             <>
               {card.mappings.slice(0, 3).map((mapping) => (
-                <div
+                <a
                   key={mapping.talkId}
-                  className="relative group"
+                  href={`/admin/talks/${mapping.talkId}/edit`}
+                  className="relative group hover:ring-2 hover:ring-indigo-400 rounded transition-all"
                   title={mapping.talkTitle}
                 >
                   {mapping.talkThumbnailUrl ? (
@@ -86,7 +87,7 @@ export function CardRow({ card }: Props) {
                       <span className="text-[8px] text-gray-500">No img</span>
                     </div>
                   )}
-                </div>
+                </a>
               ))}
               {card.mappings.length > 3 && (
                 <span className="text-xs text-gray-400 ml-1">

@@ -6,6 +6,15 @@ import { Search, Plus, Filter } from 'lucide-react';
 import { TalkRow } from './TalkRow';
 import { Toast } from '../ui/Toast';
 
+type Mapping = {
+  talkId: string;
+  isPrimary: boolean;
+  cardImageUrl: string;
+  cardName: string;
+  cardSlug: string;
+  cardId: string;
+};
+
 type Talk = {
   id: string;
   slug: string;
@@ -16,7 +25,7 @@ type Talk = {
   thumbnailUrl: string | null;
   year: number | null;
   isDeleted: boolean;
-  mappingsCount?: number;
+  mappings: Mapping[];
 };
 
 export function TalksList() {
