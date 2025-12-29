@@ -178,7 +178,7 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
 
   const handleCancel = () => {
     console.log('handleCancel called');
-    router.push('/admin/talks');
+    window.location.href = '/admin/talks';
   };
 
   return (
@@ -520,8 +520,9 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
                       console.log('Manage Mappings clicked');
                       const primaryCard = mappings.find(m => m.isPrimary);
                       const cardId = primaryCard?.cardId || mappings[0]?.cardId;
-                      console.log('Navigating to:', cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings');
-                      router.push(cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings');
+                      const url = cardId ? `/admin/mappings?cardId=${cardId}` : '/admin/mappings';
+                      console.log('Navigating to:', url);
+                      window.location.href = url;
                     }}
                     className="flex items-center gap-2 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                   >
