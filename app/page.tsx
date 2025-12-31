@@ -1,30 +1,14 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Shuffle, Sparkles } from 'lucide-react';
+import { Search, ChevronDown } from 'lucide-react';
+import { CardCascade, Invocation, SparkleBackground } from '@/components/ritual';
 
 export default function HomePage() {
-  const [showAbout, setShowAbout] = useState(false);
-  const [isDrawing, setIsDrawing] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
-
-  const handleDrawCard = async () => {
-    setIsDrawing(true);
-    try {
-      const response = await fetch('/api/random-card');
-      const data = await response.json();
-      if (data.slug) {
-        router.push(`/cards/${data.slug}`);
-      }
-    } catch (error) {
-      console.error('Error drawing card:', error);
-    } finally {
-      setIsDrawing(false);
-    }
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,103 +18,91 @@ export default function HomePage() {
   };
 
   return (
-    <div className="px-4 py-6 pb-24 space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Sparkles className="w-8 h-8 text-indigo-400" />
+    <div className="min-h-screen pb-24 relative overflow-hidden">
+      {/* Sparkle Background */}
+      <SparkleBackground />
+
+      {/* Hero Section */}
+      <div className="relative z-10 px-4 pt-8 md:pt-12">
+        {/* Invocation - Time-based message */}
+        <div className="text-center mb-4">
+          <Invocation />
         </div>
-        <h1 className="text-3xl font-bold text-gray-100">Tarot of TED</h1>
-        <p className="text-gray-400 max-w-md mx-auto">
-          Discover wisdom through the intersection of ancient Tarot archetypes and modern TED insights.
-        </p>
+
+        {/* Branding - Quiet, not competing */}
+        <div className="text-center mb-8 md:mb-12">
+          <h1 className="text-2xl md:text-3xl font-light text-gray-200/60 tracking-wide">
+            Tarot<span className="text-indigo-400/60">TED</span>
+          </h1>
+        </div>
+
+        {/* Poetic Promise */}
+        <div className="text-center mb-10 md:mb-14">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-serif text-gray-100 leading-relaxed">
+            One card. One talk. One moment of meaning.
+          </h2>
+        </div>
+
+        {/* 3-Card Ritual */}
+        <div className="max-w-4xl mx-auto">
+          <CardCascade />
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
-        <input
-          type="text"
-          placeholder="Search cards, talks, or themes..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-gray-100 placeholder-gray-500"
-        />
-      </form>
-
-      {/* Primary Actions */}
-      <div className="space-y-3">
+      {/* Scroll Indicator */}
+      <div className="relative z-10 flex justify-center mt-16 mb-8">
         <button
-          onClick={handleDrawCard}
-          disabled={isDrawing}
-          className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => {
+            const belowFold = document.getElementById('below-fold');
+            belowFold?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          className="text-gray-500 hover:text-gray-400 transition-colors animate-bounce"
+          aria-label="Scroll down"
         >
-          <Shuffle className={`w-5 h-5 ${isDrawing ? 'animate-spin' : ''}`} />
-          <span className="font-medium">{isDrawing ? 'Drawing...' : 'Draw a Card & Talk'}</span>
+          <ChevronDown className="w-6 h-6" />
         </button>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Link
-            href="/cards"
-            className="bg-gray-800 border-2 border-indigo-500/30 text-indigo-300 py-3 px-4 rounded-xl hover:bg-gray-700 transition-colors text-center font-medium"
-          >
-            Browse Cards
-          </Link>
-          <Link
-            href="/talks"
-            className="bg-gray-800 border-2 border-purple-500/30 text-purple-300 py-3 px-4 rounded-xl hover:bg-gray-700 transition-colors text-center font-medium"
-          >
-            Browse Talks
-          </Link>
-        </div>
       </div>
 
-      {/* Featured Theme */}
-      <div className="bg-gray-800/50 rounded-xl p-5 shadow-sm border border-gray-700">
-        <div className="flex items-start gap-3 mb-3">
-          <div className="w-1 h-16 rounded-full bg-green-500" />
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs text-indigo-400 uppercase tracking-wide">Featured Theme</span>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-100 mb-1">New Beginnings</h3>
-            <p className="text-gray-400 text-sm">Talks and cards for stepping into the unknown and starting fresh.</p>
-          </div>
+      {/* Below the Fold - De-emphasized Content */}
+      <div
+        id="below-fold"
+        className="relative z-10 px-4 py-12 max-w-2xl mx-auto"
+      >
+        {/* Search - Hidden by default, revealed on intent */}
+        <div className="mb-12">
+          {!showSearch ? (
+            <button
+              onClick={() => setShowSearch(true)}
+              className="w-full py-3 px-4 border border-gray-700/50 rounded-xl text-gray-500 hover:text-gray-400 hover:border-gray-600 transition-all flex items-center justify-center gap-2 opacity-60 hover:opacity-100"
+            >
+              <Search className="w-4 h-4" />
+              <span className="text-sm">Search cards, talks, or themes...</span>
+            </button>
+          ) : (
+            <form onSubmit={handleSearch} className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search cards, talks, or themes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+                className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-gray-100 placeholder-gray-500"
+              />
+            </form>
+          )}
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex gap-4 text-xs text-gray-500">
-            <span>8 cards</span>
-            <span>6 talks</span>
-          </div>
-          <Link
-            href="/themes/new-beginnings"
-            className="text-indigo-400 text-sm hover:text-indigo-300 font-medium"
-          >
-            Explore →
-          </Link>
-        </div>
-      </div>
 
-      {/* About Section */}
-      <div className="bg-gray-800/50 rounded-xl shadow-sm border border-gray-700 overflow-hidden">
-        <button
-          onClick={() => setShowAbout(!showAbout)}
-          className="w-full px-5 py-4 text-left flex items-center justify-between hover:bg-gray-700/50 transition-colors"
-        >
-          <span className="text-gray-300 font-medium">How this works</span>
-          <span className="text-gray-500 text-xl">{showAbout ? '−' : '+'}</span>
-        </button>
-        {showAbout && (
-          <div className="px-5 pb-5 space-y-3 text-sm text-gray-400 border-t border-gray-700 pt-4">
-            <p>
-              Each tarot card is paired with TED talks that echo its wisdom. Whether you&apos;re drawing cards for guidance or exploring themes, you&apos;ll find talks that deepen your understanding.
-            </p>
-            <p>
-              Start by drawing a random card, browse by theme, or search for something specific. Each connection is thoughtfully curated to bridge timeless archetypes with contemporary insight.
-            </p>
-          </div>
-        )}
+        {/* Reassurance Block */}
+        <div className="text-center opacity-60 hover:opacity-100 transition-opacity duration-500">
+          <p className="text-gray-400 text-sm leading-relaxed mb-6">
+            You are here and you know exactly why.
+          </p>
+          <p className="text-gray-500 text-xs leading-relaxed">
+            Each tarot card is paired with TED talks that echo its wisdom.
+            Draw a card above, or explore through the navigation below.
+          </p>
+        </div>
       </div>
     </div>
   );
