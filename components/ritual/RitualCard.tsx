@@ -23,12 +23,13 @@ type RitualCardProps = {
     durationSeconds: number | null;
   } | null;
   index: number;
-  onReveal?: () => void;
+  layoutMode: 'stacked' | 'spread-2' | 'spread-3';
+  isRevealed: boolean;
+  onReveal: () => void;
 };
 
-export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal }: RitualCardProps) {
   const router = useRouter();
-  const [isRevealed, setIsRevealed] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [isDockExpanded, setIsDockExpanded] = useState(false);
@@ -72,17 +73,42 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
     }
   }, [isDockExpanded]);
 
+  // Calculate card position based on layout mode
+  const getCardPosition = () => {
+    if (layoutMode === 'stacked') {
+      // Stacked: cards offset slightly to show edges
+      return {
+        left: '50%',
+        transform: 'translateX(-50%)',
+        top: `${index * 25}px`, // 25px offset to show edge
+      };
+    } else if (layoutMode === 'spread-2') {
+      // Spread 2 cards horizontally
+      return {
+        left: index === 0 ? '10px' : index === 1 ? '230px' : '460px',
+        transform: 'none',
+        top: '0',
+      };
+    } else {
+      // Spread 3 cards horizontally
+      return {
+        left: `${index * 240}px`,
+        transform: 'none',
+        top: '0',
+      };
+    }
+  };
+
   // Handle card click to reveal
   const handleCardClick = useCallback(() => {
     if (isNavigating || isDockExpanded) return;
 
     if (!isRevealed && !isFlipping) {
       setIsFlipping(true);
-      onReveal?.();
+      onReveal();
 
       // Complete flip animation (777ms)
       setTimeout(() => {
-        setIsRevealed(true);
         setIsFlipping(false);
       }, 777);
     } else if (isRevealed) {
@@ -145,13 +171,17 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
     }
   }, [isDockExpanded]);
 
+  const cardPosition = getCardPosition();
+
   return (
     <div
       className={`
-        flex flex-col transition-all duration-300 ease-out
+        absolute flex flex-col transition-all duration-[600ms] ease-out animate-cascade-in
         ${isNavigating ? 'opacity-50 scale-95' : ''}
       `}
       style={{
+        ...cardPosition,
+        zIndex: layoutMode === 'stacked' ? 3 - index : index,
         animationDelay: `${index * 333}ms`,
       }}
     >

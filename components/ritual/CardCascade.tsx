@@ -22,17 +22,21 @@ type CardData = {
   } | null;
 };
 
+type LayoutMode = 'stacked' | 'spread-2' | 'spread-3';
+
 export function CardCascade() {
   const [cards, setCards] = useState<CardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [revealedCount, setRevealedCount] = useState(0);
+  const [revealedCards, setRevealedCards] = useState<number[]>([]);
+  const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
 
   const fetchCards = useCallback(async () => {
     setIsLoading(true);
     setHasError(false);
-    setRevealedCount(0);
+    setRevealedCards([]);
+    setLayoutMode('stacked');
     setShowRedraw(false);
 
     try {
@@ -53,19 +57,31 @@ export function CardCascade() {
     fetchCards();
   }, [fetchCards]);
 
-  const handleReveal = useCallback(() => {
-    setRevealedCount((prev) => {
-      const newCount = prev + 1;
-      // Show redraw button after all cards revealed
-      if (newCount >= 3) {
+  const handleReveal = useCallback((index: number) => {
+    setRevealedCards((prev) => {
+      if (prev.includes(index)) return prev;
+      const newRevealed = [...prev, index];
+
+      // Update layout mode based on which cards are revealed
+      if (newRevealed.length === 1 && index === 0) {
+        // First card revealed, stay stacked
+        setLayoutMode('stacked');
+      } else if (newRevealed.length === 2 || (newRevealed.length === 1 && index > 0)) {
+        setLayoutMode('spread-2');
+      } else if (newRevealed.length >= 3) {
+        setLayoutMode('spread-3');
+      }
+
+      // Show redraw after all cards revealed
+      if (newRevealed.length >= 3) {
         setTimeout(() => setShowRedraw(true), 1000);
       }
-      return newCount;
+
+      return newRevealed;
     });
   }, []);
 
   const handleRedraw = useCallback(() => {
-    // Reset and fetch new cards
     setCards([]);
     fetchCards();
   }, [fetchCards]);
@@ -87,47 +103,40 @@ export function CardCascade() {
   return (
     <div className="flex flex-col items-center">
       {/* Cards Container */}
-      <div className="flex flex-wrap justify-center gap-4 md:gap-6 lg:gap-8">
+      <div className="relative" style={{
+        width: layoutMode === 'stacked' ? '240px' : layoutMode === 'spread-2' ? '480px' : '720px',
+        height: '420px',
+        transition: 'width 600ms ease-out'
+      }}>
         {isLoading ? (
-          // Loading placeholders
-          <>
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse"
-                style={{ animationDelay: `${i * 100}ms` }}
-              />
-            ))}
-          </>
+          // Loading placeholder
+          <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse" />
         ) : (
-          // Actual cards with cascade animation
+          // Actual cards with stacked/spread layout
           cards.map((card, index) => (
-            <div
+            <RitualCard
               key={card.id}
-              className="animate-cascade-in"
-              style={{ animationDelay: `${index * 333}ms` }}
-            >
-              <RitualCard
-                card={card}
-                primaryTalk={card.primaryTalk}
-                index={index}
-                onReveal={handleReveal}
-              />
-            </div>
+              card={card}
+              primaryTalk={card.primaryTalk}
+              index={index}
+              layoutMode={layoutMode}
+              isRevealed={revealedCards.includes(index)}
+              onReveal={() => handleReveal(index)}
+            />
           ))
         )}
       </div>
 
       {/* Instruction Text */}
       <div className="mt-8 text-center">
-        {!isLoading && revealedCount === 0 && (
+        {!isLoading && revealedCards.length === 0 && (
           <p className="text-gray-400 text-sm animate-gentle-pulse">
-            Choose a card to reveal your reading
+            Choose a card to start
           </p>
         )}
-        {revealedCount > 0 && revealedCount < 3 && (
-          <p className="text-gray-500 text-sm">
-            {3 - revealedCount} card{3 - revealedCount !== 1 ? 's' : ''} remaining
+        {revealedCards.length > 0 && revealedCards.length < 3 && (
+          <p className="text-gray-400 text-sm">
+            Click the card or talk for detailed information
           </p>
         )}
       </div>
