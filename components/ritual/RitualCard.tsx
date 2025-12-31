@@ -271,10 +271,12 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
           className={`
             absolute inset-0 rounded-xl overflow-hidden shadow-xl
             transition-all duration-300
-            ${isRevealed ? 'opacity-0 pointer-events-none' : 'opacity-100'}
-            ${!isRevealed && isHovering ? 'shadow-2xl shadow-purple-500/30 scale-105' : ''}
+            ${!isRevealed && !isFlipping && isHovering ? 'shadow-2xl shadow-purple-500/30 scale-105' : ''}
           `}
-          style={{ backfaceVisibility: 'hidden' }}
+          style={{
+            backfaceVisibility: 'hidden',
+            pointerEvents: isRevealed && !isFlipping ? 'none' : 'auto',
+          }}
         >
           <img
             src="/deck-back.webp"
