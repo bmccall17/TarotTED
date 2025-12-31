@@ -1,43 +1,176 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 
 type Sparkle = {
   id: number;
   size: number;
-  left: string;
-  top: string;
+  x: number;
+  y: number;
   delay: number;
+  opacity: number;
+};
+
+type TravelingSparkle = {
+  id: number;
+  size: number;
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
   duration: number;
+  delay: number;
+};
+
+type MouseSparkle = {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  life: number;
 };
 
 export function SparkleBackground() {
-  // Generate random sparkle positions
-  const sparkles = useMemo<Sparkle[]>(() => {
-    return Array.from({ length: 30 }, (_, i) => ({
+  const [mouseSparkles, setMouseSparkles] = useState<MouseSparkle[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
+  const lastMousePos = useRef({ x: 0, y: 0 });
+  const sparkleIdRef = useRef(0);
+
+  // Check if mobile on mount
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Generate static breathing sparkles
+  const breathingSparkles = useMemo<Sparkle[]>(() => {
+    return Array.from({ length: 20 }, (_, i) => ({
       id: i,
-      size: Math.random() * 4 + 2, // 2-6px
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      delay: Math.random() * 2000,
-      duration: 1111 + Math.random() * 1000, // 1111-2111ms
+      size: Math.random() * 3 + 2,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      delay: Math.random() * 8000,
+      opacity: 0.1 + Math.random() * 0.15,
     }));
   }, []);
 
+  // Generate traveling sparkles for mobile
+  const travelingSparkles = useMemo<TravelingSparkle[]>(() => {
+    return Array.from({ length: 8 }, (_, i) => ({
+      id: i,
+      size: Math.random() * 3 + 2,
+      startX: Math.random() * 100,
+      startY: Math.random() * 100,
+      endX: Math.random() * 100,
+      endY: Math.random() * 100,
+      duration: 15000 + Math.random() * 10000, // 15-25 seconds
+      delay: i * 2000, // Stagger starts
+    }));
+  }, []);
+
+  // Handle mouse movement on desktop - spawn sparkles near cursor
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const dx = e.clientX - lastMousePos.current.x;
+    const dy = e.clientY - lastMousePos.current.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Only spawn sparkles if mouse moved enough
+    if (distance > 30) {
+      lastMousePos.current = { x: e.clientX, y: e.clientY };
+
+      // Spawn 1-2 sparkles near cursor
+      const newSparkles: MouseSparkle[] = Array.from(
+        { length: Math.floor(Math.random() * 2) + 1 },
+        () => ({
+          id: sparkleIdRef.current++,
+          x: e.clientX + (Math.random() - 0.5) * 60,
+          y: e.clientY + (Math.random() - 0.5) * 60,
+          size: Math.random() * 4 + 2,
+          life: 1,
+        })
+      );
+
+      setMouseSparkles(prev => [...prev, ...newSparkles].slice(-15)); // Max 15 sparkles
+    }
+  }, []);
+
+  // Fade out mouse sparkles over time
+  useEffect(() => {
+    if (isMobile || mouseSparkles.length === 0) return;
+
+    const interval = setInterval(() => {
+      setMouseSparkles(prev =>
+        prev
+          .map(s => ({ ...s, life: s.life - 0.05 }))
+          .filter(s => s.life > 0)
+      );
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [isMobile, mouseSparkles.length]);
+
+  // Add mouse listener on desktop
+  useEffect(() => {
+    if (isMobile) return;
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isMobile, handleMouseMove]);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {sparkles.map((sparkle) => (
+      {/* Static breathing sparkles */}
+      {breathingSparkles.map((sparkle) => (
         <div
-          key={sparkle.id}
+          key={`breath-${sparkle.id}`}
           className="absolute rounded-full bg-white animate-sparkle"
           style={{
             width: sparkle.size,
             height: sparkle.size,
-            left: sparkle.left,
-            top: sparkle.top,
+            left: `${sparkle.x}%`,
+            top: `${sparkle.y}%`,
             animationDelay: `${sparkle.delay}ms`,
+            opacity: sparkle.opacity,
+            boxShadow: `0 0 ${sparkle.size * 2}px ${sparkle.size / 2}px rgba(139, 92, 246, 0.4)`,
+          }}
+        />
+      ))}
+
+      {/* Traveling sparkles for mobile */}
+      {isMobile && travelingSparkles.map((sparkle) => (
+        <div
+          key={`travel-${sparkle.id}`}
+          className="absolute rounded-full bg-white animate-sparkle-travel"
+          style={{
+            width: sparkle.size,
+            height: sparkle.size,
+            '--start-x': `${sparkle.startX}vw`,
+            '--start-y': `${sparkle.startY}vh`,
+            '--end-x': `${sparkle.endX}vw`,
+            '--end-y': `${sparkle.endY}vh`,
             animationDuration: `${sparkle.duration}ms`,
+            animationDelay: `${sparkle.delay}ms`,
             boxShadow: `0 0 ${sparkle.size * 2}px ${sparkle.size / 2}px rgba(139, 92, 246, 0.5)`,
+          } as React.CSSProperties}
+        />
+      ))}
+
+      {/* Mouse-following sparkles for desktop */}
+      {!isMobile && mouseSparkles.map((sparkle) => (
+        <div
+          key={`mouse-${sparkle.id}`}
+          className="absolute rounded-full bg-white pointer-events-none"
+          style={{
+            width: sparkle.size,
+            height: sparkle.size,
+            left: sparkle.x,
+            top: sparkle.y,
+            opacity: sparkle.life * 0.6,
+            transform: `translate(-50%, -50%) scale(${sparkle.life})`,
+            transition: 'opacity 0.1s, transform 0.1s',
+            boxShadow: `0 0 ${sparkle.size * 3}px ${sparkle.size}px rgba(139, 92, 246, ${sparkle.life * 0.5})`,
           }}
         />
       ))}

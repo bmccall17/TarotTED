@@ -28,6 +28,15 @@ type RitualCardProps = {
   onReveal: () => void;
 };
 
+type NavigationSparkle = {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  angle: number;
+  distance: number;
+};
+
 export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
@@ -36,7 +45,22 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
   const [isDockHovering, setIsDockHovering] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [hasTappedDock, setHasTappedDock] = useState(false);
+  const [navSparkles, setNavSparkles] = useState<NavigationSparkle[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Generate sparkle burst for navigation
+  const triggerSparkleBurst = useCallback(() => {
+    const sparkles: NavigationSparkle[] = Array.from({ length: 12 }, (_, i) => ({
+      id: i,
+      x: 50, // Center of card
+      y: 50,
+      size: Math.random() * 6 + 3,
+      angle: (i * 30) + Math.random() * 20, // Spread evenly
+      distance: 80 + Math.random() * 60,
+    }));
+    setNavSparkles(sparkles);
+  }, []);
 
   // Parse keywords
   const keywords = card.keywords ? JSON.parse(card.keywords) : [];
@@ -120,13 +144,14 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
         setIsFlipping(false);
       }, 777);
     } else if (isRevealed) {
-      // Navigate to card detail with ritual pause (888ms)
+      // Navigate to card detail with sparkle burst and fade
       setIsNavigating(true);
+      triggerSparkleBurst();
       setTimeout(() => {
         router.push(`/cards/${card.slug}`);
-      }, 888);
+      }, 600); // Faster navigation after sparkle effect
     }
-  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal]);
+  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, triggerSparkleBurst]);
 
   // Handle dock click/tap
   const handleDockClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -139,20 +164,22 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
         setIsDockExpanded(true);
         setHasTappedDock(true);
       } else if (isDockExpanded) {
-        // Second tap - navigate
+        // Second tap - navigate with sparkle burst
         setIsNavigating(true);
+        triggerSparkleBurst();
         setTimeout(() => {
           router.push(`/talks/${primaryTalk.slug}`);
-        }, 888);
+        }, 600);
       }
     } else {
-      // Desktop: click navigates immediately
+      // Desktop: click navigates with sparkle burst
       setIsNavigating(true);
+      triggerSparkleBurst();
       setTimeout(() => {
         router.push(`/talks/${primaryTalk.slug}`);
-      }, 888);
+      }, 600);
     }
-  }, [primaryTalk, isNavigating, hasTappedDock, isDockExpanded, router]);
+  }, [primaryTalk, isNavigating, hasTappedDock, isDockExpanded, router, triggerSparkleBurst]);
 
   // Handle swipe gestures on mobile
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -183,17 +210,46 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
 
   return (
     <div
+      ref={cardRef}
       className={`
-        absolute flex flex-col transition-all duration-[600ms] ease-out animate-cascade-in
-        ${isNavigating ? 'opacity-50 scale-95' : ''}
+        absolute flex flex-col animate-cascade-in
         ${layoutMode !== 'stacked' ? 'snap-center md:snap-align-none' : ''}
       `}
       style={{
         ...cardPosition,
         zIndex: layoutMode === 'stacked' ? 3 - index : index,
         animationDelay: `${index * 333}ms`,
+        transition: 'left 600ms ease-out, transform 600ms ease-out, opacity 300ms ease-out, filter 300ms ease-out',
+        opacity: isNavigating ? 0 : 1,
+        transform: isNavigating ? 'scale(1.05)' : 'scale(1)',
+        filter: isNavigating ? 'brightness(1.5) blur(2px)' : 'none',
       }}
     >
+      {/* Sparkle Burst Effect */}
+      {navSparkles.length > 0 && (
+        <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 100 }}>
+          {navSparkles.map((sparkle) => {
+            const radians = (sparkle.angle * Math.PI) / 180;
+            const endX = 50 + Math.cos(radians) * sparkle.distance;
+            const endY = 50 + Math.sin(radians) * sparkle.distance;
+            return (
+              <div
+                key={sparkle.id}
+                className="absolute rounded-full bg-white animate-sparkle-burst"
+                style={{
+                  width: sparkle.size,
+                  height: sparkle.size,
+                  left: '50%',
+                  top: '50%',
+                  '--end-x': `${endX - 50}%`,
+                  '--end-y': `${endY - 50}%`,
+                  boxShadow: `0 0 ${sparkle.size * 2}px ${sparkle.size}px rgba(139, 92, 246, 0.8)`,
+                } as React.CSSProperties}
+              />
+            );
+          })}
+        </div>
+      )}
       {/* Card Container */}
       <div
         className={`
