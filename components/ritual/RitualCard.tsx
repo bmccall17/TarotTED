@@ -255,16 +255,20 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
 
       {/* Talk Dock - Below Card */}
       {isRevealed && primaryTalk && (
-        <div className="relative w-[200px] md:w-[220px]">
+        <div className="relative w-[200px] md:w-[220px] -mt-3">
           {/* Compact Dock (default state) */}
           <div
             ref={dockRef}
             className={`
-              bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700
+              bg-gradient-to-r from-gray-900/95 to-gray-800/95
+              border-l border-r border-b border-gray-700/50
               rounded-b-xl cursor-pointer
               transition-all duration-300 ease-out
               ${isDockExpanded || isDockHovering ? 'shadow-xl' : 'shadow-md'}
             `}
+            style={{
+              backdropFilter: 'blur(8px)',
+            }}
             onMouseEnter={() => setIsDockHovering(true)}
             onMouseLeave={() => setIsDockHovering(false)}
             onClick={handleDockClick}
@@ -292,31 +296,28 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
             <div
               className={`
                 absolute bottom-0 left-0 right-0
-                bg-gradient-to-t from-black via-gray-900 to-gray-800
-                border border-gray-700 rounded-xl
+                bg-gradient-to-t from-black/85 via-gray-900/80 to-gray-800/75
+                border-l border-r border-b border-gray-700/50 rounded-b-xl
                 transition-all duration-300 ease-out
                 ${isDockExpanded || isDockHovering ? 'opacity-100' : 'opacity-0 pointer-events-none'}
               `}
               style={{
-                height: isDockExpanded || isDockHovering ? 'calc(3.5 * 70px)' : '0',
-                bottom: isDockExpanded || isDockHovering ? '-4px' : '0',
+                backdropFilter: 'blur(12px)',
               }}
             >
-              <div className="p-4 space-y-3">
+              <div className="p-4 space-y-2.5">
                 {/* Event Name with TED Red */}
-                {primaryTalk.speakerName && (
-                  <p className="text-xs font-bold text-[#EB0028] uppercase tracking-wider" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
-                    TED Talk
-                  </p>
-                )}
+                <p className="text-xs font-bold text-[#EB0028] uppercase tracking-wider" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+                  TED Talk
+                </p>
 
                 {/* Talk Title (wrapped) */}
-                <h4 className="text-base font-semibold text-white leading-tight line-clamp-3">
+                <h4 className="text-base font-semibold text-white leading-tight">
                   {primaryTalk.title}
                 </h4>
 
                 {/* Speaker & Duration */}
-                <div className="flex items-center justify-between text-xs text-gray-400">
+                <div className="flex items-center justify-between text-xs text-gray-300">
                   <span className="truncate">{primaryTalk.speakerName}</span>
                   {primaryTalk.durationSeconds && (
                     <span className="flex-shrink-0 ml-2">
@@ -327,7 +328,7 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
 
                 {/* Tap hint on mobile */}
                 {hasTappedDock && (
-                  <p className="text-xs text-gray-500 text-center md:hidden">
+                  <p className="text-xs text-gray-400 text-center md:hidden pt-1">
                     Tap again to watch
                   </p>
                 )}
