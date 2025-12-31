@@ -24,16 +24,16 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <div className="relative z-10 px-4 pt-8 md:pt-12">
-        {/* Invocation - Time-based message */}
-        <div className="text-center mb-4">
-          <Invocation />
-        </div>
-
-        {/* Branding - Quiet, not competing */}
-        <div className="text-center mb-12 md:mb-16">
+        {/* Branding at top */}
+        <div className="text-center mb-8 md:mb-10">
           <h1 className="text-2xl md:text-3xl font-light text-gray-200/60 tracking-wide">
             Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </h1>
+        </div>
+
+        {/* Invocation - Time-based message above cards */}
+        <div className="text-center mb-8 md:mb-10">
+          <Invocation />
         </div>
 
         {/* 3-Card Ritual */}

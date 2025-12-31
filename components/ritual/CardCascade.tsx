@@ -94,7 +94,7 @@ export function CardCascade() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="w-[180px] h-[280px] md:w-[200px] md:h-[310px] rounded-xl bg-gray-800/50 animate-pulse"
+                className="w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse"
                 style={{ animationDelay: `${i * 100}ms` }}
               />
             ))}

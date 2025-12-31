@@ -90,7 +90,7 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
   return (
     <div
       className={`
-        relative w-[180px] h-[280px] md:w-[200px] md:h-[310px] cursor-pointer
+        relative w-[200px] h-[340px] md:w-[220px] md:h-[370px] cursor-pointer
         transition-all duration-300 ease-out
         ${isNavigating ? 'opacity-50 scale-95' : ''}
       `}
@@ -105,13 +105,14 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
       {/* Card Container with 3D flip */}
       <div
         className={`
-          relative w-full h-full transition-transform
+          relative w-full h-full
           ${isFlipping ? 'animate-ritual-flip' : ''}
           ${!isRevealed && isHovering && !isFlipping ? 'hover:rotate-y-12' : ''}
         `}
         style={{
           transformStyle: 'preserve-3d',
-          transform: isRevealed ? 'rotateY(0deg)' : 'rotateY(0deg)',
+          transform: isRevealed ? 'rotateY(180deg)' : 'rotateY(0deg)',
+          transition: isFlipping ? 'none' : 'transform 0.3s ease-out',
         }}
       >
         {/* Card Back (Face Down) */}
@@ -144,10 +145,12 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
           className={`
             absolute inset-0 rounded-xl overflow-hidden shadow-xl
             transition-all duration-300
-            ${isRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}
             ${isRevealed && isHovering ? 'shadow-2xl shadow-indigo-500/40' : ''}
           `}
-          style={{ backfaceVisibility: 'hidden' }}
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+          }}
         >
           {/* Card Image */}
           <img
