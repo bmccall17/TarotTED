@@ -76,23 +76,24 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
   // Calculate card position based on layout mode
   const getCardPosition = () => {
     if (layoutMode === 'stacked') {
-      // Stacked: cards offset horizontally from center to show edges
+      // Stacked: cards offset horizontally to show edges (centered in 280px container)
+      // Card 0: 0px, Card 1: 25px, Card 2: 50px
       return {
-        left: '50%',
-        transform: `translateX(calc(-50% + ${index * 25}px))`, // 25px offset to the right per card
+        left: `${index * 25}px`,
+        transform: 'none',
         top: '0',
       };
     } else if (layoutMode === 'spread-2') {
-      // Spread 2 cards horizontally
+      // Spread 2 cards horizontally (centered in 480px container)
       return {
-        left: index === 0 ? '10px' : index === 1 ? '230px' : '460px',
+        left: index === 0 ? '10px' : index === 1 ? '250px' : '490px',
         transform: 'none',
         top: '0',
       };
     } else {
-      // Spread 3 cards horizontally
+      // Spread 3 cards horizontally (centered in 720px container)
       return {
-        left: `${index * 240}px`,
+        left: `${index * 240 + 10}px`,
         transform: 'none',
         top: '0',
       };

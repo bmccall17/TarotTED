@@ -103,8 +103,8 @@ export function CardCascade() {
   return (
     <div className="flex flex-col items-center">
       {/* Cards Container */}
-      <div className="relative" style={{
-        width: layoutMode === 'stacked' ? '240px' : layoutMode === 'spread-2' ? '480px' : '720px',
+      <div className="relative mx-auto" style={{
+        width: layoutMode === 'stacked' ? '280px' : layoutMode === 'spread-2' ? '480px' : '720px',
         height: '420px',
         transition: 'width 600ms ease-out'
       }}>
