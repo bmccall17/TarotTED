@@ -15,9 +15,17 @@ export default function HomePage() {
     setJournalPrompts(prompts);
   }, []);
 
-  // Scroll to top on page load
+  // Scroll to top on page load - disable browser restoration and force top
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Disable browser's automatic scroll restoration
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    // Force scroll to top after a brief delay to override any browser behavior
+    const timer = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {
