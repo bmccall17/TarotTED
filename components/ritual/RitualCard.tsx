@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Play } from 'lucide-react';
+import { Play, ChevronUp } from 'lucide-react';
 
 type RitualCardProps = {
   card: {
@@ -31,8 +31,11 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
   const [isRevealed, setIsRevealed] = useState(false);
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
-  const [isTalkHovering, setIsTalkHovering] = useState(false);
+  const [isDockExpanded, setIsDockExpanded] = useState(false);
+  const [isDockHovering, setIsDockHovering] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [hasTappedDock, setHasTappedDock] = useState(false);
+  const dockRef = useRef<HTMLDivElement>(null);
 
   // Parse keywords
   const keywords = card.keywords ? JSON.parse(card.keywords) : [];
@@ -54,9 +57,24 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
     return 'Minor Arcana';
   };
 
+  // Handle clicks outside dock to close on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
+        setIsDockExpanded(false);
+        setHasTappedDock(false);
+      }
+    };
+
+    if (isDockExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isDockExpanded]);
+
   // Handle card click to reveal
   const handleCardClick = useCallback(() => {
-    if (isNavigating) return;
+    if (isNavigating || isDockExpanded) return;
 
     if (!isRevealed && !isFlipping) {
       setIsFlipping(true);
@@ -67,54 +85,101 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
         setIsRevealed(true);
         setIsFlipping(false);
       }, 777);
-    } else if (isRevealed && !isTalkHovering) {
+    } else if (isRevealed) {
       // Navigate to card detail with ritual pause (888ms)
       setIsNavigating(true);
       setTimeout(() => {
         router.push(`/cards/${card.slug}`);
       }, 888);
     }
-  }, [isRevealed, isFlipping, isTalkHovering, isNavigating, card.slug, router, onReveal]);
+  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal]);
 
-  // Handle talk overlay click
-  const handleTalkClick = useCallback((e: React.MouseEvent) => {
+  // Handle dock click/tap
+  const handleDockClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.stopPropagation();
     if (!primaryTalk || isNavigating) return;
 
-    setIsNavigating(true);
-    setTimeout(() => {
-      router.push(`/talks/${primaryTalk.slug}`);
-    }, 888);
-  }, [primaryTalk, isNavigating, router]);
+    // On mobile: first tap expands, second tap navigates
+    if (window.innerWidth < 768) {
+      if (!hasTappedDock) {
+        setIsDockExpanded(true);
+        setHasTappedDock(true);
+      } else if (isDockExpanded) {
+        // Second tap - navigate
+        setIsNavigating(true);
+        setTimeout(() => {
+          router.push(`/talks/${primaryTalk.slug}`);
+        }, 888);
+      }
+    } else {
+      // Desktop: click navigates immediately
+      setIsNavigating(true);
+      setTimeout(() => {
+        router.push(`/talks/${primaryTalk.slug}`);
+      }, 888);
+    }
+  }, [primaryTalk, isNavigating, hasTappedDock, isDockExpanded, router]);
+
+  // Handle swipe gestures on mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    dockRef.current?.setAttribute('data-touch-start-y', touch.clientY.toString());
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!dockRef.current) return;
+
+    const startY = parseFloat(dockRef.current.getAttribute('data-touch-start-y') || '0');
+    const endY = e.changedTouches[0].clientY;
+    const diff = startY - endY;
+
+    // Swipe up to expand
+    if (diff > 30 && !isDockExpanded) {
+      setIsDockExpanded(true);
+      setHasTappedDock(true);
+    }
+    // Swipe down to close
+    else if (diff < -30 && isDockExpanded) {
+      setIsDockExpanded(false);
+      setHasTappedDock(false);
+    }
+  }, [isDockExpanded]);
 
   return (
     <div
       className={`
-        relative w-[200px] h-[340px] md:w-[220px] md:h-[370px] cursor-pointer
-        transition-all duration-300 ease-out
+        flex flex-col transition-all duration-300 ease-out
         ${isNavigating ? 'opacity-50 scale-95' : ''}
       `}
       style={{
-        perspective: '1000px',
         animationDelay: `${index * 333}ms`,
       }}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={() => setIsHovering(false)}
-      onClick={handleCardClick}
     >
-      {/* Card Container with 3D flip */}
+      {/* Card Container */}
       <div
         className={`
-          relative w-full h-full
-          ${isFlipping ? 'animate-ritual-flip' : ''}
-          ${!isRevealed && isHovering && !isFlipping ? 'hover:rotate-y-12' : ''}
+          relative w-[200px] h-[340px] md:w-[220px] md:h-[370px] cursor-pointer
         `}
         style={{
-          transformStyle: 'preserve-3d',
-          transform: isRevealed ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: isFlipping ? 'none' : 'transform 0.3s ease-out',
+          perspective: '1000px',
         }}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        onClick={handleCardClick}
       >
+        {/* Card Container with 3D flip */}
+        <div
+          className={`
+            relative w-full h-full
+            ${isFlipping ? 'animate-ritual-flip' : ''}
+            ${!isRevealed && isHovering && !isFlipping ? 'hover:rotate-y-12' : ''}
+          `}
+          style={{
+            transformStyle: 'preserve-3d',
+            transform: isRevealed ? 'rotateY(180deg)' : 'rotateY(0deg)',
+            transition: isFlipping ? 'none' : 'transform 0.3s ease-out',
+          }}
+        >
         {/* Card Back (Face Down) */}
         <div
           className={`
@@ -159,13 +224,13 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
             className="w-full h-full object-cover"
           />
 
-          {/* Card Info Overlay (shown on hover) */}
+          {/* Card Info Overlay (shown on hover when dock not expanded) */}
           <div
             className={`
               absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent
               flex flex-col justify-end p-4
               transition-opacity duration-300
-              ${isRevealed && isHovering && !isTalkHovering ? 'opacity-100' : 'opacity-0'}
+              ${isRevealed && isHovering && !isDockExpanded ? 'opacity-100' : 'opacity-0'}
             `}
           >
             <h3 className="text-lg font-bold text-white mb-2">
@@ -184,50 +249,93 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
               </div>
             )}
           </div>
+        </div>
+      </div>
+      </div>
 
-          {/* Talk Overlay */}
-          {primaryTalk && (
+      {/* Talk Dock - Below Card */}
+      {isRevealed && primaryTalk && (
+        <div className="relative w-[200px] md:w-[220px]">
+          {/* Compact Dock (default state) */}
+          <div
+            ref={dockRef}
+            className={`
+              bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700
+              rounded-b-xl cursor-pointer
+              transition-all duration-300 ease-out
+              ${isDockExpanded || isDockHovering ? 'shadow-xl' : 'shadow-md'}
+            `}
+            onMouseEnter={() => setIsDockHovering(true)}
+            onMouseLeave={() => setIsDockHovering(false)}
+            onClick={handleDockClick}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Collapsed State */}
             <div
               className={`
-                absolute bottom-0 right-0 left-0
-                bg-gradient-to-t from-black/95 to-black/70
-                rounded-b-xl overflow-hidden
-                transition-all duration-300 ease-out
-                ${isTalkHovering ? 'h-2/5 opacity-100' : 'h-1/4 opacity-40'}
+                p-3 flex items-center gap-2
+                transition-all duration-300
+                ${isDockExpanded || isDockHovering ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}
               `}
-              onMouseEnter={() => setIsTalkHovering(true)}
-              onMouseLeave={() => setIsTalkHovering(false)}
-              onClick={handleTalkClick}
             >
-              <div className="p-3 h-full flex flex-col justify-end">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="w-6 h-6 rounded-full bg-red-600 flex items-center justify-center flex-shrink-0">
-                    <Play className="w-3 h-3 text-white fill-white" />
-                  </div>
-                  <span className="text-xs text-gray-400">TED Talk</span>
-                </div>
-                <p
-                  className={`
-                    text-sm font-medium text-white leading-tight
-                    transition-all duration-300
-                    ${isTalkHovering ? 'line-clamp-2' : 'line-clamp-1'}
-                  `}
-                >
+              <div className="w-5 h-5 rounded-full bg-[#EB0028] flex items-center justify-center flex-shrink-0">
+                <Play className="w-2.5 h-2.5 text-white fill-white" />
+              </div>
+              <p className="text-sm font-medium text-white truncate flex-1">
+                {primaryTalk.title}
+              </p>
+              <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            </div>
+
+            {/* Expanded Rollup Overlay */}
+            <div
+              className={`
+                absolute bottom-0 left-0 right-0
+                bg-gradient-to-t from-black via-gray-900 to-gray-800
+                border border-gray-700 rounded-xl
+                transition-all duration-300 ease-out
+                ${isDockExpanded || isDockHovering ? 'opacity-100' : 'opacity-0 pointer-events-none'}
+              `}
+              style={{
+                height: isDockExpanded || isDockHovering ? 'calc(3.5 * 70px)' : '0',
+                bottom: isDockExpanded || isDockHovering ? '-4px' : '0',
+              }}
+            >
+              <div className="p-4 space-y-3">
+                {/* Event Name with TED Red */}
+                {primaryTalk.speakerName && (
+                  <p className="text-xs font-bold text-[#EB0028] uppercase tracking-wider" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>
+                    TED Talk
+                  </p>
+                )}
+
+                {/* Talk Title (wrapped) */}
+                <h4 className="text-base font-semibold text-white leading-tight line-clamp-3">
                   {primaryTalk.title}
-                </p>
-                {isTalkHovering && (
-                  <p className="text-xs text-gray-400 mt-1">
-                    {primaryTalk.speakerName}
-                    {primaryTalk.durationSeconds && (
-                      <span className="ml-2">{formatDuration(primaryTalk.durationSeconds)}</span>
-                    )}
+                </h4>
+
+                {/* Speaker & Duration */}
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span className="truncate">{primaryTalk.speakerName}</span>
+                  {primaryTalk.durationSeconds && (
+                    <span className="flex-shrink-0 ml-2">
+                      {formatDuration(primaryTalk.durationSeconds)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Tap hint on mobile */}
+                {hasTappedDock && (
+                  <p className="text-xs text-gray-500 text-center md:hidden">
+                    Tap again to watch
                   </p>
                 )}
               </div>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
