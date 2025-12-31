@@ -224,13 +224,13 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
             className="w-full h-full object-cover"
           />
 
-          {/* Card Info Overlay (shown on hover when dock not expanded) */}
+          {/* Card Info Overlay (shown on hover when dock not expanded - DESKTOP ONLY) */}
           <div
             className={`
               absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent
               flex flex-col justify-end p-4
               transition-opacity duration-300
-              ${isRevealed && isHovering && !isDockExpanded ? 'opacity-100' : 'opacity-0'}
+              ${isRevealed && isHovering && !isDockExpanded ? 'md:opacity-100' : 'opacity-0'}
             `}
           >
             <h3 className="text-lg font-bold text-white mb-2">
