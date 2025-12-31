@@ -98,7 +98,7 @@ export default function HomePage() {
           </p>
           <p className="text-gray-500 text-xs leading-relaxed">
             Each tarot card is paired with TED talks that echo its wisdom.
-            Draw a card above, or explore through the navigation below.
+            <br />Draw a card above, or explore through the navigation below.
           </p>
         </div>
       </div>

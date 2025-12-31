@@ -75,8 +75,7 @@ export function CardCascade() {
       }
 
       // On mobile, scroll to the revealed card after spread transition
-      const isTransitioningToSpread = wasStacked || layoutMode === 'stacked';
-      if (isTransitioningToSpread && index > 0) {
+      if (wasStacked && index > 0) {
         setTimeout(() => {
           if (window.innerWidth < 768 && scrollContainerRef.current) {
             const container = scrollContainerRef.current;
