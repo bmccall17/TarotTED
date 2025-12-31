@@ -142,6 +142,20 @@ left: `${index * 240 + 10}px` // 10px, 250px, 490px
 - No navigation decisions required
 - Emotional connection through ritual framing
 
+### 🐛 Bug Fixes (Post-Release)
+
+| File | Issue | Fix |
+|------|-------|-----|
+| `app/page.tsx:101` | Unclosed `<br>` tag causing JSX error | Changed to self-closing `<br />` |
+| `components/ritual/CardCascade.tsx:78` | TypeScript type comparison error - comparing `layoutMode` to `'stacked'` after it was narrowed | Simplified to use `wasStacked` variable only |
+
+**TypeScript Error Details:**
+```
+Type error: This comparison appears to be unintentional because
+the types '"spread-2" | "spread-3"' and '"stacked"' have no overlap.
+```
+Root cause: Inside the `setRevealedCards` callback, TypeScript's control flow analysis had narrowed `layoutMode` after conditional logic, making the comparison redundant.
+
 ### 🔮 Future Enhancements (Not Yet Implemented)
 
 1. **Dynamic Invocations**: Pull from card/talk language fragments

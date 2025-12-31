@@ -74,8 +74,15 @@ export function CardCascade() {
         setLayoutMode('spread-3');
       }
 
-      // On mobile, scroll to the revealed card after spread transition
-      if (wasStacked && index > 0) {
+      // On mobile, scroll to center the revealed card
+      // Skip for first card when stacked (already centered)
+      const willBeSpread = newRevealed.length >= 2 || (newRevealed.length === 1 && index > 0);
+      const isAlreadySpread = !wasStacked;
+
+      if (willBeSpread || isAlreadySpread) {
+        // Determine delay: longer if transitioning from stacked, shorter if already spread
+        const scrollDelay = wasStacked ? 650 : 400; // 650ms for layout transition, 400ms for flip start
+
         setTimeout(() => {
           if (window.innerWidth < 768 && scrollContainerRef.current) {
             const container = scrollContainerRef.current;
@@ -91,7 +98,7 @@ export function CardCascade() {
 
             container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
           }
-        }, 650); // Wait for spread transition (600ms) + buffer
+        }, scrollDelay);
       }
 
       // Show redraw after all cards revealed
