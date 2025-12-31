@@ -30,17 +30,10 @@ export default function HomePage() {
         </div>
 
         {/* Branding - Quiet, not competing */}
-        <div className="text-center mb-8 md:mb-12">
+        <div className="text-center mb-12 md:mb-16">
           <h1 className="text-2xl md:text-3xl font-light text-gray-200/60 tracking-wide">
-            Tarot<span className="text-indigo-400/60">TED</span>
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </h1>
-        </div>
-
-        {/* Poetic Promise */}
-        <div className="text-center mb-10 md:mb-14">
-          <h2 className="text-xl md:text-2xl lg:text-3xl font-serif text-gray-100 leading-relaxed">
-            One card. One talk. One moment of meaning.
-          </h2>
         </div>
 
         {/* 3-Card Ritual */}

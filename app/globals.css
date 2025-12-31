@@ -93,15 +93,15 @@ body {
   opacity: 0;
 }
 
-/* Breathing sparkle animation - 1111ms cycle */
+/* Breathing sparkle animation - very slow and subtle */
 @keyframes sparkle-breathe {
   0%, 100% {
-    opacity: 0.3;
+    opacity: 0.1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.1);
+    opacity: 0.25;
+    transform: scale(1.05);
   }
 }
 
@@ -110,18 +110,18 @@ body {
     transform: translateY(0) translateX(0);
   }
   25% {
-    transform: translateY(-10px) translateX(5px);
+    transform: translateY(-3px) translateX(2px);
   }
   50% {
-    transform: translateY(-5px) translateX(-5px);
+    transform: translateY(-2px) translateX(-2px);
   }
   75% {
-    transform: translateY(-15px) translateX(3px);
+    transform: translateY(-4px) translateX(1px);
   }
 }
 
 .animate-sparkle {
-  animation: sparkle-breathe 1111ms ease-in-out infinite, sparkle-float 4000ms ease-in-out infinite;
+  animation: sparkle-breathe 8000ms ease-in-out infinite, sparkle-float 12000ms ease-in-out infinite;
 }
 
 /* Subtle hover tilt for face-down cards */

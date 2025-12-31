@@ -165,9 +165,6 @@ export function RitualCard({ card, primaryTalk, index, onReveal }: RitualCardPro
               ${isRevealed && isHovering && !isTalkHovering ? 'opacity-100' : 'opacity-0'}
             `}
           >
-            <p className="text-xs text-indigo-300 uppercase tracking-wider mb-1">
-              {getArchetype()}
-            </p>
             <h3 className="text-lg font-bold text-white mb-2">
               {card.name}
             </h3>
