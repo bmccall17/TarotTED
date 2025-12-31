@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getAllTalks } from '@/lib/db/queries/talks';
 import { TalksGrid } from '@/components/talks/TalksGrid';
 
@@ -17,7 +18,9 @@ export default async function TalksPage() {
       <div className="px-4 py-6 max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-100 mb-2">Browse Talks</h1>
+          <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+          </Link>
           <p className="text-gray-400">Discover wisdom through curated TED talks</p>
         </div>
 

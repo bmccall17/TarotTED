@@ -32,8 +32,10 @@ export default async function ThemesPage() {
       <div className="px-4 py-6 max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-100 mb-2">Explore Themes</h1>
-          <p className="text-gray-400">Curated collections of cards and talks for life&apos;s journeys</p>
+          <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+          </Link>
+          <p className="text-gray-400">Curated collections for life&apos;s journeys</p>
         </div>
 
         {/* Themes Grid */}

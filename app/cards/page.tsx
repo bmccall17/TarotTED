@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getAllCards } from '@/lib/db/queries/cards';
 import { CardsGrid } from '@/components/cards/CardsGrid';
 
@@ -17,7 +18,9 @@ export default async function CardsPage() {
       <div className="px-4 py-6 max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-100 mb-2">Browse Cards</h1>
+          <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+          </Link>
           <p className="text-gray-400">Explore the 78 cards and their wisdom</p>
         </div>
 
