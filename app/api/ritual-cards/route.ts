@@ -15,6 +15,7 @@ export async function GET() {
         suit: cards.suit,
         imageUrl: cards.imageUrl,
         keywords: cards.keywords,
+        journalingPrompts: cards.journalingPrompts,
       })
       .from(cards)
       .orderBy(sql`RANDOM()`)

@@ -40,9 +40,9 @@ Compact dock below each revealed card showing the primary mapped TED talk:
 - **Seamless Integration**: Negative margin overlaps card bottom for visual flow
 
 #### **Atmospheric Effects**
-- **Sparkle Background**: Very subtle breathing sparkles (8000ms breathe, 12000ms float)
-- **Reduced Opacity**: 0.1 to 0.25 range for minimal distraction
-- **Minimal Movement**: 2-4px float range
+- **Sparkle Background**: Multi-layered sparkle system with platform-specific behaviors
+- **Purple Glow**: All sparkles have violet box-shadow (`rgba(139, 92, 246)`)
+- **Gradient Overlay**: Subtle radial gradient for depth
 
 #### **TED Branding**
 - "TarotTED" logo with "TED" in bold red (#EB0028) Helvetica
@@ -103,11 +103,139 @@ public/
 |-----------|----------|---------|
 | Card cascade | 333ms stagger | Stacked entrance |
 | Card flip | 777ms | Reveal animation |
-| Navigation pause | 888ms | Ritual feel |
+| Navigation pause | 600ms | Quick fade before route change |
 | Sparkle breathe | 8000ms | Subtle atmosphere |
 | Sparkle float | 12000ms | Gentle movement |
+| Sparkle travel (mobile) | 12-28s | Cross-screen journey |
+| Sparkle pulse (desktop) | 3-7s | Individual rhythm |
 | Invocation pulse | 3000ms | Text attention |
 | Layout spread | 600ms | Card repositioning |
+
+### ✨ Sparkle System (Detailed)
+
+The sparkle background has three distinct layers with platform-specific behaviors:
+
+#### **Layer 1: Breathing Sparkles (All Platforms)**
+| Property | Value | Notes |
+|----------|-------|-------|
+| Count | 20 | Static, generated once |
+| Size | 2-5px | Random per sparkle |
+| Position | Random % | Spread across viewport |
+| Opacity | 0.1-0.25 | Subtle visibility |
+| Animation | `sparkle-breathe` | 8s breathe + 12s float |
+
+#### **Layer 2: Traveling Sparkles (Mobile Only)**
+| Property | Value | Notes |
+|----------|-------|-------|
+| Count | 16 | Doubled from original 8 |
+| Size | 2-5px | Random per sparkle |
+| Duration | 12-28 seconds | Varied travel time |
+| Stagger | 1s between starts | Prevents clustering |
+| Animation | `sparkle-travel` | Fade in → travel → fade out |
+| Path | Random start → random end | Uses CSS custom properties |
+
+```css
+/* Travel animation uses CSS variables for dynamic paths */
+--start-x: random viewport X
+--start-y: random viewport Y
+--end-x: random viewport X
+--end-y: random viewport Y
+```
+
+#### **Layer 3: Mouse Sparkles (Desktop Only)**
+| Property | Value | Notes |
+|----------|-------|-------|
+| Max count | 50 | Older sparkles pruned |
+| Spawn trigger | 30px mouse movement | Prevents spam |
+| Spawn rate | 1-2 per trigger | Random |
+| Spawn radius | ±30px from cursor | Scattered placement |
+| Size | 2-6px | Random per sparkle |
+
+**Lifecycle:**
+1. **Spawn** → Full opacity, `life: 1`
+2. **Fade** → Life decreases by 0.03 every 50ms
+3. **Settle** → At `life: 0.33`, sparkle becomes permanent
+4. **Pulse** → Settled sparkles pulse between 3%-33% opacity
+5. **Drift** → All sparkles slowly drift (0.3px/tick random direction)
+
+**Individual Rhythm:**
+| Property | Range | Purpose |
+|----------|-------|---------|
+| `pulseSpeed` | 3000-7000ms | Unique cycle duration |
+| `pulseOffset` | 0-2π radians | Desynchronized pulsing |
+| `driftX/Y` | ±0.15 | Slow random travel |
+
+```css
+/* Dynamic pulse animation with CSS custom properties */
+@keyframes sparkle-settle-dynamic {
+  0%, 100% { opacity: var(--pulse-min, 0.03); }
+  50% { opacity: var(--pulse-max, 0.33); }
+}
+```
+
+### 🃏 Card Layout & Transitions (Detailed)
+
+#### **Layout Modes**
+
+| Mode | Container Width | Card Positions | Trigger |
+|------|-----------------|----------------|---------|
+| `stacked` | 280px | 0px, 25px, 50px (overlapping) | Initial state |
+| `spread-2` | 720px | 10px, 250px, 490px | 2nd card revealed OR non-first card first |
+| `spread-3` | 720px | 10px, 250px, 490px | 3rd card revealed |
+
+**Note:** `spread-2` and `spread-3` use identical positioning to prevent layout shift when revealing the third card.
+
+#### **Card Position Calculation**
+```typescript
+// Stacked mode (280px container)
+left: `${index * 25}px`  // Cards offset 25px horizontally
+
+// Spread modes (720px container)
+left: `${index * 240 + 10}px`  // 10px, 250px, 490px
+```
+
+#### **Z-Index Management**
+| Mode | Formula | Result (cards 0,1,2) |
+|------|---------|---------------------|
+| Stacked | `3 - index` | 3, 2, 1 (card 0 on top) |
+| Spread | `index` | 0, 1, 2 (proper layering) |
+
+#### **Mobile Scroll-to-Center Behavior**
+
+On mobile (<768px), the revealed card is automatically scrolled to center:
+
+| Scenario | Scrolls? | Delay | Reason |
+|----------|----------|-------|--------|
+| Reveal card 0 while stacked | No | - | Already centered in 280px container |
+| Reveal card 1 or 2 while stacked | Yes | 650ms | Wait for spread transition (600ms) |
+| Reveal any card while already spread | Yes | 400ms | Short delay for flip animation start |
+
+**Scroll Calculation:**
+```typescript
+const cardWidth = 200;      // Mobile card width
+const cardGap = 240;        // Position increment
+const cardOffset = 30;      // 10px base + 20px container padding
+
+const cardLeft = cardOffset + (index * cardGap);
+const cardCenter = cardLeft + (cardWidth / 2);
+const scrollLeft = cardCenter - (containerWidth / 2);
+```
+
+#### **Mobile Scroll Container**
+| Property | Value | Purpose |
+|----------|-------|---------|
+| `overflow-x` | `auto` (mobile) / `visible` (desktop) | Horizontal scroll on mobile |
+| `snap-x` | `mandatory` (mobile only) | Cards snap to positions |
+| `padding-x` | `20px` (mobile) / `0` (desktop) | Edge spacing |
+| `scrollbar-hide` | Yes | Hidden scrollbar |
+
+#### **Swipe Hint**
+Displayed on mobile when cards are spread:
+```
+← Swipe to see all cards →
+```
+- Only visible on screens < 768px
+- Pulses with `animate-pulse` for attention
 
 ### 🔧 Technical Notes
 

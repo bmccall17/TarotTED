@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronDown } from 'lucide-react';
 import { CardCascade, Invocation, SparkleBackground } from '@/components/ritual';
@@ -8,7 +8,12 @@ import { CardCascade, Invocation, SparkleBackground } from '@/components/ritual'
 export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [journalPrompts, setJournalPrompts] = useState<string[][]>([]);
   const router = useRouter();
+
+  const handleCardsLoaded = useCallback((prompts: string[][]) => {
+    setJournalPrompts(prompts);
+  }, []);
 
   // Scroll to top on page load
   useEffect(() => {
@@ -36,14 +41,14 @@ export default function HomePage() {
           </h1>
         </div>
 
-        {/* Invocation - Time-based message above cards */}
+        {/* Invocation - Journal prompt from cards (or time-based fallback) */}
         <div className="text-center mb-8 md:mb-10">
-          <Invocation />
+          <Invocation journalPrompts={journalPrompts} />
         </div>
 
         {/* 3-Card Ritual */}
         <div className="max-w-4xl mx-auto">
-          <CardCascade />
+          <CardCascade onCardsLoaded={handleCardsLoaded} />
         </div>
       </div>
 

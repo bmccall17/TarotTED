@@ -12,6 +12,7 @@ type CardData = {
   suit: string | null;
   imageUrl: string | null;
   keywords: string | null;
+  journalingPrompts: string | null;
   primaryTalk: {
     id: string;
     slug: string;
@@ -24,7 +25,11 @@ type CardData = {
 
 type LayoutMode = 'stacked' | 'spread-2' | 'spread-3';
 
-export function CardCascade() {
+type CardCascadeProps = {
+  onCardsLoaded?: (prompts: string[][]) => void;
+};
+
+export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -45,14 +50,30 @@ export function CardCascade() {
       if (!response.ok) throw new Error('Failed to fetch cards');
 
       const data = await response.json();
-      setCards(data.cards || []);
+      const loadedCards = data.cards || [];
+      setCards(loadedCards);
+
+      // Extract journal prompts for each card and notify parent
+      if (onCardsLoaded && loadedCards.length > 0) {
+        const prompts = loadedCards.map((card: CardData) => {
+          if (card.journalingPrompts) {
+            try {
+              return JSON.parse(card.journalingPrompts);
+            } catch {
+              return [];
+            }
+          }
+          return [];
+        });
+        onCardsLoaded(prompts);
+      }
     } catch (error) {
       console.error('Error fetching ritual cards:', error);
       setHasError(true);
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [onCardsLoaded]);
 
   useEffect(() => {
     fetchCards();
