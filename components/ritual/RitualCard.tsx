@@ -108,21 +108,12 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
         transform: 'none',
         top: '0',
       };
-    } else if (layoutMode === 'spread-2') {
-      // Spread 2 cards centered in 720px container
-      // 2 cards (220px each) + 20px gap = 460px total
-      // Offset from left: (720 - 460) / 2 = 130px
-      // Card 0: 130px, Card 1: 370px, Card 2: stays at edge (unrevealed)
-      const positions = [130, 370, 610];
-      return {
-        left: `${positions[index]}px`,
-        transform: 'none',
-        top: '0',
-      };
     } else {
-      // Spread 3 cards centered in 720px container
+      // Spread modes (both spread-2 and spread-3 use same positions)
+      // All 3 cards always positioned for 3-card centered layout
       // 3 cards (220px each) + 2*20px gaps = 700px total
       // Offset from left: (720 - 700) / 2 = 10px
+      // Card 0: 10px, Card 1: 250px, Card 2: 490px
       return {
         left: `${index * 240 + 10}px`,
         transform: 'none',
