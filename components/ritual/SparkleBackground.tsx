@@ -28,6 +28,7 @@ type MouseSparkle = {
   y: number;
   size: number;
   life: number;
+  settled: boolean; // true when sparkle has faded to persistent state
 };
 
 export function SparkleBackground() {
@@ -89,22 +90,30 @@ export function SparkleBackground() {
           y: e.clientY + (Math.random() - 0.5) * 60,
           size: Math.random() * 4 + 2,
           life: 1,
+          settled: false,
         })
       );
 
-      setMouseSparkles(prev => [...prev, ...newSparkles].slice(-15)); // Max 15 sparkles
+      // Keep up to 50 sparkles (settled ones persist)
+      setMouseSparkles(prev => [...prev, ...newSparkles].slice(-50));
     }
   }, []);
 
-  // Fade out mouse sparkles over time
+  // Fade mouse sparkles to settled state (don't remove them)
   useEffect(() => {
     if (isMobile || mouseSparkles.length === 0) return;
 
     const interval = setInterval(() => {
       setMouseSparkles(prev =>
-        prev
-          .map(s => ({ ...s, life: s.life - 0.05 }))
-          .filter(s => s.life > 0)
+        prev.map(s => {
+          if (s.settled) return s; // Already settled, don't change
+          const newLife = s.life - 0.03;
+          if (newLife <= 0.22) {
+            // Sparkle has settled - mark it and stop fading
+            return { ...s, life: 0.22, settled: true };
+          }
+          return { ...s, life: newLife };
+        })
       );
     }, 50);
 
@@ -161,16 +170,16 @@ export function SparkleBackground() {
       {!isMobile && mouseSparkles.map((sparkle) => (
         <div
           key={`mouse-${sparkle.id}`}
-          className="absolute rounded-full bg-white pointer-events-none"
+          className={`absolute rounded-full bg-white pointer-events-none ${sparkle.settled ? 'animate-sparkle-settle' : ''}`}
           style={{
             width: sparkle.size,
             height: sparkle.size,
             left: sparkle.x,
             top: sparkle.y,
-            opacity: sparkle.life * 0.6,
-            transform: `translate(-50%, -50%) scale(${sparkle.life})`,
-            transition: 'opacity 0.1s, transform 0.1s',
-            boxShadow: `0 0 ${sparkle.size * 3}px ${sparkle.size}px rgba(139, 92, 246, ${sparkle.life * 0.5})`,
+            opacity: sparkle.settled ? undefined : sparkle.life * 0.6,
+            transform: `translate(-50%, -50%) scale(${sparkle.settled ? 1 : sparkle.life})`,
+            transition: sparkle.settled ? 'none' : 'opacity 0.1s, transform 0.1s',
+            boxShadow: `0 0 ${sparkle.size * 3}px ${sparkle.size}px rgba(139, 92, 246, ${sparkle.settled ? 0.3 : sparkle.life * 0.5})`,
           }}
         />
       ))}

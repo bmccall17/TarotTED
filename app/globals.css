@@ -171,6 +171,22 @@ body {
   animation: sparkle-burst 500ms ease-out forwards;
 }
 
+/* Settled sparkle pulse - gently breathes between 11% and 22% opacity */
+@keyframes sparkle-settle {
+  0%, 100% {
+    opacity: 0.11;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  50% {
+    opacity: 0.22;
+    transform: translate(-50%, -50%) scale(1.05);
+  }
+}
+
+.animate-sparkle-settle {
+  animation: sparkle-settle 4000ms ease-in-out infinite;
+}
+
 /* Subtle hover tilt for face-down cards */
 .hover\:rotate-y-12:hover {
   transform: perspective(1000px) rotateY(12deg) rotateX(-5deg);
