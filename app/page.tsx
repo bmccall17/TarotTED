@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronDown } from 'lucide-react';
 import { CardCascade, Invocation, SparkleBackground } from '@/components/ritual';
@@ -9,6 +9,11 @@ export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const router = useRouter();
+
+  // Scroll to top on page load
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

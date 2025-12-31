@@ -112,9 +112,10 @@ export function CardCascade() {
       {/* Scroll Container for Mobile */}
       <div
         className={`
-          w-full md:w-auto
+          w-full md:w-auto md:flex md:justify-center
           ${layoutMode !== 'stacked' ? 'overflow-x-auto md:overflow-visible' : ''}
           ${layoutMode !== 'stacked' ? 'snap-x snap-mandatory md:snap-none' : ''}
+          ${layoutMode !== 'stacked' ? 'px-5 md:px-0' : ''}
           scrollbar-hide
         `}
         style={{
@@ -123,14 +124,12 @@ export function CardCascade() {
       >
         {/* Cards Container */}
         <div
-          className="relative mx-auto"
+          className="relative mx-auto md:mx-0"
           style={{
             width: getContainerWidth(),
             minWidth: layoutMode !== 'stacked' ? getContainerWidth() : undefined,
             height: '420px',
             transition: 'width 600ms ease-out',
-            paddingLeft: layoutMode !== 'stacked' ? '20px' : undefined,
-            paddingRight: layoutMode !== 'stacked' ? '20px' : undefined,
           }}
         >
           {isLoading ? (
