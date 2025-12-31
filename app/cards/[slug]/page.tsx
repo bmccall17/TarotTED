@@ -60,12 +60,15 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
           >
             <ArrowLeft className="w-5 h-5 text-gray-400" />
           </Link>
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-gray-100">{card.name}</h2>
             <p className="text-sm text-gray-500">
               {card.arcanaType === 'major' ? 'Major Arcana' : card.suit}
             </p>
           </div>
+          <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+          </Link>
         </div>
       </div>
 

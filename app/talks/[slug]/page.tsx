@@ -57,6 +57,9 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
             <h2 className="font-semibold text-gray-100 truncate">{talk.title}</h2>
             <p className="text-sm text-gray-500">{talk.speakerName}</p>
           </div>
+          <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+          </Link>
         </div>
       </div>
 
