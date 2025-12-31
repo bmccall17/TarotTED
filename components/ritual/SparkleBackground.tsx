@@ -29,6 +29,10 @@ type MouseSparkle = {
   size: number;
   life: number;
   settled: boolean; // true when sparkle has faded to persistent state
+  driftX: number; // drift direction X
+  driftY: number; // drift direction Y
+  pulseSpeed: number; // unique pulse duration for variety
+  pulseOffset: number; // offset so sparkles don't pulse in sync
 };
 
 export function SparkleBackground() {
@@ -57,17 +61,17 @@ export function SparkleBackground() {
     }));
   }, []);
 
-  // Generate traveling sparkles for mobile
+  // Generate traveling sparkles for mobile (doubled to 16)
   const travelingSparkles = useMemo<TravelingSparkle[]>(() => {
-    return Array.from({ length: 8 }, (_, i) => ({
+    return Array.from({ length: 16 }, (_, i) => ({
       id: i,
       size: Math.random() * 3 + 2,
       startX: Math.random() * 100,
       startY: Math.random() * 100,
       endX: Math.random() * 100,
       endY: Math.random() * 100,
-      duration: 15000 + Math.random() * 10000, // 15-25 seconds
-      delay: i * 2000, // Stagger starts
+      duration: 12000 + Math.random() * 16000, // 12-28 seconds (varied)
+      delay: i * 1000, // Stagger starts
     }));
   }, []);
 
@@ -91,6 +95,10 @@ export function SparkleBackground() {
           size: Math.random() * 4 + 2,
           life: 1,
           settled: false,
+          driftX: (Math.random() - 0.5) * 0.3, // Slow drift speed
+          driftY: (Math.random() - 0.5) * 0.3,
+          pulseSpeed: 3000 + Math.random() * 4000, // 3-7 second pulse cycles
+          pulseOffset: Math.random() * Math.PI * 2, // Random phase offset
         })
       );
 
@@ -99,20 +107,28 @@ export function SparkleBackground() {
     }
   }, []);
 
-  // Fade mouse sparkles to settled state (don't remove them)
+  // Fade mouse sparkles to settled state and apply drift
   useEffect(() => {
     if (isMobile || mouseSparkles.length === 0) return;
 
     const interval = setInterval(() => {
       setMouseSparkles(prev =>
         prev.map(s => {
-          if (s.settled) return s; // Already settled, don't change
-          const newLife = s.life - 0.03;
-          if (newLife <= 0.22) {
-            // Sparkle has settled - mark it and stop fading
-            return { ...s, life: 0.22, settled: true };
+          // Apply drift to all sparkles (both fading and settled)
+          const newX = s.x + s.driftX;
+          const newY = s.y + s.driftY;
+
+          if (s.settled) {
+            // Already settled - just drift, don't change life
+            return { ...s, x: newX, y: newY };
           }
-          return { ...s, life: newLife };
+
+          const newLife = s.life - 0.03;
+          if (newLife <= 0.33) {
+            // Sparkle has settled - mark it and stop fading
+            return { ...s, x: newX, y: newY, life: 0.33, settled: true };
+          }
+          return { ...s, x: newX, y: newY, life: newLife };
         })
       );
     }, 50);
@@ -170,7 +186,7 @@ export function SparkleBackground() {
       {!isMobile && mouseSparkles.map((sparkle) => (
         <div
           key={`mouse-${sparkle.id}`}
-          className={`absolute rounded-full bg-white pointer-events-none ${sparkle.settled ? 'animate-sparkle-settle' : ''}`}
+          className="absolute rounded-full bg-white pointer-events-none"
           style={{
             width: sparkle.size,
             height: sparkle.size,
@@ -180,7 +196,13 @@ export function SparkleBackground() {
             transform: `translate(-50%, -50%) scale(${sparkle.settled ? 1 : sparkle.life})`,
             transition: sparkle.settled ? 'none' : 'opacity 0.1s, transform 0.1s',
             boxShadow: `0 0 ${sparkle.size * 3}px ${sparkle.size}px rgba(139, 92, 246, ${sparkle.settled ? 0.3 : sparkle.life * 0.5})`,
-          }}
+            animation: sparkle.settled
+              ? `sparkle-settle-dynamic ${sparkle.pulseSpeed}ms ease-in-out infinite`
+              : 'none',
+            animationDelay: sparkle.settled ? `${-sparkle.pulseOffset * 1000}ms` : '0ms',
+            '--pulse-min': '0.03',
+            '--pulse-max': '0.33',
+          } as React.CSSProperties}
         />
       ))}
 

@@ -171,15 +171,28 @@ body {
   animation: sparkle-burst 500ms ease-out forwards;
 }
 
-/* Settled sparkle pulse - gently breathes between 11% and 22% opacity */
-@keyframes sparkle-settle {
+/* Settled sparkle pulse - gently breathes between 3% and 33% opacity */
+/* Uses CSS custom properties for dynamic timing per sparkle */
+@keyframes sparkle-settle-dynamic {
   0%, 100% {
-    opacity: 0.11;
-    transform: translate(-50%, -50%) scale(0.95);
+    opacity: var(--pulse-min, 0.03);
+    transform: translate(-50%, -50%) scale(0.92);
   }
   50% {
-    opacity: 0.22;
-    transform: translate(-50%, -50%) scale(1.05);
+    opacity: var(--pulse-max, 0.33);
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+/* Legacy animation for backwards compatibility */
+@keyframes sparkle-settle {
+  0%, 100% {
+    opacity: 0.03;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 0.33;
+    transform: translate(-50%, -50%) scale(1.08);
   }
 }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RitualCard } from './RitualCard';
 import { RefreshCw } from 'lucide-react';
 
@@ -31,6 +31,7 @@ export function CardCascade() {
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const fetchCards = useCallback(async () => {
     setIsLoading(true);
@@ -63,6 +64,7 @@ export function CardCascade() {
       const newRevealed = [...prev, index];
 
       // Update layout mode based on which cards are revealed
+      const wasStacked = layoutMode === 'stacked';
       if (newRevealed.length === 1 && index === 0) {
         // First card revealed, stay stacked
         setLayoutMode('stacked');
@@ -72,6 +74,27 @@ export function CardCascade() {
         setLayoutMode('spread-3');
       }
 
+      // On mobile, scroll to the revealed card after spread transition
+      const isTransitioningToSpread = wasStacked || layoutMode === 'stacked';
+      if (isTransitioningToSpread && index > 0) {
+        setTimeout(() => {
+          if (window.innerWidth < 768 && scrollContainerRef.current) {
+            const container = scrollContainerRef.current;
+            const containerWidth = container.clientWidth;
+            const cardWidth = 200; // Mobile card width
+            const cardGap = 240; // Card position increment (from RitualCard)
+            const cardOffset = 10 + 20; // Base offset (10px) + container padding (20px)
+
+            // Calculate card center position
+            const cardLeft = cardOffset + (index * cardGap);
+            const cardCenter = cardLeft + (cardWidth / 2);
+            const scrollLeft = cardCenter - (containerWidth / 2);
+
+            container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' });
+          }
+        }, 650); // Wait for spread transition (600ms) + buffer
+      }
+
       // Show redraw after all cards revealed
       if (newRevealed.length >= 3) {
         setTimeout(() => setShowRedraw(true), 1000);
@@ -79,7 +102,7 @@ export function CardCascade() {
 
       return newRevealed;
     });
-  }, []);
+  }, [layoutMode]);
 
   const handleRedraw = useCallback(() => {
     setCards([]);
@@ -111,6 +134,7 @@ export function CardCascade() {
     <div className="flex flex-col items-center w-full">
       {/* Scroll Container for Mobile */}
       <div
+        ref={scrollContainerRef}
         className={`
           w-full md:w-auto md:flex md:justify-center
           ${layoutMode !== 'stacked' ? 'overflow-x-auto md:overflow-visible' : ''}
