@@ -100,32 +100,65 @@ export function CardCascade() {
     );
   }
 
+  // Calculate container width based on layout mode
+  const getContainerWidth = () => {
+    if (layoutMode === 'stacked') return '280px';
+    if (layoutMode === 'spread-2') return '480px';
+    return '720px';
+  };
+
   return (
-    <div className="flex flex-col items-center">
-      {/* Cards Container */}
-      <div className="relative mx-auto" style={{
-        width: layoutMode === 'stacked' ? '280px' : layoutMode === 'spread-2' ? '480px' : '720px',
-        height: '420px',
-        transition: 'width 600ms ease-out'
-      }}>
-        {isLoading ? (
-          // Loading placeholder
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse" />
-        ) : (
-          // Actual cards with stacked/spread layout
-          cards.map((card, index) => (
-            <RitualCard
-              key={card.id}
-              card={card}
-              primaryTalk={card.primaryTalk}
-              index={index}
-              layoutMode={layoutMode}
-              isRevealed={revealedCards.includes(index)}
-              onReveal={() => handleReveal(index)}
-            />
-          ))
-        )}
+    <div className="flex flex-col items-center w-full">
+      {/* Scroll Container for Mobile */}
+      <div
+        className={`
+          w-full md:w-auto
+          ${layoutMode !== 'stacked' ? 'overflow-x-auto md:overflow-visible' : ''}
+          ${layoutMode !== 'stacked' ? 'snap-x snap-mandatory md:snap-none' : ''}
+          scrollbar-hide
+        `}
+        style={{
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {/* Cards Container */}
+        <div
+          className="relative mx-auto"
+          style={{
+            width: getContainerWidth(),
+            minWidth: layoutMode !== 'stacked' ? getContainerWidth() : undefined,
+            height: '420px',
+            transition: 'width 600ms ease-out',
+            paddingLeft: layoutMode !== 'stacked' ? '20px' : undefined,
+            paddingRight: layoutMode !== 'stacked' ? '20px' : undefined,
+          }}
+        >
+          {isLoading ? (
+            // Loading placeholder
+            <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse" />
+          ) : (
+            // Actual cards with stacked/spread layout
+            cards.map((card, index) => (
+              <RitualCard
+                key={card.id}
+                card={card}
+                primaryTalk={card.primaryTalk}
+                index={index}
+                layoutMode={layoutMode}
+                isRevealed={revealedCards.includes(index)}
+                onReveal={() => handleReveal(index)}
+              />
+            ))
+          )}
+        </div>
       </div>
+
+      {/* Swipe hint for mobile when cards are spread */}
+      {layoutMode !== 'stacked' && revealedCards.length > 0 && (
+        <p className="text-gray-500 text-xs mt-2 md:hidden animate-pulse">
+          ← Swipe to see all cards →
+        </p>
+      )}
 
       {/* Instruction Text */}
       <div className="mt-8 text-center">

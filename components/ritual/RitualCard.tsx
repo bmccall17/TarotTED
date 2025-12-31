@@ -179,6 +179,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
       className={`
         absolute flex flex-col transition-all duration-[600ms] ease-out animate-cascade-in
         ${isNavigating ? 'opacity-50 scale-95' : ''}
+        ${layoutMode !== 'stacked' ? 'snap-center md:snap-align-none' : ''}
       `}
       style={{
         ...cardPosition,
