@@ -101,10 +101,10 @@ export function CardCascade() {
   }
 
   // Calculate container width based on layout mode
+  // Always use same width for spread modes to keep centering consistent
   const getContainerWidth = () => {
     if (layoutMode === 'stacked') return '280px';
-    if (layoutMode === 'spread-2') return '480px';
-    return '720px';
+    return '720px'; // Same for spread-2 and spread-3
   };
 
   return (

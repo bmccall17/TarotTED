@@ -74,6 +74,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
   }, [isDockExpanded]);
 
   // Calculate card position based on layout mode
+  // Container is 720px for all spread modes, 280px for stacked
   const getCardPosition = () => {
     if (layoutMode === 'stacked') {
       // Stacked: cards offset horizontally to show edges (centered in 280px container)
@@ -84,14 +85,20 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
         top: '0',
       };
     } else if (layoutMode === 'spread-2') {
-      // Spread 2 cards horizontally (centered in 480px container)
+      // Spread 2 cards centered in 720px container
+      // 2 cards (220px each) + 20px gap = 460px total
+      // Offset from left: (720 - 460) / 2 = 130px
+      // Card 0: 130px, Card 1: 370px, Card 2: stays at edge (unrevealed)
+      const positions = [130, 370, 610];
       return {
-        left: index === 0 ? '10px' : index === 1 ? '250px' : '490px',
+        left: `${positions[index]}px`,
         transform: 'none',
         top: '0',
       };
     } else {
-      // Spread 3 cards horizontally (centered in 720px container)
+      // Spread 3 cards centered in 720px container
+      // 3 cards (220px each) + 2*20px gaps = 700px total
+      // Offset from left: (720 - 700) / 2 = 10px
       return {
         left: `${index * 240 + 10}px`,
         transform: 'none',
