@@ -1,7 +1,7 @@
 # TarotTED Landing Page Ritual - Implementation Status
 
 **Date:** December 31, 2025
-**Version:** v1.0.6 (Production)
+**Version:** v1.1.1 (Production)
 **Status:** ✅ **IMPLEMENTED** with refinements
 
 ---
@@ -22,10 +22,11 @@ TarotTED is a meaning engine. The homepage should create presence and momentum, 
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| 3-Card Cascade | ✅ Complete | Staggered 333ms entrance animation |
+| 3-Card Stacked Deck | ✅ Complete | Cards stack with 25px horizontal offset, spread on reveal |
+| Card Cascade Animation | ✅ Complete | Staggered 333ms entrance to stack position |
 | Time-Based Invocations | ✅ Complete | Morning/Afternoon/Evening/Night messages |
 | Flip Animation | ✅ Complete | Changed to 180° (from original 360° spec) |
-| Talk Overlay | ✅ Complete | Positioned bottom, expands on hover |
+| Talk Dock | ✅ Complete | Below card (not overlay), expands on hover/tap |
 | Sparkle Atmosphere | ✅ Complete | Slowed to 8000ms/12000ms for subtlety |
 | Progressive Disclosure | ✅ Complete | Search hidden, reassurance text below fold |
 | 888ms Navigation Pause | ✅ Complete | Ritual feel preserved |
@@ -67,6 +68,27 @@ TarotTED is a meaning engine. The homepage should create presence and momentum, 
    - **Current**: Bold, TED Red (#EB0028), Helvetica typeface
    - *Reason*: Official TED brand alignment
 
+8. **Stacked Deck Layout (Major Change)**
+   - Original spec: 3 cards spread horizontally
+   - **Current**: Cards stack with visible edges (25px horizontal offset)
+   - First card reveals in place on stack
+   - Additional card clicks trigger spread to 2-card or 3-card layout
+   - *Reason*: Creates more focused, intentional deck-drawing ritual
+
+9. **Talk Dock Moved Below Card**
+   - Original spec: Talk overlay on bottom of card
+   - **Current**: Compact dock sits below card (same width)
+   - Collapsed: Play button, truncated title, chevron
+   - Expanded: Rolls up with TED branding, full title, speaker, duration
+   - Translucent with backdrop blur for card visibility
+   - *Reason*: Cards always take visual priority
+
+10. **CTA Text Simplified**
+    - Original: "Choose a card to reveal your reading"
+    - **Current**: "Choose a card to start" → "Click the card or talk for detailed information"
+    - Removed "X cards remaining" message
+    - *Reason*: Cleaner, more direct guidance
+
 ---
 
 ## Primary UX Strategy
@@ -104,38 +126,74 @@ TarotTED is a meaning engine. The homepage should create presence and momentum, 
 
 ---
 
-## Hero Interaction Spec: 3-Card Cascade
+## Hero Interaction Spec: Stacked Deck
 
 ### ✅ Entrance (Implemented)
-* On page load, animate **3 randomly selected cards** cascading in face-down
+* On page load, animate **3 randomly selected cards** cascading into stacked position
 * Stagger timing: **333ms** between cards
-* Uses deck back image: `public/deck-back.webp` (copied from `docs/smith-waite-deck-back_2013.webp`)
+* Uses deck back image: `public/deck-back.webp`
 * Cards: Mobile 200×340px, Desktop 220×370px
+* **Stacked Layout**: Cards offset 25px horizontally (edges visible)
+* Container: 280px wide, centered with `mx-auto`
+
+### ✅ Stacked Position (Implemented)
+* Card 0: Left edge of container (on top, z-index 3)
+* Card 1: 25px from left (edge visible, z-index 2)
+* Card 2: 50px from left (edge visible, z-index 1)
 
 ### ✅ Hover (face-down) (Implemented)
 * Subtle tilt / "almost flip" tease (no reveal)
 * Mystical purple glow on hover
 
-### ✅ Click (draw) (Implemented)
-* Clicking a card reveals it:
-  * Rotation: **180° over 777ms** *(changed from 360°)*
-  * After reveal, show the card with a **Talk overlay**:
-    * Talk overlay positioned bottom
-    * Initial state: **40% opacity**, **1/4 card height**
-    * Red play icon with "TED Talk" label
+### ✅ Click (draw) - First Card (Implemented)
+* Clicking top card reveals it:
+  * Rotation: **180° over 777ms**
+  * Card stays in stacked position
+  * **Talk Dock** appears below card (not overlay)
 
-### ✅ Card content on hover (revealed state) (Implemented)
+### ✅ Click (draw) - Additional Cards (Implemented)
+* Clicking edge of second or third card:
+  * That card flips and reveals
+  * **All cards spread** into horizontal layout (600ms transition)
+  * Container width expands: 280px → 480px (2 cards) → 720px (3 cards)
+
+### ✅ Spread Layout (Implemented)
+* Card positions when spread:
+  * Card 0: 10px from left
+  * Card 1: 250px from left
+  * Card 2: 490px from left
+* Z-index inverts (card 0 = z-index 0, card 2 = z-index 2)
+
+### ✅ Card content on hover (revealed state - Desktop only)
 * On hover over the revealed card: show
   * Card name *(archetype label removed)*
   * First 3 keywords
+* **Mobile**: No hover overlay on cards
+
+### ✅ Talk Dock Behavior (Implemented)
+* Compact dock below each revealed card (same width as card)
+* **Collapsed state**:
+  * Red play button (5x5 circle)
+  * Truncated talk title
+  * Chevron up indicator
+* **Expanded state** (hover on desktop, tap on mobile):
+  * Rolls up with backdrop blur (12px)
+  * Translucent gradient background (85% opacity)
+  * "TED Talk" label in TED Red (#EB0028), Helvetica bold
+  * Full talk title (wrapped)
+  * Speaker name and duration
+* **Seamless integration**: -3px negative margin overlaps card bottom
+
+### ✅ Mobile Touch Behavior (Implemented)
+* First tap on dock → expands rollup
+* Second tap on dock → navigates to talk (with 888ms pause)
+* Swipe up (30px threshold) → expands dock
+* Swipe down (30px threshold) → collapses dock
+* Tap outside → collapses dock
 
 ### ✅ Navigation behavior (Implemented)
-* Click on the card (excluding talk overlay) → **Card detail page** (with 888ms pause)
-* Hover over talk overlay:
-  * Expands to **2/5 card height**
-  * Opacity to **100%**
-  * Reveals talk title, speaker name, and duration
-* Click talk overlay → **Talk detail page** (with 888ms pause)
+* Click on the card → **Card detail page** (with 888ms pause)
+* Click on Talk Dock → **Talk detail page** (with 888ms pause)
 
 ### ✅ Atmosphere (Implemented)
 * Background: Very slow "breathing" sparkles animation
@@ -246,20 +304,27 @@ components/ritual/
 
 ## Testing Checklist
 
-- [x] Cards cascade in with proper timing
+- [x] Cards cascade into stacked position with proper timing
+- [x] Card edges visible in stacked layout (25px offset)
 - [x] Hover on face-down cards shows tilt tease
 - [x] Click reveals card with 180° flip
-- [x] Talk overlay expands on hover
+- [x] First card stays stacked after reveal
+- [x] Additional cards trigger spread layout transition
+- [x] Talk dock appears below revealed cards
+- [x] Talk dock expands on hover (desktop)
+- [x] Talk dock tap-to-expand works (mobile)
+- [x] Swipe gestures work for dock expand/collapse
 - [x] Navigation has 888ms ritual pause
 - [x] Sparkles are subtle and slow
 - [x] Time-based invocation changes throughout day
 - [x] Redraw button appears after all cards revealed
+- [x] CTA text updates: "Choose a card to start" → "Click the card or talk..."
 - [x] Search reveals on click
-- [x] Scroll indicator works
-- [x] Mobile responsive (cards fit on small screens)
-- [x] TED branding uses correct red and Helvetica
+- [x] Mobile responsive (stacked deck fits on small screens)
+- [x] TED branding uses correct red (#EB0028) and Helvetica
+- [x] Card info overlay only shows on desktop (not mobile)
 
 ---
 
 **Last Updated:** December 31, 2025 by Claude Code
-**Implementation Status:** Production-ready ✅
+**Implementation Status:** Production-ready v1.1.1 ✅

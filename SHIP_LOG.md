@@ -4,6 +4,154 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.1.1 - Ritual-First Landing Page 🔮
+**Release Date:** December 31, 2025
+**Status:** Production Ready
+
+### Overview
+
+Complete redesign of the landing page from a navigation hub into an initiation ritual. The homepage now features a stacked deck of three tarot cards that users can draw from, creating a focused, intentional experience that honors the mystical nature of tarot.
+
+### ✨ New Features
+
+#### **3-Card Ritual Experience**
+- **Stacked Deck**: Three cards stack on top of each other with visible edges (25px horizontal offset)
+- **Cascade Animation**: Cards shuffle in with 333ms stagger timing
+- **Card Flip**: 180° rotation over 777ms with proper 3D backface handling
+- **Smart Spreading**: Cards stay stacked for first reveal, then spread to 2-card or 3-card layout when selecting additional cards
+- **Navigation Pause**: 888ms ritual pause before navigating to detail pages
+
+#### **Time-Based Invocations**
+Dynamic greeting messages based on time of day:
+- **Morning** (5am-12pm): "What wisdom does today hold?"
+- **Afternoon** (12pm-5pm): "What insight calls to you now?"
+- **Evening** (5pm-9pm): "What does the sunset reveal?"
+- **Night** (9pm-5am): "What speaks in the stillness?"
+
+#### **Talk Dock System**
+Compact dock below each revealed card showing the primary mapped TED talk:
+- **Collapsed State**: Red play button, truncated title, chevron indicator
+- **Expanded State**: Rolls up on hover/tap to reveal:
+  - "TED Talk" label in TED Red (#EB0028) with Helvetica typeface
+  - Full talk title (wrapped)
+  - Speaker name and duration
+- **Mobile Behavior**: First tap expands, second tap navigates; swipe up/down gestures supported
+- **Translucency**: Backdrop blur effect with semi-transparent gradients
+- **Seamless Integration**: Negative margin overlaps card bottom for visual flow
+
+#### **Atmospheric Effects**
+- **Sparkle Background**: Very subtle breathing sparkles (8000ms breathe, 12000ms float)
+- **Reduced Opacity**: 0.1 to 0.25 range for minimal distraction
+- **Minimal Movement**: 2-4px float range
+
+#### **TED Branding**
+- "TarotTED" logo with "TED" in bold red (#EB0028) Helvetica
+- Consistent branding added to card and talk detail page headers
+
+### 🎨 Design Philosophy
+
+**Before (v1.0.x):**
+- Navigation hub with buttons and choices
+- Users had to decide where to go
+- Search bar prominent
+- Feature explanation accordion
+
+**After (v1.1.1):**
+- Single focused action: draw a card
+- Immediate engagement without decisions
+- Search hidden by default
+- Minimal instruction text
+
+### 📁 New Files Created
+
+```
+components/ritual/
+├── RitualCard.tsx          # Card with flip animation & talk dock
+├── CardCascade.tsx         # Orchestrates 3-card layout
+├── Invocation.tsx          # Time-based greeting
+├── SparkleBackground.tsx   # Atmospheric effect
+└── index.ts                # Clean exports
+
+app/api/ritual-cards/
+└── route.ts                # Returns 3 random cards with primary talks
+
+public/
+└── deck-back.webp          # Tarot card back image
+```
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `app/page.tsx` | Complete rewrite with ritual components |
+| `app/globals.css` | Added ritual animations (flip, cascade, sparkle, pulse) |
+| `app/cards/[slug]/page.tsx` | Added TarotTED branding to header |
+| `app/talks/[slug]/page.tsx` | Added TarotTED branding to header |
+| `devnotes/NEXT-STEPS_landingpageritual.md` | Updated with implementation status |
+
+### 🎯 CTA Text Updates
+
+| State | Message |
+|-------|---------|
+| Initial (no cards revealed) | "Choose a card to start" |
+| After first reveal | "Click the card or talk for detailed information" |
+| All cards revealed | Redraw button appears |
+
+### 📊 Animation Timing
+
+| Animation | Duration | Purpose |
+|-----------|----------|---------|
+| Card cascade | 333ms stagger | Stacked entrance |
+| Card flip | 777ms | Reveal animation |
+| Navigation pause | 888ms | Ritual feel |
+| Sparkle breathe | 8000ms | Subtle atmosphere |
+| Sparkle float | 12000ms | Gentle movement |
+| Invocation pulse | 3000ms | Text attention |
+| Layout spread | 600ms | Card repositioning |
+
+### 🔧 Technical Notes
+
+#### Card Positioning Logic
+```typescript
+// Stacked mode (280px centered container)
+left: `${index * 25}px` // 0px, 25px, 50px
+
+// Spread-3 mode (720px container)
+left: `${index * 240 + 10}px` // 10px, 250px, 490px
+```
+
+#### Z-Index Management
+- Stacked: `zIndex: 3 - index` (card 0 on top)
+- Spread: `zIndex: index` (proper layering)
+
+#### Mobile Touch Handling
+- Touch start/end tracking for swipe detection
+- 30px threshold for swipe up/down
+- Click outside detection to close dock
+
+### 🎯 Impact
+
+**For Users:**
+- Immediate mystical experience on landing
+- Clear single action (draw a card)
+- Reduced cognitive load
+- Mobile-optimized interactions
+
+**For Engagement:**
+- Direct path to card → talk discovery
+- No navigation decisions required
+- Emotional connection through ritual framing
+
+### 🔮 Future Enhancements (Not Yet Implemented)
+
+1. **Dynamic Invocations**: Pull from card/talk language fragments
+2. **Card Statistics**: Track which cards are drawn most frequently
+3. **Share Feature**: Allow users to share their card draw
+4. **Sound Design**: Subtle audio cues for card flip, navigation
+5. **Multi-card Spreads**: 5-card, Celtic Cross layouts
+
+---
+
 ## v1.0.6 - Admin Portal Enhancement & UX Improvements ⚡
 **Date:** December 28, 2024
 **Status:** Deployed
