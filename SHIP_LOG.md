@@ -276,6 +276,8 @@ left: `${index * 240 + 10}px` // 10px, 250px, 490px
 |------|-------|-----|
 | `app/page.tsx:101` | Unclosed `<br>` tag causing JSX error | Changed to self-closing `<br />` |
 | `components/ritual/CardCascade.tsx:78` | TypeScript type comparison error - comparing `layoutMode` to `'stacked'` after it was narrowed | Simplified to use `wasStacked` variable only |
+| `components/ritual/RitualCard.tsx:271` | Card flip animation broken on mobile - back face disappeared immediately, leaving blank space during first half of flip | Removed opacity-based hiding; let `backfaceVisibility: hidden` handle the 3D flip naturally |
+| `app/page.tsx:19` | Desktop scroll position jumping down on page refresh | Added `history.scrollRestoration = 'manual'` and `setTimeout` with `behavior: 'instant'` to override browser restoration |
 
 **TypeScript Error Details:**
 ```
@@ -284,9 +286,57 @@ the types '"spread-2" | "spread-3"' and '"stacked"' have no overlap.
 ```
 Root cause: Inside the `setRevealedCards` callback, TypeScript's control flow analysis had narrowed `layoutMode` after conditional logic, making the comparison redundant.
 
+**Card Flip Animation Fix Details:**
+The card back had `${isRevealed ? 'opacity-0' : 'opacity-100'}` in its className. When `onReveal()` was called, `isRevealed` became true immediately, causing the back face to disappear before the 777ms flip animation could show it rotating. The fix removes the opacity toggle and relies on CSS `backfaceVisibility: hidden` to naturally hide each face when it rotates past 90°.
+
+### ✨ Dynamic Invocations (Post-Release Enhancement)
+
+The invocation message above the cards now pulls from the **journal prompts** of the drawn cards, creating the impression that the question emerges from the spread itself.
+
+#### **Selection Logic**
+Based on the ones digit of the current minute:
+
+| Ones Digit | Source Card | Prompt Index |
+|------------|-------------|--------------|
+| 1 | Top (index 0) | Prompt 0 |
+| 2 | Top (index 0) | Prompt 1 |
+| 3 | Top (index 0) | Prompt 2 |
+| 4 | Middle (index 1) | Prompt 0 |
+| 5 | Middle (index 1) | Prompt 1 |
+| 6 | Middle (index 1) | Prompt 2 |
+| 7 | Bottom (index 2) | Prompt 0 |
+| 8 | Bottom (index 2) | Prompt 1 |
+| 9 | Bottom (index 2) | Prompt 2 |
+| 0 | N/A | Time-of-day fallback |
+
+#### **Implementation Flow**
+```
+CardCascade fetches cards with journalingPrompts
+    ↓
+onCardsLoaded callback passes prompts[][] to page
+    ↓
+Invocation receives prompts, selects based on minute
+    ↓
+300ms delay, then 700ms fade-in transition
+```
+
+#### **Files Modified**
+| File | Change |
+|------|--------|
+| `app/api/ritual-cards/route.ts` | Added `journalingPrompts` to SELECT query |
+| `components/ritual/CardCascade.tsx` | Added `onCardsLoaded` callback prop, extracts/parses prompts |
+| `components/ritual/Invocation.tsx` | Rewritten to accept `journalPrompts` prop, implements selection logic |
+| `app/page.tsx` | Added state management, wires CardCascade → Invocation |
+
+#### **UX Behavior**
+- Invocation area stays empty while cards load
+- Once cards appear, the prompt fades in (300ms delay + 700ms transition)
+- Creates subtle impression that the question comes from the cards
+- Falls back to time-of-day messages if ones digit is 0 or prompts unavailable
+
 ### 🔮 Future Enhancements (Not Yet Implemented)
 
-1. **Dynamic Invocations**: Pull from card/talk language fragments
+1. ~~**Dynamic Invocations**: Pull from card/talk language fragments~~ ✅ Implemented!
 2. **Card Statistics**: Track which cards are drawn most frequently
 3. **Share Feature**: Allow users to share their card draw
 4. **Sound Design**: Subtle audio cues for card flip, navigation
