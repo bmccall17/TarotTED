@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Link as LinkIcon, Search } from 'lucide-react';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 
@@ -37,6 +37,8 @@ export default function AddMappingModal({
   const [isSearching, setIsSearching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -59,6 +61,53 @@ export default function AddMappingModal({
       setSearchResults([]);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Reset highlighted index when results change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [searchResults]);
+
+  // Scroll highlighted item into view
+  useEffect(() => {
+    if (highlightedIndex >= 0 && resultsRef.current) {
+      const items = resultsRef.current.querySelectorAll('[data-card-item]');
+      const item = items[highlightedIndex] as HTMLElement;
+      if (item) {
+        item.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [highlightedIndex]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (searchResults.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev < searchResults.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev > 0 ? prev - 1 : searchResults.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && searchResults[highlightedIndex]) {
+          setSelectedCard(searchResults[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setSearchQuery('');
+        setSearchResults([]);
+        setHighlightedIndex(-1);
+        break;
     }
   };
 
@@ -138,10 +187,15 @@ export default function AddMappingModal({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
                 placeholder="Search by card name or keywords..."
                 className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-100 placeholder-gray-500"
                 disabled={isSubmitting}
                 autoFocus
+                role="combobox"
+                aria-expanded={searchResults.length > 0}
+                aria-haspopup="listbox"
+                aria-autocomplete="list"
               />
             </div>
           </div>
@@ -157,20 +211,28 @@ export default function AddMappingModal({
           {!isSearching && searchResults.length > 0 && (
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-300 mb-2">
-                Select a Card ({searchResults.length} results)
+                Select a Card ({searchResults.length} results) - Use arrow keys to navigate
               </label>
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {searchResults.map((card) => {
+              <div ref={resultsRef} role="listbox" className="max-h-64 overflow-y-auto space-y-2">
+                {searchResults.map((card, index) => {
                   const keywords = card.keywords ? JSON.parse(card.keywords) : [];
+                  const isHighlighted = highlightedIndex === index;
+                  const isSelected = selectedCard?.id === card.id;
                   return (
                     <div
                       key={card.id}
+                      data-card-item
+                      role="option"
+                      aria-selected={isSelected}
                       className={`bg-gray-900/50 rounded-lg p-3 border ${
-                        selectedCard?.id === card.id
+                        isSelected
                           ? 'border-indigo-500/50 bg-indigo-500/5'
+                          : isHighlighted
+                          ? 'border-indigo-400/50 bg-indigo-600/10'
                           : 'border-gray-700'
                       } transition-colors cursor-pointer hover:border-gray-600`}
                       onClick={() => setSelectedCard(card)}
+                      onMouseEnter={() => setHighlightedIndex(index)}
                     >
                       <div className="flex gap-3">
                         <img

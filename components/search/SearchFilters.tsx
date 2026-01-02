@@ -2,6 +2,12 @@
 
 import { useState } from 'react';
 import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  DURATION_MIN,
+  DURATION_MAX,
+  YEAR_MIN,
+  YEAR_MAX,
+} from '@/lib/constants/search';
 
 export interface FilterState {
   type: ('card' | 'talk' | 'theme')[];
@@ -47,10 +53,10 @@ export default function SearchFilters({ filters, onChange, onClear }: SearchFilt
       (filters.type.length > 0 && filters.type.length < 3) ||
       filters.arcana !== 'all' ||
       filters.suit.length > 0 ||
-      filters.minDuration > 0 ||
-      filters.maxDuration < 3600 ||
-      filters.minYear > 2000 ||
-      filters.maxYear < 2025
+      filters.minDuration > DURATION_MIN ||
+      filters.maxDuration < DURATION_MAX ||
+      filters.minYear > YEAR_MIN ||
+      filters.maxYear < YEAR_MAX
     );
   };
 
@@ -59,8 +65,8 @@ export default function SearchFilters({ filters, onChange, onClear }: SearchFilt
     if (filters.type.length > 0 && filters.type.length < 3) count++;
     if (filters.arcana !== 'all') count++;
     if (filters.suit.length > 0) count++;
-    if (filters.minDuration > 0 || filters.maxDuration < 3600) count++;
-    if (filters.minYear > 2000 || filters.maxYear < 2025) count++;
+    if (filters.minDuration > DURATION_MIN || filters.maxDuration < DURATION_MAX) count++;
+    if (filters.minYear > YEAR_MIN || filters.maxYear < YEAR_MAX) count++;
     return count;
   };
 

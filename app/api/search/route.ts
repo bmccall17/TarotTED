@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchWithFilters, getSearchSuggestions, type SearchFilters } from '@/lib/db/queries/search';
+import { searchWithFilters, getSearchSuggestions, type SearchFilters, type PaginationOptions } from '@/lib/db/queries/search';
 
 export async function GET(request: NextRequest) {
   try {
@@ -79,8 +79,29 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Execute search with filters
-    const results = await searchWithFilters(query, filters);
+    // Parse pagination parameters
+    const pagination: PaginationOptions = {};
+
+    const cardsOffsetParam = searchParams.get('cardsOffset');
+    if (cardsOffsetParam) {
+      const offset = parseInt(cardsOffsetParam, 10);
+      if (!isNaN(offset) && offset >= 0) pagination.cardsOffset = offset;
+    }
+
+    const talksOffsetParam = searchParams.get('talksOffset');
+    if (talksOffsetParam) {
+      const offset = parseInt(talksOffsetParam, 10);
+      if (!isNaN(offset) && offset >= 0) pagination.talksOffset = offset;
+    }
+
+    const themesOffsetParam = searchParams.get('themesOffset');
+    if (themesOffsetParam) {
+      const offset = parseInt(themesOffsetParam, 10);
+      if (!isNaN(offset) && offset >= 0) pagination.themesOffset = offset;
+    }
+
+    // Execute search with filters and pagination
+    const results = await searchWithFilters(query, filters, pagination);
 
     // Get suggestions if no results found
     const totalResults = results.cards.length + results.talks.length + results.themes.length;

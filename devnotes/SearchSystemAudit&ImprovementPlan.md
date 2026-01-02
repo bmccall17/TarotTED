@@ -387,3 +387,100 @@
 - Filter logic bug fixed
 - Filters now auto-trigger search
 - Search errors now visible to users
+
+---
+
+### 2026-01-02: Phase 3 Completed
+
+**Phase 3: UX Polish - COMPLETED**
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Extract filter defaults to constants | Done | Created `lib/constants/search.ts` with centralized defaults (DURATION_MIN/MAX, YEAR_MIN/MAX, DEFAULT_FILTERS) |
+| Add keyboard navigation to dropdowns | Done | Added arrow key navigation, Enter to select, Escape to close in TalkSelector and AddMappingModal |
+| Add "Load more" pagination | Done | Added pagination support to search API and frontend with "Load more" buttons for each section |
+| Add search to bottom nav (mobile) | Done | Added Search icon to mobile bottom navigation (now 5 items) |
+
+**Files Modified:**
+
+| File | Changes |
+|------|---------|
+| `lib/constants/search.ts` | Created with centralized filter defaults and type definitions |
+| `components/search/SearchFilters.tsx` | Updated to use constants from lib/constants/search.ts |
+| `app/search/page.tsx` | Updated to use constants, added "Load more" buttons for cards/talks/themes |
+| `lib/db/queries/search.ts` | Added PaginationOptions interface, updated searchWithFilters() with offset/limit support, returns hasMore flags |
+| `app/api/search/route.ts` | Added pagination parameter parsing (cardsOffset, talksOffset, themesOffset) |
+| `components/admin/mappings/TalkSelector.tsx` | Added keyboard navigation (arrow keys, Enter, Escape), ARIA attributes |
+| `components/admin/validation/modals/AddMappingModal.tsx` | Added keyboard navigation (arrow keys, Enter, Escape), ARIA attributes |
+| `components/layout/BottomNav.tsx` | Added Search icon to mobile navigation |
+
+**Technical Details:**
+
+1. **Constants Centralization:**
+   - All filter defaults now in `lib/constants/search.ts`
+   - Exported: `DURATION_MIN`, `DURATION_MAX`, `YEAR_MIN`, `YEAR_MAX`, `DEFAULT_FILTERS`
+   - Also exports type definitions: `EntityType`, `ArcanaType`, `SuitType`
+
+2. **Keyboard Navigation:**
+   - Arrow Up/Down: Navigate between results
+   - Enter: Select highlighted item
+   - Escape: Close dropdown/clear search
+   - Mouse hover also updates highlighted index
+   - Scroll highlighted item into view automatically
+   - Added ARIA attributes for accessibility (role="combobox", role="listbox", role="option")
+
+3. **Pagination System:**
+   - Backend fetches `limit + 1` results to determine if more exist
+   - Returns `hasMoreCards`, `hasMoreTalks`, `hasMoreThemes` flags
+   - Frontend tracks offset per entity type
+   - "Load more" appends results without losing existing ones
+   - Separate loading states for each entity type
+
+4. **Mobile Navigation:**
+   - Search now accessible from bottom nav on all pages
+   - Placed in center position between Cards and Talks
+   - Grid changed from 4 to 5 columns
+
+**Verification:**
+- TypeScript check: PASSED (no errors)
+- All search-related files compile correctly
+
+---
+
+## Summary of All Changes (Phases 1, 2 & 3)
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `lib/db/queries/admin-talks.ts` | Fixed search return structure |
+| `lib/db/queries/search.ts` | Expanded fields, relevance scoring, suggestions, pagination |
+| `lib/constants/search.ts` | NEW - Centralized filter defaults |
+| `app/api/search/route.ts` | Added suggestions and pagination support |
+| `app/search/page.tsx` | Error handling, auto-trigger, highlighting, suggestions UI, pagination |
+| `components/search/SearchFilters.tsx` | Fixed hasActiveFilters() bug, uses constants |
+| `components/admin/validation/modals/AddMappingModal.tsx` | Standardized useDebounce, keyboard navigation |
+| `components/admin/mappings/TalkSelector.tsx` | Keyboard navigation |
+| `components/layout/BottomNav.tsx` | Added search to mobile nav |
+
+### All Improvements
+
+1. **Search Quality** (Phase 2):
+   - Expanded search fields (uprightMeaning, reversedMeaning, description, longDescription)
+   - Relevance-based ranking
+   - Search result highlighting
+   - "Did you mean?" suggestions
+
+2. **UX Polish** (Phase 3):
+   - Centralized constants
+   - Keyboard navigation in dropdowns
+   - "Load more" pagination
+   - Search in mobile navigation
+
+3. **Bug Fixes** (Phase 1):
+   - Admin talks search crash
+   - Filter logic bug
+   - Auto-trigger on filter change
+   - Error feedback to users
+
+**Ready for:** Phase 4 (Performance & Infrastructure) when needed, or user testing and feedback

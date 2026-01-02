@@ -6,6 +6,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Search, ArrowLeft, Play, Sparkles } from 'lucide-react';
 import SearchFilters, { type FilterState } from '@/components/search/SearchFilters';
+import {
+  DURATION_MIN,
+  DURATION_MAX,
+  YEAR_MIN,
+  YEAR_MAX,
+  DEFAULT_FILTERS,
+} from '@/lib/constants/search';
 
 const themeColors: Record<string, string> = {
   'new-beginnings': 'bg-green-500',
@@ -76,6 +83,9 @@ interface SearchResults {
   }>;
   query: string;
   suggestions?: string[];
+  hasMoreCards?: boolean;
+  hasMoreTalks?: boolean;
+  hasMoreThemes?: boolean;
 }
 
 function SearchContent() {
@@ -87,35 +97,38 @@ function SearchContent() {
   const [results, setResults] = useState<SearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMoreCards, setLoadingMoreCards] = useState(false);
+  const [loadingMoreTalks, setLoadingMoreTalks] = useState(false);
+  const [loadingMoreThemes, setLoadingMoreThemes] = useState(false);
 
   // Parse filters from URL
   const parseFiltersFromURL = (): FilterState => {
     const typeParam = searchParams.get('type');
     const types = typeParam
       ? typeParam.split(',').filter(t => ['card', 'talk', 'theme'].includes(t)) as ('card' | 'talk' | 'theme')[]
-      : ['card', 'talk', 'theme'] as ('card' | 'talk' | 'theme')[];
+      : DEFAULT_FILTERS.type;
 
     const arcanaParam = searchParams.get('arcana');
-    const arcana = arcanaParam === 'major' || arcanaParam === 'minor' ? arcanaParam : 'all';
+    const arcana = arcanaParam === 'major' || arcanaParam === 'minor' ? arcanaParam : DEFAULT_FILTERS.arcana;
 
     const suitParam = searchParams.get('suit');
     const suits = suitParam
       ? suitParam.split(',').filter(s => ['wands', 'cups', 'swords', 'pentacles'].includes(s)) as ('wands' | 'cups' | 'swords' | 'pentacles')[]
-      : [];
+      : DEFAULT_FILTERS.suit;
 
-    const minDuration = parseInt(searchParams.get('minDuration') || '0', 10);
-    const maxDuration = parseInt(searchParams.get('maxDuration') || '3600', 10);
-    const minYear = parseInt(searchParams.get('minYear') || '2000', 10);
-    const maxYear = parseInt(searchParams.get('maxYear') || '2025', 10);
+    const minDuration = parseInt(searchParams.get('minDuration') || String(DURATION_MIN), 10);
+    const maxDuration = parseInt(searchParams.get('maxDuration') || String(DURATION_MAX), 10);
+    const minYear = parseInt(searchParams.get('minYear') || String(YEAR_MIN), 10);
+    const maxYear = parseInt(searchParams.get('maxYear') || String(YEAR_MAX), 10);
 
     return {
       type: types,
       arcana,
       suit: suits,
-      minDuration: isNaN(minDuration) ? 0 : minDuration,
-      maxDuration: isNaN(maxDuration) ? 3600 : maxDuration,
-      minYear: isNaN(minYear) ? 2000 : minYear,
-      maxYear: isNaN(maxYear) ? 2025 : maxYear,
+      minDuration: isNaN(minDuration) ? DURATION_MIN : minDuration,
+      maxDuration: isNaN(maxDuration) ? DURATION_MAX : maxDuration,
+      minYear: isNaN(minYear) ? YEAR_MIN : minYear,
+      maxYear: isNaN(maxYear) ? YEAR_MAX : maxYear,
     };
   };
 
@@ -150,19 +163,19 @@ function SearchContent() {
       params.set('suit', filterState.suit.join(','));
     }
 
-    if (filterState.minDuration > 0) {
+    if (filterState.minDuration > DURATION_MIN) {
       params.set('minDuration', filterState.minDuration.toString());
     }
 
-    if (filterState.maxDuration < 3600) {
+    if (filterState.maxDuration < DURATION_MAX) {
       params.set('maxDuration', filterState.maxDuration.toString());
     }
 
-    if (filterState.minYear > 2000) {
+    if (filterState.minYear > YEAR_MIN) {
       params.set('minYear', filterState.minYear.toString());
     }
 
-    if (filterState.maxYear < 2025) {
+    if (filterState.maxYear < YEAR_MAX) {
       params.set('maxYear', filterState.maxYear.toString());
     }
 
@@ -200,6 +213,89 @@ function SearchContent() {
     performSearch(searchQuery, filters);
   };
 
+  const loadMoreCards = async () => {
+    if (!results || !results.hasMoreCards || loadingMoreCards) return;
+    setLoadingMoreCards(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('q', searchQuery);
+      params.set('cardsOffset', String(results.cards.length));
+      // Include current filter params
+      if (filters.arcana !== 'all') params.set('arcana', filters.arcana);
+      if (filters.suit.length > 0) params.set('suit', filters.suit.join(','));
+      params.set('type', 'card'); // Only load cards
+
+      const response = await fetch(`/api/search?${params.toString()}`);
+      if (!response.ok) throw new Error('Load more failed');
+      const data = await response.json();
+
+      setResults(prev => prev ? {
+        ...prev,
+        cards: [...prev.cards, ...data.cards],
+        hasMoreCards: data.hasMoreCards,
+      } : null);
+    } catch (err) {
+      console.error('Error loading more cards:', err);
+    } finally {
+      setLoadingMoreCards(false);
+    }
+  };
+
+  const loadMoreTalks = async () => {
+    if (!results || !results.hasMoreTalks || loadingMoreTalks) return;
+    setLoadingMoreTalks(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('q', searchQuery);
+      params.set('talksOffset', String(results.talks.length));
+      // Include current filter params
+      if (filters.minDuration > DURATION_MIN) params.set('minDuration', String(filters.minDuration));
+      if (filters.maxDuration < DURATION_MAX) params.set('maxDuration', String(filters.maxDuration));
+      if (filters.minYear > YEAR_MIN) params.set('minYear', String(filters.minYear));
+      if (filters.maxYear < YEAR_MAX) params.set('maxYear', String(filters.maxYear));
+      params.set('type', 'talk'); // Only load talks
+
+      const response = await fetch(`/api/search?${params.toString()}`);
+      if (!response.ok) throw new Error('Load more failed');
+      const data = await response.json();
+
+      setResults(prev => prev ? {
+        ...prev,
+        talks: [...prev.talks, ...data.talks],
+        hasMoreTalks: data.hasMoreTalks,
+      } : null);
+    } catch (err) {
+      console.error('Error loading more talks:', err);
+    } finally {
+      setLoadingMoreTalks(false);
+    }
+  };
+
+  const loadMoreThemes = async () => {
+    if (!results || !results.hasMoreThemes || loadingMoreThemes) return;
+    setLoadingMoreThemes(true);
+    try {
+      const params = new URLSearchParams();
+      params.set('q', searchQuery);
+      params.set('themesOffset', String(results.themes.length));
+      params.set('type', 'theme'); // Only load themes
+
+      const response = await fetch(`/api/search?${params.toString()}`);
+      if (!response.ok) throw new Error('Load more failed');
+      const data = await response.json();
+
+      setResults(prev => prev ? {
+        ...prev,
+        themes: [...prev.themes, ...data.themes],
+        hasMoreThemes: data.hasMoreThemes,
+      } : null);
+    } catch (err) {
+      console.error('Error loading more themes:', err);
+    } finally {
+      setLoadingMoreThemes(false);
+    }
+  };
+
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
 
@@ -219,19 +315,19 @@ function SearchContent() {
       params.set('suit', newFilters.suit.join(','));
     }
 
-    if (newFilters.minDuration > 0) {
+    if (newFilters.minDuration > DURATION_MIN) {
       params.set('minDuration', newFilters.minDuration.toString());
     }
 
-    if (newFilters.maxDuration < 3600) {
+    if (newFilters.maxDuration < DURATION_MAX) {
       params.set('maxDuration', newFilters.maxDuration.toString());
     }
 
-    if (newFilters.minYear > 2000) {
+    if (newFilters.minYear > YEAR_MIN) {
       params.set('minYear', newFilters.minYear.toString());
     }
 
-    if (newFilters.maxYear < 2025) {
+    if (newFilters.maxYear < YEAR_MAX) {
       params.set('maxYear', newFilters.maxYear.toString());
     }
 
@@ -244,15 +340,7 @@ function SearchContent() {
   };
 
   const handleClearFilters = () => {
-    const defaultFilters: FilterState = {
-      type: ['card', 'talk', 'theme'],
-      arcana: 'all',
-      suit: [],
-      minDuration: 0,
-      maxDuration: 3600,
-      minYear: 2000,
-      maxYear: 2025,
-    };
+    const defaultFilters: FilterState = { ...DEFAULT_FILTERS };
     setFilters(defaultFilters);
 
     const params = new URLSearchParams();
@@ -341,7 +429,7 @@ function SearchContent() {
               {totalResults === 0 ? (
                 <>
                   No results found for &ldquo;{results.query}&rdquo;
-                  {(filters.type.length < 3 || filters.arcana !== 'all' || filters.suit.length > 0 || filters.minDuration > 0 || filters.maxDuration < 3600 || filters.minYear > 2000 || filters.maxYear < 2025) && (
+                  {(filters.type.length < 3 || filters.arcana !== 'all' || filters.suit.length > 0 || filters.minDuration > DURATION_MIN || filters.maxDuration < DURATION_MAX || filters.minYear > YEAR_MIN || filters.maxYear < YEAR_MAX) && (
                     <span className="block mt-1 text-sm">Try adjusting your filters</span>
                   )}
                 </>
@@ -412,6 +500,23 @@ function SearchContent() {
                   );
                 })}
               </div>
+              {/* Load More Cards Button */}
+              {results.hasMoreCards && (
+                <button
+                  onClick={loadMoreCards}
+                  disabled={loadingMoreCards}
+                  className="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loadingMoreCards ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-400 rounded-full animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load more cards'
+                  )}
+                </button>
+              )}
             </div>
           )}
 
@@ -447,6 +552,23 @@ function SearchContent() {
                   </Link>
                 ))}
               </div>
+              {/* Load More Talks Button */}
+              {results.hasMoreTalks && (
+                <button
+                  onClick={loadMoreTalks}
+                  disabled={loadingMoreTalks}
+                  className="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loadingMoreTalks ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-400 rounded-full animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load more talks'
+                  )}
+                </button>
+              )}
             </div>
           )}
 
@@ -479,6 +601,23 @@ function SearchContent() {
                   </Link>
                 ))}
               </div>
+              {/* Load More Themes Button */}
+              {results.hasMoreThemes && (
+                <button
+                  onClick={loadMoreThemes}
+                  disabled={loadingMoreThemes}
+                  className="w-full mt-4 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loadingMoreThemes ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-gray-400/30 border-t-gray-400 rounded-full animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load more themes'
+                  )}
+                </button>
+              )}
             </div>
           )}
         </div>

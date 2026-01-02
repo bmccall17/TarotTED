@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Search, X, Loader2 } from 'lucide-react';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 
@@ -26,6 +26,8 @@ export function TalkSelector({ selectedTalkId, excludeTalkIds, onSelectTalk, onC
   const [loading, setLoading] = useState(false);
   const [selectedTalk, setSelectedTalk] = useState<Talk | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const debouncedQuery = useDebounce(query, 300);
 
@@ -55,6 +57,52 @@ export function TalkSelector({ selectedTalkId, excludeTalkIds, onSelectTalk, onC
 
     search();
   }, [debouncedQuery, excludeTalkIds]);
+
+  // Reset highlighted index when results change
+  useEffect(() => {
+    setHighlightedIndex(-1);
+  }, [results]);
+
+  // Scroll highlighted item into view
+  useEffect(() => {
+    if (highlightedIndex >= 0 && resultsRef.current) {
+      const items = resultsRef.current.querySelectorAll('[data-result-item]');
+      const item = items[highlightedIndex] as HTMLElement;
+      if (item) {
+        item.scrollIntoView({ block: 'nearest' });
+      }
+    }
+  }, [highlightedIndex]);
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!isOpen || results.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev < results.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(prev =>
+          prev > 0 ? prev - 1 : results.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (highlightedIndex >= 0 && results[highlightedIndex]) {
+          handleSelect(results[highlightedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsOpen(false);
+        setHighlightedIndex(-1);
+        break;
+    }
+  };
 
   const handleSelect = (talk: Talk) => {
     setSelectedTalk(talk);
@@ -117,8 +165,13 @@ export function TalkSelector({ selectedTalkId, excludeTalkIds, onSelectTalk, onC
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
+          onKeyDown={handleKeyDown}
           placeholder="Search for a talk to add..."
           className="w-full pl-9 pr-10 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          role="combobox"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
         />
         {loading && (
           <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 animate-spin" />
@@ -127,18 +180,30 @@ export function TalkSelector({ selectedTalkId, excludeTalkIds, onSelectTalk, onC
 
       {/* Results Dropdown */}
       {isOpen && (query.length >= 2 || results.length > 0) && (
-        <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-h-64 overflow-y-auto">
+        <div
+          ref={resultsRef}
+          role="listbox"
+          className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-xl max-h-64 overflow-y-auto"
+        >
           {results.length === 0 && !loading && query.length >= 2 && (
             <div className="px-4 py-3 text-sm text-gray-400">
               No talks found matching "{query}"
             </div>
           )}
-          {results.map((talk) => (
+          {results.map((talk, index) => (
             <button
               key={talk.id}
               type="button"
+              data-result-item
+              role="option"
+              aria-selected={highlightedIndex === index}
               onClick={() => handleSelect(talk)}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-700 transition-colors text-left"
+              onMouseEnter={() => setHighlightedIndex(index)}
+              className={`w-full flex items-center gap-3 px-4 py-3 transition-colors text-left ${
+                highlightedIndex === index
+                  ? 'bg-indigo-600/30 border-l-2 border-indigo-500'
+                  : 'hover:bg-gray-700'
+              }`}
             >
               {talk.thumbnailUrl ? (
                 <img

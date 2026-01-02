@@ -12,6 +12,15 @@ export interface SearchFilters {
   maxYear?: number;
 }
 
+export interface PaginationOptions {
+  cardsOffset?: number;
+  cardsLimit?: number;
+  talksOffset?: number;
+  talksLimit?: number;
+  themesOffset?: number;
+  themesLimit?: number;
+}
+
 // Extended card result with relevance score
 interface CardResultWithScore {
   id: string;
@@ -77,6 +86,9 @@ export interface SearchResults {
     description: string | null;
   }>;
   query: string;
+  hasMoreCards?: boolean;
+  hasMoreTalks?: boolean;
+  hasMoreThemes?: boolean;
 }
 
 /**
@@ -260,15 +272,29 @@ function levenshteinDistance(a: string, b: string): number {
   return matrix[b.length][a.length];
 }
 
+// Default limits for pagination
+const DEFAULT_CARDS_LIMIT = 20;
+const DEFAULT_TALKS_LIMIT = 20;
+const DEFAULT_THEMES_LIMIT = 10;
+
 export async function searchWithFilters(
   query: string,
-  filters: SearchFilters = {}
+  filters: SearchFilters = {},
+  pagination: PaginationOptions = {}
 ): Promise<SearchResults> {
   const searchTerm = `%${query.trim()}%`;
   const trimmedQuery = query.trim();
   const shouldSearchCards = !filters.type || filters.type.includes('card');
   const shouldSearchTalks = !filters.type || filters.type.includes('talk');
   const shouldSearchThemes = !filters.type || filters.type.includes('theme');
+
+  // Extract pagination options with defaults
+  const cardsOffset = pagination.cardsOffset ?? 0;
+  const cardsLimit = pagination.cardsLimit ?? DEFAULT_CARDS_LIMIT;
+  const talksOffset = pagination.talksOffset ?? 0;
+  const talksLimit = pagination.talksLimit ?? DEFAULT_TALKS_LIMIT;
+  const themesOffset = pagination.themesOffset ?? 0;
+  const themesLimit = pagination.themesLimit ?? DEFAULT_THEMES_LIMIT;
 
   // Search cards - expanded to include uprightMeaning and reversedMeaning
   let cardResults: CardResultWithScore[] = [];
@@ -293,6 +319,8 @@ export async function searchWithFilters(
       cardConditions.push(inArray(cards.suit, filters.suit));
     }
 
+    // Fetch extra records for scoring, then paginate after sorting
+    const fetchLimit = cardsOffset + cardsLimit + 10; // Extra buffer for scoring
     const rawCards = await db
       .select({
         id: cards.id,
@@ -306,16 +334,21 @@ export async function searchWithFilters(
       })
       .from(cards)
       .where(and(...cardConditions))
-      .limit(30); // Fetch more to allow for scoring/sorting
+      .limit(fetchLimit);
 
-    // Score and sort cards by relevance
-    cardResults = rawCards
+    // Score and sort cards by relevance, then apply pagination
+    const scoredCards = rawCards
       .map(card => ({
         ...card,
         _score: scoreCard(card, trimmedQuery),
       }))
-      .sort((a, b) => (b._score || 0) - (a._score || 0))
-      .slice(0, 20);
+      .sort((a, b) => (b._score || 0) - (a._score || 0));
+
+    cardResults = scoredCards.slice(cardsOffset, cardsOffset + cardsLimit + 1);
+  }
+  const hasMoreCards = cardResults.length > cardsLimit;
+  if (hasMoreCards) {
+    cardResults = cardResults.slice(0, cardsLimit);
   }
 
   // Search talks - expanded to include description
@@ -347,6 +380,8 @@ export async function searchWithFilters(
       talkConditions.push(lte(talks.year, filters.maxYear));
     }
 
+    // Fetch extra records for scoring, then paginate after sorting
+    const fetchLimit = talksOffset + talksLimit + 10;
     const rawTalks = await db
       .select({
         id: talks.id,
@@ -361,21 +396,28 @@ export async function searchWithFilters(
       })
       .from(talks)
       .where(and(...talkConditions))
-      .limit(30); // Fetch more to allow for scoring/sorting
+      .limit(fetchLimit);
 
-    // Score and sort talks by relevance
-    talkResults = rawTalks
+    // Score and sort talks by relevance, then apply pagination
+    const scoredTalks = rawTalks
       .map(talk => ({
         ...talk,
         _score: scoreTalk(talk, trimmedQuery),
       }))
-      .sort((a, b) => (b._score || 0) - (a._score || 0))
-      .slice(0, 20);
+      .sort((a, b) => (b._score || 0) - (a._score || 0));
+
+    talkResults = scoredTalks.slice(talksOffset, talksOffset + talksLimit + 1);
+  }
+  const hasMoreTalks = talkResults.length > talksLimit;
+  if (hasMoreTalks) {
+    talkResults = talkResults.slice(0, talksLimit);
   }
 
   // Search themes - expanded to include longDescription
   let themeResults: ThemeResultWithScore[] = [];
   if (shouldSearchThemes) {
+    // Fetch extra records for scoring, then paginate after sorting
+    const fetchLimit = themesOffset + themesLimit + 5;
     const rawThemes = await db
       .select({
         id: themes.id,
@@ -392,10 +434,10 @@ export async function searchWithFilters(
           ilike(themes.longDescription, searchTerm)
         )
       )
-      .limit(15); // Fetch more to allow for scoring/sorting
+      .limit(fetchLimit);
 
-    // Score and sort themes by relevance
-    themeResults = rawThemes
+    // Score and sort themes by relevance, then apply pagination
+    const scoredThemes = rawThemes
       .map(theme => ({
         id: theme.id,
         slug: theme.slug,
@@ -403,8 +445,13 @@ export async function searchWithFilters(
         description: theme.description,
         _score: scoreTheme({ ...theme, description: theme.description }, trimmedQuery),
       }))
-      .sort((a, b) => (b._score || 0) - (a._score || 0))
-      .slice(0, 10);
+      .sort((a, b) => (b._score || 0) - (a._score || 0));
+
+    themeResults = scoredThemes.slice(themesOffset, themesOffset + themesLimit + 1);
+  }
+  const hasMoreThemes = themeResults.length > themesLimit;
+  if (hasMoreThemes) {
+    themeResults = themeResults.slice(0, themesLimit);
   }
 
   // Remove internal _score from results before returning
@@ -413,5 +460,8 @@ export async function searchWithFilters(
     talks: talkResults.map(({ _score, ...talk }) => talk),
     themes: themeResults.map(({ _score, ...theme }) => theme),
     query: trimmedQuery,
+    hasMoreCards,
+    hasMoreTalks,
+    hasMoreThemes,
   };
 }
