@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Link as LinkIcon, Search } from 'lucide-react';
+import { useDebounce } from '@/lib/hooks/useDebounce';
 
 interface AddMappingModalProps {
   talk: {
@@ -37,17 +38,15 @@ export default function AddMappingModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
-        performSearch(searchQuery);
-      } else {
-        setSearchResults([]);
-      }
-    }, 300);
+  const debouncedQuery = useDebounce(searchQuery, 300);
 
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  useEffect(() => {
+    if (debouncedQuery.trim().length >= 2) {
+      performSearch(debouncedQuery);
+    } else {
+      setSearchResults([]);
+    }
+  }, [debouncedQuery]);
 
   const performSearch = async (query: string) => {
     setIsSearching(true);

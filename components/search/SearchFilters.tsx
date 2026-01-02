@@ -44,8 +44,7 @@ export default function SearchFilters({ filters, onChange, onClear }: SearchFilt
   // Check if any filters are active
   const hasActiveFilters = () => {
     return (
-      filters.type.length > 0 &&
-      filters.type.length < 3 ||
+      (filters.type.length > 0 && filters.type.length < 3) ||
       filters.arcana !== 'all' ||
       filters.suit.length > 0 ||
       filters.minDuration > 0 ||

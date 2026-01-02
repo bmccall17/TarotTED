@@ -59,6 +59,7 @@ function SearchContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResults | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Parse filters from URL
   const parseFiltersFromURL = (): FilterState => {
@@ -144,17 +145,24 @@ function SearchContent() {
   const performSearch = async (query: string, filterState: FilterState) => {
     if (!query.trim()) {
       setResults(null);
+      setError(null);
       return;
     }
 
     setIsLoading(true);
+    setError(null);
     try {
       const url = buildSearchURL(query, filterState);
       const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
       const data = await response.json();
       setResults(data);
-    } catch (error) {
-      console.error('Error searching:', error);
+    } catch (err) {
+      console.error('Error searching:', err);
+      setError('Unable to complete search. Please try again.');
+      setResults(null);
     } finally {
       setIsLoading(false);
     }
@@ -201,6 +209,11 @@ function SearchContent() {
     }
 
     router.push(`/search?${params.toString()}`, { scroll: false });
+
+    // Auto-trigger search with new filters if there's a query
+    if (searchQuery.trim()) {
+      performSearch(searchQuery, newFilters);
+    }
   };
 
   const handleClearFilters = () => {
@@ -218,6 +231,11 @@ function SearchContent() {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     router.push(`/search?${params.toString()}`, { scroll: false });
+
+    // Auto-trigger search with default filters if there's a query
+    if (searchQuery.trim()) {
+      performSearch(searchQuery, defaultFilters);
+    }
   };
 
   const totalResults = results
@@ -262,6 +280,19 @@ function SearchContent() {
         <div className="text-center py-12">
           <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500"></div>
           <p className="text-gray-400 mt-3">Searching...</p>
+        </div>
+      )}
+
+      {/* Error State */}
+      {!isLoading && error && (
+        <div className="text-center py-12">
+          <p className="text-red-400 mb-4">{error}</p>
+          <button
+            onClick={() => performSearch(searchQuery, filters)}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-100 rounded-lg transition-colors text-sm"
+          >
+            Try Again
+          </button>
         </div>
       )}
 
