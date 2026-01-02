@@ -125,7 +125,7 @@ export async function searchTalksForAdmin(query: string, includeDeleted: boolean
     includeDeleted ? undefined : activeFilter
   );
 
-  return await db
+  const matchedTalks = await db
     .select({
       id: talks.id,
       slug: talks.slug,
@@ -136,17 +136,47 @@ export async function searchTalksForAdmin(query: string, includeDeleted: boolean
       thumbnailUrl: talks.thumbnailUrl,
       year: talks.year,
       isDeleted: talks.isDeleted,
-      // Count of mappings for this talk
-      mappingsCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM card_talk_mappings
-        WHERE card_talk_mappings.talk_id = talks.id
-      )`,
     })
     .from(talks)
     .where(whereClause)
     .orderBy(desc(talks.createdAt))
     .limit(50);
+
+  // Get all mappings with card info for these talks
+  const talkIds = matchedTalks.map(t => t.id);
+
+  if (talkIds.length === 0) {
+    return [];
+  }
+
+  const allMappings = await db
+    .select({
+      talkId: cardTalkMappings.talkId,
+      isPrimary: cardTalkMappings.isPrimary,
+      cardImageUrl: cards.imageUrl,
+      cardName: cards.name,
+      cardSlug: cards.slug,
+      cardId: cards.id,
+    })
+    .from(cardTalkMappings)
+    .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+    .where(inArray(cardTalkMappings.talkId, talkIds))
+    .orderBy(desc(cardTalkMappings.isPrimary));
+
+  // Group mappings by talk
+  const mappingsByTalk = allMappings.reduce((acc, mapping) => {
+    if (!acc[mapping.talkId]) {
+      acc[mapping.talkId] = [];
+    }
+    acc[mapping.talkId].push(mapping);
+    return acc;
+  }, {} as Record<string, typeof allMappings>);
+
+  // Attach mappings to talks
+  return matchedTalks.map(talk => ({
+    ...talk,
+    mappings: mappingsByTalk[talk.id] || [],
+  }));
 }
 
 /**
