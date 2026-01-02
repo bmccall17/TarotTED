@@ -84,10 +84,10 @@ export default function HomePage() {
           {!showSearch ? (
             <button
               onClick={() => setShowSearch(true)}
-              className="w-full py-3 px-4 border border-gray-700/50 rounded-xl text-gray-500 hover:text-gray-400 hover:border-gray-600 transition-all flex items-center justify-center gap-2 opacity-60 hover:opacity-100"
+              className="w-full py-3.5 px-4 border border-gray-600/70 rounded-xl text-gray-300 hover:text-gray-200 hover:border-gray-500 hover:bg-gray-800/30 transition-all flex items-center justify-center gap-2.5"
             >
-              <Search className="w-4 h-4" />
-              <span className="text-sm">Search cards, talks, or themes...</span>
+              <Search className="w-5 h-5" />
+              <span className="text-base">Search cards, talks, or themes...</span>
             </button>
           ) : (
             <form onSubmit={handleSearch} className="relative">
@@ -110,7 +110,7 @@ export default function HomePage() {
             You are here and you know exactly why.
           </p>
           <p className="text-gray-500 text-xs leading-relaxed">
-            Each tarot card is paired with TED talks that echo its wisdom.
+            Each tarot card is paired with <span style="font-family: Helvetica, Inter, Arial, sans-serif; font-weight: bold; color: #EB0028;">TED</span> talks that echo its wisdom.
             <br />Draw a card above, or explore through the navigation below.
           </p>
         </div>
