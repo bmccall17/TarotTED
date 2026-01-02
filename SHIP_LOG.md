@@ -56,7 +56,7 @@ Compact dock below each revealed card showing the primary mapped TED talk:
 - Search bar prominent
 - Feature explanation accordion
 
-**After (v1.1.1):**
+**After (v1.1.2):**
 - Single focused action: draw a card
 - Immediate engagement without decisions
 - Search hidden by default
