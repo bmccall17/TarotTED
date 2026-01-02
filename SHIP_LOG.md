@@ -337,10 +337,7 @@ Invocation receives prompts, selects based on minute
 ### 🔮 Future Enhancements (Not Yet Implemented)
 
 1. ~~**Dynamic Invocations**: Pull from card/talk language fragments~~ ✅ Implemented!
-2. **Card Statistics**: Track which cards are drawn most frequently
-3. **Share Feature**: Allow users to share their card draw
-4. **Sound Design**: Subtle audio cues for card flip, navigation
-5. **Multi-card Spreads**: 5-card, Celtic Cross layouts
+2. **Sound Design**: Subtle audio cues for card flip, navigation
 
 ---
 
