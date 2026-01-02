@@ -110,7 +110,7 @@ export default function HomePage() {
             You are here and you know exactly why.
           </p>
           <p className="text-gray-500 text-xs leading-relaxed">
-            Each tarot card is paired with <span style={{ fontFamily: 'Helvetica, Inter, Arial, sans-serif', fontWeight: 'bold', color: '#EB0028' }}>TED</span> talks that echo its wisdom.
+            Each tarot card is paired with <span style={{ fontFamily: 'Helvetica, Inter, Arial, sans-serif', fontWeight: 'bold', color: '#EB0028' }}><a href="https://www.ted.com/" target="_blank">TED</a></span> talks that echo its wisdom.
             <br />Draw a card above, or explore through the navigation below.
           </p>
         </div>
