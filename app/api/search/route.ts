@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchWithFilters, type SearchFilters } from '@/lib/db/queries/search';
+import { searchWithFilters, getSearchSuggestions, type SearchFilters } from '@/lib/db/queries/search';
 
 export async function GET(request: NextRequest) {
   try {
@@ -82,8 +82,15 @@ export async function GET(request: NextRequest) {
     // Execute search with filters
     const results = await searchWithFilters(query, filters);
 
+    // Get suggestions if no results found
+    const totalResults = results.cards.length + results.talks.length + results.themes.length;
+    let suggestions: string[] = [];
+    if (totalResults === 0) {
+      suggestions = await getSearchSuggestions(query);
+    }
+
     // No caching to immediately reflect admin changes
-    return NextResponse.json(results, {
+    return NextResponse.json({ ...results, suggestions }, {
       headers: {
         'Cache-Control': 'no-store, max-age=0',
       },

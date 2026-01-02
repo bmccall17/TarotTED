@@ -293,3 +293,97 @@
 - `lib/db/queries/admin-talks.ts` - Fixed search return structure (pre-Phase 1)
 
 **Ready for:** Phase 2 (Search Quality Improvements) or commit current changes
+
+---
+
+### 2026-01-02: Phase 2 Completed
+
+**Phase 2: Search Quality Improvements - COMPLETED**
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Expand searchable fields | Done | Added `talks.description`, `cards.uprightMeaning`, `cards.reversedMeaning`, `themes.longDescription` to search |
+| Add relevance scoring | Done | Implemented `calculateRelevanceScore()` with weighted scoring: exact=100, starts-with=75, word-starts=50, contains=25 |
+| Result ordering by relevance | Done | Results now sorted by score descending before returning |
+| Search highlighting | Done | Added `highlightMatch()` function with subtle indigo highlight on matched text |
+| "Did you mean?" suggestions | Done | Added `getSearchSuggestions()` with Levenshtein distance fuzzy matching |
+
+**Files Modified:**
+- `lib/db/queries/search.ts` - Added scoring functions, expanded search fields, added suggestions
+- `app/api/search/route.ts` - Added suggestions to response when no results
+- `app/search/page.tsx` - Added highlight function, suggestions UI, updated interface
+
+**Technical Details:**
+
+1. **Relevance Scoring Algorithm:**
+   ```
+   - Exact match in name/title: 100 * weight
+   - Starts with query: 75 * weight
+   - Word starts with query: 50 * weight
+   - Contains query: 25 * weight
+
+   Weights by field:
+   - Card name, Talk title: 2x
+   - Card keywords, Talk speaker: 1.5x
+   - Summary, Description: 1x
+   ```
+
+2. **Search Highlighting:**
+   - Subtle indigo background (`bg-indigo-500/30`)
+   - Applied to: card names, summaries, talk titles, speaker names, theme names/descriptions
+
+3. **Suggestions System:**
+   - Uses Levenshtein distance for fuzzy matching (tolerance: 2)
+   - Searches cards, talks, and themes for similar terms
+   - Only shown when search returns 0 results
+
+**UX Notes:**
+- Frontend visual appearance unchanged (per user request)
+- Highlighting is subtle and non-intrusive
+- Suggestions appear only on no-results, styled to match existing UI
+
+**Ready for:** User review and testing, then Phase 3 (UX Polish) if desired
+
+**Verification:**
+- TypeScript check: PASSED (no errors)
+- Next.js build: PASSED
+- All search-related files compile correctly
+
+---
+
+## Summary of All Changes (Phases 1 & 2)
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `lib/db/queries/admin-talks.ts` | Fixed search return structure |
+| `lib/db/queries/search.ts` | Expanded fields, relevance scoring, suggestions |
+| `app/api/search/route.ts` | Added suggestions support |
+| `app/search/page.tsx` | Error handling, auto-trigger, highlighting, suggestions UI |
+| `components/search/SearchFilters.tsx` | Fixed hasActiveFilters() bug |
+| `components/admin/validation/modals/AddMappingModal.tsx` | Standardized useDebounce |
+
+### Search Quality Improvements
+
+1. **Expanded Search Coverage:**
+   - Cards now search: name, keywords, summary, uprightMeaning, reversedMeaning
+   - Talks now search: title, speakerName, description
+   - Themes now search: name, shortDescription, longDescription
+
+2. **Relevance Ranking:**
+   - Exact matches rank highest
+   - "Starts with" matches rank next
+   - Word-boundary matches rank above simple contains
+   - Results sorted by cumulative relevance score
+
+3. **Visual Feedback:**
+   - Matching text highlighted with subtle indigo background
+   - "Did you mean?" suggestions for failed searches
+
+### Bug Fixes
+
+- Admin talks search crash fixed
+- Filter logic bug fixed
+- Filters now auto-trigger search
+- Search errors now visible to users

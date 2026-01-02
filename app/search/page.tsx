@@ -21,6 +21,32 @@ const themeColors: Record<string, string> = {
   'wisdom-and-introspection': 'bg-teal-500',
 };
 
+/**
+ * Highlight matching text in search results
+ * Returns JSX with highlighted spans for matching portions
+ */
+function highlightMatch(text: string, query: string): React.ReactNode {
+  if (!query.trim() || !text) return text;
+
+  const lowerText = text.toLowerCase();
+  const lowerQuery = query.toLowerCase().trim();
+  const index = lowerText.indexOf(lowerQuery);
+
+  if (index === -1) return text;
+
+  const before = text.slice(0, index);
+  const match = text.slice(index, index + query.trim().length);
+  const after = text.slice(index + query.trim().length);
+
+  return (
+    <>
+      {before}
+      <mark className="bg-indigo-500/30 text-inherit rounded px-0.5">{match}</mark>
+      {after}
+    </>
+  );
+}
+
 interface SearchResults {
   cards: Array<{
     id: string;
@@ -49,6 +75,7 @@ interface SearchResults {
     description: string;
   }>;
   query: string;
+  suggestions?: string[];
 }
 
 function SearchContent() {
@@ -242,6 +269,15 @@ function SearchContent() {
     ? results.cards.length + results.talks.length + results.themes.length
     : 0;
 
+  // Handle clicking on a suggestion
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchQuery(suggestion);
+    const params = new URLSearchParams();
+    params.set('q', suggestion);
+    router.push(`/search?${params.toString()}`, { scroll: false });
+    performSearch(suggestion, filters);
+  };
+
   return (
     <div className="px-4 py-6 pb-24 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
@@ -315,6 +351,24 @@ function SearchContent() {
                 </>
               )}
             </p>
+
+            {/* Search Suggestions */}
+            {totalResults === 0 && results.suggestions && results.suggestions.length > 0 && (
+              <div className="mt-4">
+                <p className="text-sm text-gray-500 mb-2">Did you mean:</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {results.suggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-indigo-400 hover:text-indigo-300 rounded-lg text-sm border border-gray-700 hover:border-gray-600 transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Cards Section */}
@@ -342,8 +396,8 @@ function SearchContent() {
                           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         />
                       </div>
-                      <h3 className="font-semibold text-gray-100 mb-1">{card.name}</h3>
-                      <p className="text-xs text-gray-500 mb-2 line-clamp-2">{card.summary}</p>
+                      <h3 className="font-semibold text-gray-100 mb-1">{highlightMatch(card.name, results.query)}</h3>
+                      <p className="text-xs text-gray-500 mb-2 line-clamp-2">{highlightMatch(card.summary, results.query)}</p>
                       <div className="flex flex-wrap gap-1">
                         {keywords.slice(0, 2).map((keyword: string) => (
                           <span
@@ -380,9 +434,9 @@ function SearchContent() {
                         <Play className="w-8 h-8 text-indigo-400" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{talk.title}</h3>
+                        <h3 className="font-semibold text-gray-100 mb-1 line-clamp-2">{highlightMatch(talk.title, results.query)}</h3>
                         <p className="text-sm text-gray-400 mb-2">
-                          {talk.speakerName}
+                          {highlightMatch(talk.speakerName, results.query)}
                           {talk.durationSeconds && (
                             <> • {Math.floor(talk.durationSeconds / 60)} min</>
                           )}
@@ -417,9 +471,9 @@ function SearchContent() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <Sparkles className="w-4 h-4 text-indigo-400" />
-                          <h3 className="text-lg font-semibold text-gray-100">{theme.name}</h3>
+                          <h3 className="text-lg font-semibold text-gray-100">{highlightMatch(theme.name, results.query)}</h3>
                         </div>
-                        <p className="text-gray-400 text-sm">{theme.description}</p>
+                        <p className="text-gray-400 text-sm">{highlightMatch(theme.description || '', results.query)}</p>
                       </div>
                     </div>
                   </Link>
