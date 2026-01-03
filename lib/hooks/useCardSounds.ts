@@ -18,6 +18,7 @@ export function useCardSounds() {
   const [isMuted, setIsMuted] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const hasInteractedRef = useRef(false);
+  const pendingShuffleRef = useRef(false); // Queue shuffle for first interaction
 
   // Load mute preference from localStorage
   useEffect(() => {
@@ -72,9 +73,17 @@ export function useCardSounds() {
   }, [isReady]);
 
   // Track user interaction (for autoplay policy)
+  // Play pending shuffle sound on first interaction
   useEffect(() => {
     const markInteracted = () => {
       hasInteractedRef.current = true;
+
+      // Play pending shuffle sound on first interaction
+      if (pendingShuffleRef.current && shuffleAudioRef.current && !isMuted) {
+        pendingShuffleRef.current = false;
+        shuffleAudioRef.current.currentTime = 0;
+        shuffleAudioRef.current.play().catch(() => {});
+      }
     };
 
     document.addEventListener('click', markInteracted, { once: true });
@@ -84,10 +93,16 @@ export function useCardSounds() {
       document.removeEventListener('click', markInteracted);
       document.removeEventListener('touchstart', markInteracted);
     };
-  }, []);
+  }, [isMuted]);
 
   const playShuffleSound = useCallback(() => {
-    if (isMuted || !shuffleAudioRef.current || !hasInteractedRef.current) return;
+    if (isMuted || !shuffleAudioRef.current) return;
+
+    // If user hasn't interacted yet, queue for first interaction
+    if (!hasInteractedRef.current) {
+      pendingShuffleRef.current = true;
+      return;
+    }
 
     try {
       shuffleAudioRef.current.currentTime = 0;

@@ -77,6 +77,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
+  const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { playShuffleSound, playFlipSound } = useCardSounds();
 
@@ -132,6 +133,46 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       playShuffleSound();
     }
   }, [imagesReady, cards.length, playShuffleSound]);
+
+  // Track which card is centered on mobile scroll
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container || layoutMode === 'stacked') return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    const handleScroll = () => {
+      const containerWidth = container.clientWidth;
+      const scrollLeft = container.scrollLeft;
+      const containerCenter = scrollLeft + containerWidth / 2;
+
+      // Card layout: 10px base offset + 20px padding, 240px between card centers
+      const cardOffset = 10 + 20; // Base offset + container padding
+      const cardGap = 240;
+      const cardWidth = 200;
+
+      // Find which card is closest to center
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+
+      for (let i = 0; i < 3; i++) {
+        const cardLeft = cardOffset + (i * cardGap);
+        const cardCenter = cardLeft + (cardWidth / 2);
+        const distance = Math.abs(containerCenter - cardCenter);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = i;
+        }
+      }
+
+      setCenteredCardIndex(closestIndex);
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    // Initial check
+    handleScroll();
+
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [layoutMode]);
 
   const handleReveal = useCallback((index: number) => {
     setRevealedCards((prev) => {
@@ -252,6 +293,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
                 isRevealed={revealedCards.includes(index)}
                 onReveal={() => handleReveal(index)}
                 onFlipSound={playFlipSound}
+                isCentered={index === centeredCardIndex}
               />
             ))
           )}

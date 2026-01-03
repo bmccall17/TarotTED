@@ -54,9 +54,10 @@ public/sounds/
 | Feature | Timing | Notes |
 |---------|--------|-------|
 | Image preload timeout | 3000ms | Fallback if images slow to load |
-| Shuffle sound trigger | On `imagesReady` | When cascade animation starts |
+| Shuffle sound trigger | First user interaction | Queued on cascade, plays on first tap |
 | Flip sound trigger | On click | Immediate feedback |
-| Dock auto-expand | 777ms + 500ms | After flip completes |
+| Dock auto-expand | 777ms + 4000ms | After flip completes (mobile only) |
+| Scroll-based dock expand | 4000ms | When card becomes centered via swipe |
 
 ### 🔮 Future Work (Deferred)
 

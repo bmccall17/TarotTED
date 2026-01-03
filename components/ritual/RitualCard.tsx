@@ -27,6 +27,7 @@ type RitualCardProps = {
   isRevealed: boolean;
   onReveal: () => void;
   onFlipSound?: () => void;
+  isCentered?: boolean; // For scroll-based dock expansion on mobile
 };
 
 type NavigationSparkle = {
@@ -38,7 +39,7 @@ type NavigationSparkle = {
   distance: number;
 };
 
-export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal, onFlipSound }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal, onFlipSound, isCentered }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -98,6 +99,19 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
     }
   }, [isDockExpanded]);
 
+  // Auto-expand dock when card becomes centered via scroll (mobile only)
+  useEffect(() => {
+    if (!isCentered || !isRevealed || !primaryTalk || isDockExpanded) return;
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+
+    const timer = setTimeout(() => {
+      setIsDockExpanded(true);
+      setHasTappedDock(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, [isCentered, isRevealed, primaryTalk, isDockExpanded]);
+
   // Calculate card position based on layout mode
   // Container is 720px for all spread modes, 280px for stacked
   const getCardPosition = () => {
@@ -136,12 +150,12 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
       setTimeout(() => {
         setIsFlipping(false);
 
-        // Auto-expand dock on mobile after flip completes (500ms delay)
+        // Auto-expand dock on mobile after flip completes (4000ms delay)
         if (primaryTalk && window.innerWidth < 768) {
           setTimeout(() => {
             setIsDockExpanded(true);
             setHasTappedDock(true);
-          }, 500);
+          }, 4000);
         }
       }, 777);
     } else if (isRevealed) {
