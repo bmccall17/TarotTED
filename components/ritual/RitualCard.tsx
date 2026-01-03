@@ -25,6 +25,7 @@ type RitualCardProps = {
   index: number;
   layoutMode: 'stacked' | 'spread-2' | 'spread-3';
   isRevealed: boolean;
+  revealedCount: number; // Total revealed cards (to detect new reveals)
   onReveal: () => void;
   onFlipSound?: () => void;
   isCentered?: boolean; // For scroll-based dock expansion on mobile
@@ -39,7 +40,7 @@ type NavigationSparkle = {
   distance: number;
 };
 
-export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal, onFlipSound, isCentered }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, revealedCount, onReveal, onFlipSound, isCentered }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -50,6 +51,8 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
   const [navSparkles, setNavSparkles] = useState<NavigationSparkle[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const expandTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const collapseTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Generate sparkle burst for navigation
   const triggerSparkleBurst = useCallback(() => {
@@ -99,17 +102,61 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
     }
   }, [isDockExpanded]);
 
-  // Auto-expand dock when card becomes centered via scroll (mobile only)
+  // Collapse dock when a new card is revealed (on mobile)
   useEffect(() => {
-    if (!isCentered || !isRevealed || !primaryTalk || isDockExpanded) return;
     if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    if (!isDockExpanded) return;
 
-    const timer = setTimeout(() => {
-      setIsDockExpanded(true);
-      setHasTappedDock(true);
-    }, 4000);
+    // When revealed count changes, collapse this card's dock
+    // (user revealed a different card)
+    setIsDockExpanded(false);
+    setHasTappedDock(false);
+  }, [revealedCount, isDockExpanded]);
 
-    return () => clearTimeout(timer);
+  // Auto-expand dock when card becomes centered via scroll (mobile only)
+  // Auto-collapse after equal delay
+  // Collapse when card is no longer centered
+  useEffect(() => {
+    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
+    if (!isRevealed || !primaryTalk) return;
+
+    // Clear any existing timers
+    if (expandTimerRef.current) {
+      clearTimeout(expandTimerRef.current);
+      expandTimerRef.current = null;
+    }
+    if (collapseTimerRef.current) {
+      clearTimeout(collapseTimerRef.current);
+      collapseTimerRef.current = null;
+    }
+
+    // If card is not centered, collapse dock immediately
+    if (!isCentered) {
+      if (isDockExpanded) {
+        setIsDockExpanded(false);
+        setHasTappedDock(false);
+      }
+      return;
+    }
+
+    // If card is centered and dock not expanded, expand after delay
+    if (isCentered && !isDockExpanded) {
+      expandTimerRef.current = setTimeout(() => {
+        setIsDockExpanded(true);
+        setHasTappedDock(true);
+
+        // Auto-collapse after equal delay
+        collapseTimerRef.current = setTimeout(() => {
+          setIsDockExpanded(false);
+          setHasTappedDock(false);
+        }, 4000);
+      }, 4000);
+    }
+
+    return () => {
+      if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
+      if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+    };
   }, [isCentered, isRevealed, primaryTalk, isDockExpanded]);
 
   // Calculate card position based on layout mode

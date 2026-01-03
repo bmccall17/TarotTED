@@ -291,6 +291,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
                 index={index}
                 layoutMode={layoutMode}
                 isRevealed={revealedCards.includes(index)}
+                revealedCount={revealedCards.length}
                 onReveal={() => handleReveal(index)}
                 onFlipSound={playFlipSound}
                 isCentered={index === centeredCardIndex}
