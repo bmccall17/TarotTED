@@ -426,10 +426,11 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       {/* Talk Dock - Below Card */}
       {isRevealed && primaryTalk && (
         <div className="relative w-[200px] md:w-[220px] -mt-3">
-          {/* Compact Dock (default state) */}
+          {/* Dock Container - Fixed height to prevent layout shift */}
           <div
             ref={dockRef}
             className={`
+              relative min-h-[54px]
               bg-gradient-to-r from-gray-900/95 to-gray-800/95
               border-l border-r border-b border-gray-700/50
               rounded-b-xl cursor-pointer
@@ -445,12 +446,13 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            {/* Collapsed State */}
+            {/* Collapsed State - Absolute positioned to maintain container height */}
             <div
               className={`
+                absolute inset-0
                 p-3 flex items-center gap-2
                 transition-all duration-300
-                ${isDockExpanded || isDockHovering ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}
+                ${isDockExpanded || isDockHovering ? 'opacity-0 pointer-events-none' : 'opacity-100'}
               `}
             >
               <div className="w-5 h-5 rounded-full bg-[#EB0028] flex items-center justify-center flex-shrink-0">
