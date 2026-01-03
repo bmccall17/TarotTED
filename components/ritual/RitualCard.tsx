@@ -28,6 +28,7 @@ type RitualCardProps = {
   revealedCount: number; // Total revealed cards (to detect new reveals)
   onReveal: () => void;
   onFlipSound?: () => void;
+  onFlip2Sound?: () => void;
   isCentered?: boolean; // For scroll-based dock expansion on mobile
 };
 
@@ -40,7 +41,7 @@ type NavigationSparkle = {
   distance: number;
 };
 
-export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, revealedCount, onReveal, onFlipSound, isCentered }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, revealedCount, onReveal, onFlipSound, onFlip2Sound, isCentered }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -194,7 +195,20 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
 
     if (!isRevealed && !isFlipping) {
       setIsFlipping(true);
-      onFlipSound?.(); // Play flip sound
+
+      // Play appropriate flip sound based on card position and layout
+      if (index === 0) {
+        // First card always plays flip sound
+        onFlipSound?.();
+      } else if (index === 1 || index === 2) {
+        // Second/third card plays flip2 sound, UNLESS we're transitioning from stacked to spread
+        // (in which case the shuffle sound will play instead)
+        const isTransitioningToSpread = layoutMode === 'stacked';
+        if (!isTransitioningToSpread) {
+          onFlip2Sound?.();
+        }
+      }
+
       onReveal();
 
       // Complete flip animation (777ms)
@@ -210,7 +224,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
         router.push(`/cards/${card.slug}`);
       }, 600); // Faster navigation after sparkle effect
     }
-  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, onFlipSound, triggerSparkleBurst, primaryTalk]);
+  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, onFlipSound, onFlip2Sound, triggerSparkleBurst, primaryTalk, index, layoutMode]);
 
   // Handle dock click/tap
   const handleDockClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {

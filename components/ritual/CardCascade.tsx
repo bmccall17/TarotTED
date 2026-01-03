@@ -79,7 +79,8 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [showRedraw, setShowRedraw] = useState(false);
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { playShuffleSound, playFlipSound } = useCardSounds();
+  const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
+  const prevLayoutModeRef = useRef<LayoutMode>('stacked');
 
   const fetchCards = useCallback(async () => {
     setIsLoading(true);
@@ -127,12 +128,24 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
     fetchCards();
   }, [fetchCards]);
 
-  // Play shuffle sound when cards cascade in
+  // Play shuffleanddeal sound when cards first cascade in (initial deal)
   useEffect(() => {
     if (imagesReady && cards.length > 0) {
+      playShuffleAndDealSound();
+    }
+  }, [imagesReady, cards.length, playShuffleAndDealSound]);
+
+  // Play shuffle sound when layout transitions from stacked to spread
+  useEffect(() => {
+    const wasStacked = prevLayoutModeRef.current === 'stacked';
+    const isNowSpread = layoutMode === 'spread-2' || layoutMode === 'spread-3';
+
+    if (wasStacked && isNowSpread) {
       playShuffleSound();
     }
-  }, [imagesReady, cards.length, playShuffleSound]);
+
+    prevLayoutModeRef.current = layoutMode;
+  }, [layoutMode, playShuffleSound]);
 
   // Track which card is centered on mobile scroll
   useEffect(() => {
@@ -294,6 +307,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
                 revealedCount={revealedCards.length}
                 onReveal={() => handleReveal(index)}
                 onFlipSound={playFlipSound}
+                onFlip2Sound={playFlip2Sound}
                 isCentered={index === centeredCardIndex}
               />
             ))

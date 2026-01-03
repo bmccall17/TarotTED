@@ -13,12 +13,14 @@ const STORAGE_KEY = 'tarotted-sound-muted';
  * - Gracefully handles missing or failed audio
  */
 export function useCardSounds() {
-  const shuffleAudioRef = useRef<HTMLAudioElement | null>(null);
+  const shuffleAndDealAudioRef = useRef<HTMLAudioElement | null>(null);
   const flipAudioRef = useRef<HTMLAudioElement | null>(null);
+  const flip2AudioRef = useRef<HTMLAudioElement | null>(null);
+  const shuffleAudioRef = useRef<HTMLAudioElement | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const hasInteractedRef = useRef(false);
-  const pendingShuffleRef = useRef(false); // Queue shuffle for first interaction
+  const pendingShuffleAndDealRef = useRef(false); // Queue shuffleanddeal for first interaction
 
   // Load mute preference from localStorage
   useEffect(() => {
@@ -34,29 +36,40 @@ export function useCardSounds() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const shuffle = new Audio('/sounds/shuffle.mp3');
+    const shuffleAndDeal = new Audio('/sounds/shuffleanddeal.mp3');
     const flip = new Audio('/sounds/flip.mp3');
+    const flip2 = new Audio('/sounds/flip2.mp3');
+    const shuffle = new Audio('/sounds/shuffle.mp3');
 
     // Configure audio elements
-    shuffle.volume = 0.4; // Subtle shuffle sound
-    flip.volume = 0.3; // Very subtle flip sound
-    shuffle.preload = 'auto';
+    shuffleAndDeal.volume = 0.4; // Initial deal sound
+    flip.volume = 0.3; // First card flip
+    flip2.volume = 0.3; // Second/third card flip
+    shuffle.volume = 0.4; // Stacked to spread transition
+
+    shuffleAndDeal.preload = 'auto';
     flip.preload = 'auto';
+    flip2.preload = 'auto';
+    shuffle.preload = 'auto';
 
-    shuffleAudioRef.current = shuffle;
+    shuffleAndDealAudioRef.current = shuffleAndDeal;
     flipAudioRef.current = flip;
+    flip2AudioRef.current = flip2;
+    shuffleAudioRef.current = shuffle;
 
-    // Track when both are ready
+    // Track when all are ready
     let loadedCount = 0;
     const onCanPlay = () => {
       loadedCount++;
-      if (loadedCount >= 2) {
+      if (loadedCount >= 4) {
         setIsReady(true);
       }
     };
 
-    shuffle.addEventListener('canplaythrough', onCanPlay);
+    shuffleAndDeal.addEventListener('canplaythrough', onCanPlay);
     flip.addEventListener('canplaythrough', onCanPlay);
+    flip2.addEventListener('canplaythrough', onCanPlay);
+    shuffle.addEventListener('canplaythrough', onCanPlay);
 
     // Fallback: mark ready after timeout even if load fails
     const timeout = setTimeout(() => {
@@ -67,22 +80,24 @@ export function useCardSounds() {
 
     return () => {
       clearTimeout(timeout);
-      shuffle.removeEventListener('canplaythrough', onCanPlay);
+      shuffleAndDeal.removeEventListener('canplaythrough', onCanPlay);
       flip.removeEventListener('canplaythrough', onCanPlay);
+      flip2.removeEventListener('canplaythrough', onCanPlay);
+      shuffle.removeEventListener('canplaythrough', onCanPlay);
     };
   }, [isReady]);
 
   // Track user interaction (for autoplay policy)
-  // Play pending shuffle sound on first interaction
+  // Play pending shuffleanddeal sound on first interaction
   useEffect(() => {
     const markInteracted = () => {
       hasInteractedRef.current = true;
 
-      // Play pending shuffle sound on first interaction
-      if (pendingShuffleRef.current && shuffleAudioRef.current && !isMuted) {
-        pendingShuffleRef.current = false;
-        shuffleAudioRef.current.currentTime = 0;
-        shuffleAudioRef.current.play().catch(() => {});
+      // Play pending shuffleanddeal sound on first interaction
+      if (pendingShuffleAndDealRef.current && shuffleAndDealAudioRef.current && !isMuted) {
+        pendingShuffleAndDealRef.current = false;
+        shuffleAndDealAudioRef.current.currentTime = 0;
+        shuffleAndDealAudioRef.current.play().catch(() => {});
       }
     };
 
@@ -95,18 +110,18 @@ export function useCardSounds() {
     };
   }, [isMuted]);
 
-  const playShuffleSound = useCallback(() => {
-    if (isMuted || !shuffleAudioRef.current) return;
+  const playShuffleAndDealSound = useCallback(() => {
+    if (isMuted || !shuffleAndDealAudioRef.current) return;
 
     // If user hasn't interacted yet, queue for first interaction
     if (!hasInteractedRef.current) {
-      pendingShuffleRef.current = true;
+      pendingShuffleAndDealRef.current = true;
       return;
     }
 
     try {
-      shuffleAudioRef.current.currentTime = 0;
-      shuffleAudioRef.current.play().catch(() => {
+      shuffleAndDealAudioRef.current.currentTime = 0;
+      shuffleAndDealAudioRef.current.play().catch(() => {
         // Silently fail if autoplay blocked
       });
     } catch {
@@ -127,6 +142,32 @@ export function useCardSounds() {
     }
   }, [isMuted]);
 
+  const playFlip2Sound = useCallback(() => {
+    if (isMuted || !flip2AudioRef.current || !hasInteractedRef.current) return;
+
+    try {
+      flip2AudioRef.current.currentTime = 0;
+      flip2AudioRef.current.play().catch(() => {
+        // Silently fail if autoplay blocked
+      });
+    } catch {
+      // Gracefully handle any errors
+    }
+  }, [isMuted]);
+
+  const playShuffleSound = useCallback(() => {
+    if (isMuted || !shuffleAudioRef.current || !hasInteractedRef.current) return;
+
+    try {
+      shuffleAudioRef.current.currentTime = 0;
+      shuffleAudioRef.current.play().catch(() => {
+        // Silently fail if autoplay blocked
+      });
+    } catch {
+      // Gracefully handle any errors
+    }
+  }, [isMuted]);
+
   const toggleMute = useCallback(() => {
     setIsMuted(prev => {
       const newValue = !prev;
@@ -138,8 +179,10 @@ export function useCardSounds() {
   }, []);
 
   return {
-    playShuffleSound,
+    playShuffleAndDealSound,
     playFlipSound,
+    playFlip2Sound,
+    playShuffleSound,
     isMuted,
     toggleMute,
     isReady,
