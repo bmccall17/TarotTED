@@ -113,19 +113,18 @@ export function useCardSounds() {
   const playShuffleAndDealSound = useCallback(() => {
     if (isMuted || !shuffleAndDealAudioRef.current) return;
 
-    // If user hasn't interacted yet, queue for first interaction
-    if (!hasInteractedRef.current) {
-      pendingShuffleAndDealRef.current = true;
-      return;
-    }
-
+    // Always attempt to play immediately (browser may block, but we try)
     try {
       shuffleAndDealAudioRef.current.currentTime = 0;
-      shuffleAndDealAudioRef.current.play().catch(() => {
-        // Silently fail if autoplay blocked
+      shuffleAndDealAudioRef.current.play().catch((error) => {
+        // If blocked by autoplay policy, queue for first interaction
+        if (error.name === 'NotAllowedError' || error.name === 'NotSupportedError') {
+          pendingShuffleAndDealRef.current = true;
+        }
       });
     } catch {
       // Gracefully handle any errors
+      pendingShuffleAndDealRef.current = true;
     }
   }, [isMuted]);
 
