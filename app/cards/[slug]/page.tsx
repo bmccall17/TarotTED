@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { getCardWithMappings, getAllCards } from '@/lib/db/queries/cards';
 import { CardDetailClient } from '@/components/cards/CardDetailClient';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
-import { ArrowLeft, Play, ExternalLink, Clock, Calendar } from 'lucide-react';
+import { Play, ExternalLink, Clock, Calendar } from 'lucide-react';
+import { SmartBackButton } from '@/components/ui/SmartBackButton';
 
 // Disable caching to immediately reflect admin changes
 export const revalidate = 0;
@@ -54,12 +55,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
       {/* Sticky Header */}
       <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
         <div className="px-4 py-4 flex items-center gap-3 max-w-7xl mx-auto">
-          <Link
-            href="/cards"
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-400" />
-          </Link>
+          <SmartBackButton defaultHref="/cards" />
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-gray-100">{card.name}</h2>
             <p className="text-sm text-gray-500">
@@ -255,12 +251,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
 
         {/* Back Link */}
         <div className="text-center pt-4">
-          <Link
-            href="/cards"
-            className="text-indigo-400 hover:text-indigo-300 font-medium"
-          >
-            ← Back to all cards
-          </Link>
+          <SmartBackButton defaultHref="/cards" showText text="Back to all cards" />
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { RitualCard } from './RitualCard';
 import { RefreshCw } from 'lucide-react';
 import { useCardSounds } from '@/lib/hooks/useCardSounds';
+import { useRitualState } from '@/lib/hooks/useRitualState';
 
 type CardData = {
   id: string;
@@ -80,18 +81,27 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
+  const { saveRitualState, loadRitualState, clearRitualState, hasRestoredState, markRestored } = useRitualState();
   const prevLayoutModeRef = useRef<LayoutMode>('stacked');
 
-  const fetchCards = useCallback(async () => {
+  const fetchCards = useCallback(async (slugs?: string[], restoreState?: { revealedIndices: number[], layoutMode: LayoutMode }) => {
     setIsLoading(true);
     setImagesReady(false);
     setHasError(false);
-    setRevealedCards([]);
-    setLayoutMode('stacked');
-    setShowRedraw(false);
+
+    // Only reset state if not restoring
+    if (!restoreState) {
+      setRevealedCards([]);
+      setLayoutMode('stacked');
+      setShowRedraw(false);
+    }
 
     try {
-      const response = await fetch('/api/ritual-cards');
+      const url = slugs && slugs.length > 0
+        ? `/api/ritual-cards?slugs=${slugs.join(',')}`
+        : '/api/ritual-cards';
+
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch cards');
 
       const data = await response.json();
@@ -101,6 +111,17 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       // Preload card images before showing cards (prevents flash)
       await preloadImages(loadedCards);
       setImagesReady(true);
+
+      // Restore state if provided
+      if (restoreState) {
+        setRevealedCards(restoreState.revealedIndices);
+        setLayoutMode(restoreState.layoutMode);
+
+        // Show redraw if all cards were revealed
+        if (restoreState.revealedIndices.length >= 3) {
+          setTimeout(() => setShowRedraw(true), 1000);
+        }
+      }
 
       // Extract journal prompts for each card and notify parent
       if (onCardsLoaded && loadedCards.length > 0) {
@@ -124,9 +145,37 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
     }
   }, [onCardsLoaded]);
 
+  // Restore state on mount or fetch new cards
   useEffect(() => {
-    fetchCards();
-  }, [fetchCards]);
+    if (hasRestoredState) return; // Already restored, skip
+
+    const savedState = loadRitualState();
+
+    if (savedState && savedState.cardSlugs.length === 3) {
+      // Restore previous ritual state
+      fetchCards(savedState.cardSlugs, {
+        revealedIndices: savedState.revealedIndices,
+        layoutMode: savedState.layoutMode,
+      });
+      markRestored();
+    } else {
+      // Fetch new random cards
+      fetchCards();
+      markRestored();
+    }
+  }, [fetchCards, loadRitualState, hasRestoredState, markRestored]);
+
+  // Save state whenever revealed cards or layout mode changes
+  useEffect(() => {
+    if (!hasRestoredState || cards.length === 0) return;
+
+    const cardSlugs = cards.map(card => card.slug);
+    saveRitualState({
+      cardSlugs,
+      revealedIndices: revealedCards,
+      layoutMode,
+    });
+  }, [cards, revealedCards, layoutMode, saveRitualState, hasRestoredState]);
 
   // Play shuffleanddeal sound when cards first cascade in (initial deal)
   useEffect(() => {
@@ -240,16 +289,17 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   }, [layoutMode]);
 
   const handleRedraw = useCallback(() => {
+    clearRitualState(); // Clear saved state when drawing new cards
     setCards([]);
     fetchCards();
-  }, [fetchCards]);
+  }, [fetchCards, clearRitualState]);
 
   if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <p className="text-gray-400 mb-4">The cards are resting. Try again.</p>
         <button
-          onClick={fetchCards}
+          onClick={() => fetchCards()}
           className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white transition-colors"
         >
           Draw Again

@@ -3,7 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getTalkWithMappedCards, getAllTalks } from '@/lib/db/queries/talks';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
-import { ArrowLeft, ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
+import { ExternalLink, Clock, Calendar, Play, Mic2 } from 'lucide-react';
+import { SmartBackButton } from '@/components/ui/SmartBackButton';
 
 // Disable caching to immediately reflect admin changes
 export const revalidate = 0;
@@ -47,12 +48,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
       {/* Sticky Header */}
       <div className="bg-gray-900 border-b border-gray-800 sticky top-0 z-10">
         <div className="px-4 py-4 flex items-center gap-3 max-w-7xl mx-auto">
-          <Link
-            href="/talks"
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-400" />
-          </Link>
+          <SmartBackButton defaultHref="/talks" />
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-gray-100 truncate">{talk.title}</h2>
             <p className="text-sm text-gray-500">{talk.speakerName}</p>
@@ -253,12 +249,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
 
         {/* Back Link */}
         <div className="text-center pt-4">
-          <Link
-            href="/talks"
-            className="text-indigo-400 hover:text-indigo-300 font-medium"
-          >
-            ← Back to all talks
-          </Link>
+          <SmartBackButton defaultHref="/talks" showText text="Back to all talks" />
         </div>
       </div>
     </div>

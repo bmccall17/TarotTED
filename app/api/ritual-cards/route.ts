@@ -1,25 +1,84 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { cards, cardTalkMappings, talks } from '@/lib/db/schema';
-import { sql, eq, and, or, isNull, desc } from 'drizzle-orm';
+import { sql, eq, and, or, isNull, desc, inArray } from 'drizzle-orm';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    // Get 3 random cards from the database
-    const randomCards = await db
-      .select({
-        id: cards.id,
-        slug: cards.slug,
-        name: cards.name,
-        arcanaType: cards.arcanaType,
-        suit: cards.suit,
-        imageUrl: cards.imageUrl,
-        keywords: cards.keywords,
-        journalingPrompts: cards.journalingPrompts,
-      })
-      .from(cards)
-      .orderBy(sql`RANDOM()`)
-      .limit(3);
+    const { searchParams } = new URL(request.url);
+    const slugsParam = searchParams.get('slugs');
+
+    let selectedCards;
+
+    if (slugsParam) {
+      // Fetch specific cards by slugs (for state restoration)
+      const slugs = slugsParam.split(',').filter(Boolean);
+
+      if (slugs.length === 0 || slugs.length > 3) {
+        return NextResponse.json(
+          { error: 'Invalid slugs parameter. Expected 1-3 comma-separated slugs.' },
+          { status: 400 }
+        );
+      }
+
+      // Fetch cards by slugs
+      const fetchedCards = await db
+        .select({
+          id: cards.id,
+          slug: cards.slug,
+          name: cards.name,
+          arcanaType: cards.arcanaType,
+          suit: cards.suit,
+          imageUrl: cards.imageUrl,
+          keywords: cards.keywords,
+          journalingPrompts: cards.journalingPrompts,
+        })
+        .from(cards)
+        .where(inArray(cards.slug, slugs));
+
+      // Sort cards to match the order of requested slugs
+      selectedCards = slugs
+        .map(slug => fetchedCards.find(card => card.slug === slug))
+        .filter((card): card is NonNullable<typeof card> => card !== undefined);
+
+      if (selectedCards.length !== slugs.length) {
+        // Some cards were not found, fall back to random cards
+        const randomCards = await db
+          .select({
+            id: cards.id,
+            slug: cards.slug,
+            name: cards.name,
+            arcanaType: cards.arcanaType,
+            suit: cards.suit,
+            imageUrl: cards.imageUrl,
+            keywords: cards.keywords,
+            journalingPrompts: cards.journalingPrompts,
+          })
+          .from(cards)
+          .orderBy(sql`RANDOM()`)
+          .limit(3);
+
+        selectedCards = randomCards;
+      }
+    } else {
+      // Get 3 random cards from the database (default behavior)
+      selectedCards = await db
+        .select({
+          id: cards.id,
+          slug: cards.slug,
+          name: cards.name,
+          arcanaType: cards.arcanaType,
+          suit: cards.suit,
+          imageUrl: cards.imageUrl,
+          keywords: cards.keywords,
+          journalingPrompts: cards.journalingPrompts,
+        })
+        .from(cards)
+        .orderBy(sql`RANDOM()`)
+        .limit(3);
+    }
+
+    const randomCards = selectedCards;
 
     if (randomCards.length === 0) {
       return NextResponse.json(
