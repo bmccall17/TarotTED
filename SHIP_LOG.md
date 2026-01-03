@@ -4,7 +4,7 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
-## v1.2.0 - Landing Page Mobile QOL Improvements 📱
+## v1.1.3 - Landing Page Mobile QOL Improvements 📱
 **Release Date:** January 3, 2026
 **Status:** Production Ready
 
@@ -19,17 +19,26 @@ Polish update for the ritual landing page experience on mobile devices. Addresse
 - Eliminates the "image flash" where cards were visible before animation
 - 3-second timeout fallback prevents infinite loading on slow connections
 
-#### **Audio Feedback**
-- **Shuffle Sound**: Plays when cards cascade in after loading
-- **Flip Sound**: Subtle whoosh plays on each card flip
-- Sound files sourced from SoundJay.com (royalty-free, ~66KB total)
-- Respects browser autoplay policies (requires user gesture)
+#### **Audio Feedback System**
+Four distinct sounds create an immersive ritual experience:
+
+1. **Shuffle & Deal** (`shuffleanddeal.mp3`) - Plays when cards first cascade in (initial deal, face down)
+2. **First Card Flip** (`flip.mp3`) - Plays when flipping the first card (top card, index 0)
+3. **Spread Shuffle** (`shuffle.mp3`) - Plays during stacked → spread layout transition
+4. **Second/Third Card Flip** (`flip2.mp3`) - Plays when flipping cards at index 1 or 2 (except during spread transition)
+
+**Technical Details:**
+- Sounds play immediately on cascade (with autoplay fallback for restrictive browsers)
+- Identical behavior across desktop and mobile
+- Sound files sourced from [SoundDino.com](https://sounddino.com/en/effects/cards/) (royalty-free)
+- Total size: ~130KB across 4 files
 - Audio hook supports future mute toggle feature
 
 #### **Dock Auto-Expand (Mobile)**
-- Talk dock now auto-expands 500ms after card flip completes
-- Reduces friction from 2-tap to 1-tap for viewing talk details
-- User can still tap to navigate directly to talk page
+- Talk dock auto-expands 4s after card is centered and revealed
+- Auto-collapses after another 4s
+- Collapses immediately when user scrolls away or reveals new card
+- Reduces friction in mobile interaction flow
 
 ### 📁 New Files Created
 
@@ -38,8 +47,10 @@ lib/hooks/
 └── useCardSounds.ts          # Audio management hook
 
 public/sounds/
-├── shuffle.mp3               # Card shuffle sound (~36KB)
-└── flip.mp3                  # Card flip whoosh (~30KB)
+├── shuffleanddeal.mp3        # Initial card deal sound
+├── flip.mp3                  # First card flip sound
+├── flip2.mp3                 # Second/third card flip sound
+└── shuffle.mp3               # Stacked to spread transition sound
 ```
 
 ### 🔧 Modified Files
@@ -54,10 +65,11 @@ public/sounds/
 | Feature | Timing | Notes |
 |---------|--------|-------|
 | Image preload timeout | 3000ms | Fallback if images slow to load |
-| Shuffle sound trigger | First user interaction | Queued on cascade, plays on first tap |
-| Flip sound trigger | On click | Immediate feedback |
-| Dock auto-expand | 777ms + 4000ms | After flip completes (mobile only) |
-| Scroll-based dock expand | 4000ms | When card becomes centered via swipe |
+| Shuffleanddeal sound | On cascade | Plays immediately (with autoplay fallback) |
+| Flip sounds | On card click | Index 0: flip.mp3, Index 1-2: flip2.mp3 |
+| Shuffle sound | On layout transition | Stacked → spread only |
+| Dock auto-expand | 4000ms | After card centered (mobile) |
+| Dock auto-collapse | 4000ms | After expansion (mobile) |
 
 ### 🔮 Future Work (Deferred)
 
