@@ -53,6 +53,8 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
   const cardRef = useRef<HTMLDivElement>(null);
   const expandTimerRef = useRef<NodeJS.Timeout | null>(null);
   const collapseTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const prevRevealedCountRef = useRef(revealedCount);
+  const prevCenteredRef = useRef(isCentered);
 
   // Generate sparkle burst for navigation
   const triggerSparkleBurst = useCallback(() => {
@@ -102,51 +104,47 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
     }
   }, [isDockExpanded]);
 
-  // Collapse dock when a new card is revealed (on mobile)
-  useEffect(() => {
-    if (typeof window === 'undefined' || window.innerWidth >= 768) return;
-    if (!isDockExpanded) return;
-
-    // When revealed count changes, collapse this card's dock
-    // (user revealed a different card)
-    setIsDockExpanded(false);
-    setHasTappedDock(false);
-  }, [revealedCount, isDockExpanded]);
-
-  // Auto-expand dock when card becomes centered via scroll (mobile only)
-  // Auto-collapse after equal delay
-  // Collapse when card is no longer centered
+  // Mobile dock auto-expand/collapse behavior
+  // - Expand after 4s when card is centered and revealed
+  // - Collapse after 4s more
+  // - Collapse immediately if user scrolls away or reveals new card
   useEffect(() => {
     if (typeof window === 'undefined' || window.innerWidth >= 768) return;
     if (!isRevealed || !primaryTalk) return;
 
-    // Clear any existing timers
-    if (expandTimerRef.current) {
-      clearTimeout(expandTimerRef.current);
-      expandTimerRef.current = null;
-    }
-    if (collapseTimerRef.current) {
-      clearTimeout(collapseTimerRef.current);
-      collapseTimerRef.current = null;
-    }
+    const wasNewCardRevealed = revealedCount > prevRevealedCountRef.current;
+    const didScrollAway = prevCenteredRef.current && !isCentered;
 
-    // If card is not centered, collapse dock immediately
-    if (!isCentered) {
-      if (isDockExpanded) {
-        setIsDockExpanded(false);
-        setHasTappedDock(false);
-      }
+    // Update refs
+    prevRevealedCountRef.current = revealedCount;
+    prevCenteredRef.current = isCentered;
+
+    // Collapse immediately if user revealed a new card or scrolled away
+    if ((wasNewCardRevealed || didScrollAway) && isDockExpanded) {
+      if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
+      if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+      setIsDockExpanded(false);
+      setHasTappedDock(false);
       return;
     }
 
-    // If card is centered and dock not expanded, expand after delay
-    if (isCentered && !isDockExpanded) {
+    // If not centered, clear timers and don't start new ones
+    if (!isCentered) {
+      if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
+      if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+      return;
+    }
+
+    // If centered and dock not expanded, start expand timer
+    if (isCentered && !isDockExpanded && !expandTimerRef.current) {
       expandTimerRef.current = setTimeout(() => {
+        expandTimerRef.current = null;
         setIsDockExpanded(true);
         setHasTappedDock(true);
 
-        // Auto-collapse after equal delay
+        // Start collapse timer
         collapseTimerRef.current = setTimeout(() => {
+          collapseTimerRef.current = null;
           setIsDockExpanded(false);
           setHasTappedDock(false);
         }, 4000);
@@ -154,10 +152,16 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
     }
 
     return () => {
-      if (expandTimerRef.current) clearTimeout(expandTimerRef.current);
-      if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
+      if (expandTimerRef.current) {
+        clearTimeout(expandTimerRef.current);
+        expandTimerRef.current = null;
+      }
+      if (collapseTimerRef.current) {
+        clearTimeout(collapseTimerRef.current);
+        collapseTimerRef.current = null;
+      }
     };
-  }, [isCentered, isRevealed, primaryTalk, isDockExpanded]);
+  }, [isCentered, isRevealed, primaryTalk, revealedCount, isDockExpanded]);
 
   // Calculate card position based on layout mode
   // Container is 720px for all spread modes, 280px for stacked
@@ -194,16 +198,9 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       onReveal();
 
       // Complete flip animation (777ms)
+      // Note: dock auto-expand is handled by the isCentered effect
       setTimeout(() => {
         setIsFlipping(false);
-
-        // Auto-expand dock on mobile after flip completes (4000ms delay)
-        if (primaryTalk && window.innerWidth < 768) {
-          setTimeout(() => {
-            setIsDockExpanded(true);
-            setHasTappedDock(true);
-          }, 4000);
-        }
       }, 777);
     } else if (isRevealed) {
       // Navigate to card detail with sparkle burst and fade
