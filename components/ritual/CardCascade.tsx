@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RitualCard } from './RitualCard';
 import { RefreshCw } from 'lucide-react';
+import { useCardSounds } from '@/lib/hooks/useCardSounds';
 
 type CardData = {
   id: string;
@@ -29,17 +30,59 @@ type CardCascadeProps = {
   onCardsLoaded?: (prompts: string[][]) => void;
 };
 
+// Preload images before rendering cards to prevent flash
+const preloadImages = (cards: CardData[]): Promise<void> => {
+  return new Promise((resolve) => {
+    const imageUrls = cards
+      .map(card => card.imageUrl)
+      .filter((url): url is string => url !== null);
+
+    if (imageUrls.length === 0) {
+      resolve();
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalImages = imageUrls.length;
+
+    const onImageLoad = () => {
+      loadedCount++;
+      if (loadedCount >= totalImages) {
+        resolve();
+      }
+    };
+
+    imageUrls.forEach(url => {
+      const img = new window.Image();
+      img.onload = onImageLoad;
+      img.onerror = onImageLoad; // Don't block on error
+      img.src = url;
+    });
+
+    // Fallback timeout: resolve after 3 seconds even if images aren't loaded
+    setTimeout(() => {
+      if (loadedCount < totalImages) {
+        console.warn(`Image preload timeout: ${loadedCount}/${totalImages} loaded`);
+        resolve();
+      }
+    }, 3000);
+  });
+};
+
 export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [cards, setCards] = useState<CardData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [imagesReady, setImagesReady] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const { playShuffleSound, playFlipSound } = useCardSounds();
 
   const fetchCards = useCallback(async () => {
     setIsLoading(true);
+    setImagesReady(false);
     setHasError(false);
     setRevealedCards([]);
     setLayoutMode('stacked');
@@ -52,6 +95,10 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       const data = await response.json();
       const loadedCards = data.cards || [];
       setCards(loadedCards);
+
+      // Preload card images before showing cards (prevents flash)
+      await preloadImages(loadedCards);
+      setImagesReady(true);
 
       // Extract journal prompts for each card and notify parent
       if (onCardsLoaded && loadedCards.length > 0) {
@@ -78,6 +125,13 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   useEffect(() => {
     fetchCards();
   }, [fetchCards]);
+
+  // Play shuffle sound when cards cascade in
+  useEffect(() => {
+    if (imagesReady && cards.length > 0) {
+      playShuffleSound();
+    }
+  }, [imagesReady, cards.length, playShuffleSound]);
 
   const handleReveal = useCallback((index: number) => {
     setRevealedCards((prev) => {
@@ -183,11 +237,11 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
             transition: 'width 600ms ease-out',
           }}
         >
-          {isLoading ? (
-            // Loading placeholder
+          {isLoading || !imagesReady ? (
+            // Loading placeholder - show until images are preloaded
             <div className="absolute left-1/2 top-0 -translate-x-1/2 w-[200px] h-[340px] md:w-[220px] md:h-[370px] rounded-xl bg-gray-800/50 animate-pulse" />
           ) : (
-            // Actual cards with stacked/spread layout
+            // Actual cards with stacked/spread layout (images preloaded)
             cards.map((card, index) => (
               <RitualCard
                 key={card.id}
@@ -197,6 +251,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
                 layoutMode={layoutMode}
                 isRevealed={revealedCards.includes(index)}
                 onReveal={() => handleReveal(index)}
+                onFlipSound={playFlipSound}
               />
             ))
           )}
@@ -212,7 +267,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
 
       {/* Instruction Text */}
       <div className="mt-8 text-center">
-        {!isLoading && revealedCards.length === 0 && (
+        {!isLoading && imagesReady && revealedCards.length === 0 && (
           <p className="text-gray-400 text-sm animate-gentle-pulse">
             Choose a card to start
           </p>

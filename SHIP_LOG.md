@@ -4,6 +4,73 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.2.0 - Landing Page Mobile QOL Improvements 📱
+**Release Date:** January 3, 2026
+**Status:** Production Ready
+
+### Overview
+
+Polish update for the ritual landing page experience on mobile devices. Addresses visual timing issues, adds audio feedback, and improves dock interaction flow.
+
+### ✨ New Features
+
+#### **Image Preloading**
+- Card images now preload before cascade animation starts
+- Eliminates the "image flash" where cards were visible before animation
+- 3-second timeout fallback prevents infinite loading on slow connections
+
+#### **Audio Feedback**
+- **Shuffle Sound**: Plays when cards cascade in after loading
+- **Flip Sound**: Subtle whoosh plays on each card flip
+- Sound files sourced from SoundJay.com (royalty-free, ~66KB total)
+- Respects browser autoplay policies (requires user gesture)
+- Audio hook supports future mute toggle feature
+
+#### **Dock Auto-Expand (Mobile)**
+- Talk dock now auto-expands 500ms after card flip completes
+- Reduces friction from 2-tap to 1-tap for viewing talk details
+- User can still tap to navigate directly to talk page
+
+### 📁 New Files Created
+
+```
+lib/hooks/
+└── useCardSounds.ts          # Audio management hook
+
+public/sounds/
+├── shuffle.mp3               # Card shuffle sound (~36KB)
+└── flip.mp3                  # Card flip whoosh (~30KB)
+```
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `components/ritual/CardCascade.tsx` | Image preloading, shuffle sound trigger |
+| `components/ritual/RitualCard.tsx` | Flip sound trigger, dock auto-expand |
+
+### 📊 Timing Updates
+
+| Feature | Timing | Notes |
+|---------|--------|-------|
+| Image preload timeout | 3000ms | Fallback if images slow to load |
+| Shuffle sound trigger | On `imagesReady` | When cascade animation starts |
+| Flip sound trigger | On click | Immediate feedback |
+| Dock auto-expand | 777ms + 500ms | After flip completes |
+
+### 🔮 Future Work (Deferred)
+
+**State Preservation via sessionStorage:**
+- Save ritual state (3 card slugs, reveal indices, layout mode) to sessionStorage
+- Restore on back navigation from card/talk detail pages
+- Smart back button that returns to ritual instead of collection pages
+- 30-minute expiry to prevent stale rituals
+- Files needed: `/lib/hooks/useRitualState.ts`, API endpoint update
+
+This feature was designed but deferred to a future release. See `/devnotes/NEXT-STEPS_landingpagecardimprovements.md` for full implementation plan.
+
+---
+
 ## v1.1.2 - Ritual-First Landing Page 🔮
 **Release Date:** December 31, 2025
 **Status:** Production Ready

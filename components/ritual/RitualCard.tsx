@@ -26,6 +26,7 @@ type RitualCardProps = {
   layoutMode: 'stacked' | 'spread-2' | 'spread-3';
   isRevealed: boolean;
   onReveal: () => void;
+  onFlipSound?: () => void;
 };
 
 type NavigationSparkle = {
@@ -37,7 +38,7 @@ type NavigationSparkle = {
   distance: number;
 };
 
-export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, onReveal, onFlipSound }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -128,11 +129,20 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
 
     if (!isRevealed && !isFlipping) {
       setIsFlipping(true);
+      onFlipSound?.(); // Play flip sound
       onReveal();
 
       // Complete flip animation (777ms)
       setTimeout(() => {
         setIsFlipping(false);
+
+        // Auto-expand dock on mobile after flip completes (500ms delay)
+        if (primaryTalk && window.innerWidth < 768) {
+          setTimeout(() => {
+            setIsDockExpanded(true);
+            setHasTappedDock(true);
+          }, 500);
+        }
       }, 777);
     } else if (isRevealed) {
       // Navigate to card detail with sparkle burst and fade
@@ -142,7 +152,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, o
         router.push(`/cards/${card.slug}`);
       }, 600); // Faster navigation after sparkle effect
     }
-  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, triggerSparkleBurst]);
+  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, onFlipSound, triggerSparkleBurst, primaryTalk]);
 
   // Handle dock click/tap
   const handleDockClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
