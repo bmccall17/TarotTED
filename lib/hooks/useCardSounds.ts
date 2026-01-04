@@ -180,7 +180,11 @@ export function useCardSounds() {
   }, [isMuted]);
 
   const playFlipSound = useCallback(() => {
-    if (isMuted || !flipAudioRef.current || !hasInteractedRef.current) return;
+    if (isMuted || !flipAudioRef.current) return;
+
+    // Flip sounds are always triggered by user clicks, so no interaction check needed
+    // Mark as interacted since user clearly clicked
+    hasInteractedRef.current = true;
 
     try {
       flipAudioRef.current.currentTime = 0;
@@ -193,7 +197,11 @@ export function useCardSounds() {
   }, [isMuted]);
 
   const playFlip2Sound = useCallback(() => {
-    if (isMuted || !flip2AudioRef.current || !hasInteractedRef.current) return;
+    if (isMuted || !flip2AudioRef.current) return;
+
+    // Flip sounds are always triggered by user clicks, so no interaction check needed
+    // Mark as interacted since user clearly clicked
+    hasInteractedRef.current = true;
 
     try {
       flip2AudioRef.current.currentTime = 0;

@@ -81,7 +81,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const [isRestoredSession, setIsRestoredSession] = useState(false); // Track if restored from saved state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
+  const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
   const { saveRitualState, loadRitualState, clearRitualState, hasRestoredState, markRestored } = useRitualState();
   const prevLayoutModeRef = useRef<LayoutMode>('stacked');
 
@@ -293,12 +293,12 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   }, [layoutMode]);
 
   const handleRedraw = useCallback(() => {
-    playShuffleSound(); // Play shuffle sound for redraw action
+    playShuffleAndDealSound(); // Play full shuffle & deal sound for redraw
     clearRitualState(); // Clear saved state when drawing new cards
     setIsRestoredSession(false); // Fresh draw, not a restore
     setCards([]);
     fetchCards();
-  }, [fetchCards, clearRitualState, playShuffleSound]);
+  }, [fetchCards, clearRitualState, playShuffleAndDealSound]);
 
   if (hasError) {
     return (
