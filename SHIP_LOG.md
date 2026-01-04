@@ -4,6 +4,87 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.1.4 - Ritual State Preservation 🔮
+**Release Date:** January 4, 2026
+**Status:** Production Ready
+
+### Overview
+
+Implements state preservation for the ritual page using sessionStorage, allowing users to navigate to card or talk details and return to their ritual with the same cards and reveal state intact. Smart back buttons automatically return users to the ritual context when available.
+
+### ✨ New Features
+
+#### **Ritual State Persistence**
+- Ritual state (3 card slugs, reveal indices, layout mode) automatically saved to sessionStorage
+- State restored when navigating back from card/talk detail pages
+- 30-minute expiry prevents stale rituals
+- Graceful fallback to random cards if:
+  - sessionStorage unavailable (private browsing)
+  - Saved cards no longer exist in database
+  - State expired (>30 minutes)
+
+#### **Smart Back Buttons**
+- Context-aware back navigation on card and talk detail pages
+- Returns to ritual page (/) if there's saved ritual state
+- Returns to collection pages (/cards or /talks) otherwise
+- Supports both icon-only (header) and text variants (footer)
+
+#### **API Enhancement**
+- `/api/ritual-cards` now supports fetching specific cards by slugs
+- Query parameter: `?slugs=card-slug-1,card-slug-2,card-slug-3`
+- Maintains order of requested slugs
+- Falls back to random cards if any requested cards not found
+
+### 📁 New Files Created
+
+```
+lib/hooks/
+└── useRitualState.ts             # State persistence hook with 30-min expiry
+
+components/ui/
+└── SmartBackButton.tsx           # Context-aware back button component
+```
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `app/api/ritual-cards/route.ts` | Added support for fetching cards by slugs via query parameter |
+| `components/ritual/CardCascade.tsx` | State save/restore logic, checks for saved state on mount |
+| `app/cards/[slug]/page.tsx` | Header and footer back buttons replaced with SmartBackButton |
+| `app/talks/[slug]/page.tsx` | Header and footer back buttons replaced with SmartBackButton |
+
+### 🎯 User Flow
+
+1. User draws 3 cards on ritual page → State saved to sessionStorage
+2. User reveals cards → State updated with reveal indices and layout mode
+3. User clicks on a card or talk → Navigates to detail page
+4. User clicks back button → Returns to ritual page with same 3 cards in same reveal state
+5. After 30 minutes → State expires, fresh random cards drawn on next visit
+6. User clicks "Draw New Cards" → State cleared, new random cards drawn
+
+### 🔧 Technical Details
+
+**State Structure:**
+```typescript
+{
+  cardSlugs: string[];           // 3 card slugs
+  revealedIndices: number[];     // Which cards are revealed (0-2)
+  layoutMode: LayoutMode;        // 'stacked' | 'spread-2' | 'spread-3'
+  timestamp: number;             // For 30-minute expiry
+}
+```
+
+**Storage Key:** `tarotted-ritual-state`
+**Expiry:** 30 minutes (1,800,000 ms)
+**Storage Type:** sessionStorage (cleared when browser tab closes)
+
+### 📝 Implementation Notes
+
+This feature was originally planned for v1.2.0 but deferred during the mobile QOL improvements release. Full implementation details were documented in `/devnotes/NEXT-STEPS_landingpagecardimprovements.md`.
+
+---
+
 ## v1.1.3 - Landing Page Mobile QOL Improvements 📱
 **Release Date:** January 3, 2026
 **Status:** Production Ready
@@ -71,16 +152,16 @@ public/sounds/
 | Dock auto-expand | 4000ms | After card centered (mobile) |
 | Dock auto-collapse | 4000ms | After expansion (mobile) |
 
-### 🔮 Future Work (Deferred)
+### 🔮 Future Work (Completed)
 
 **State Preservation via sessionStorage:**
+✅ Implemented in v1.1.4 (January 4, 2026)
 - Save ritual state (3 card slugs, reveal indices, layout mode) to sessionStorage
 - Restore on back navigation from card/talk detail pages
 - Smart back button that returns to ritual instead of collection pages
 - 30-minute expiry to prevent stale rituals
-- Files needed: `/lib/hooks/useRitualState.ts`, API endpoint update
 
-This feature was designed but deferred to a future release. See `/devnotes/NEXT-STEPS_landingpagecardimprovements.md` for full implementation plan.
+See v1.1.4 release notes above for implementation details.
 
 ---
 

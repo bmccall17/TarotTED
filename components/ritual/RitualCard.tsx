@@ -49,6 +49,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
   const [isDockHovering, setIsDockHovering] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [hasTappedDock, setHasTappedDock] = useState(false);
+  const [isAutoExpanded, setIsAutoExpanded] = useState(false);
   const [navSparkles, setNavSparkles] = useState<NavigationSparkle[]>([]);
   const dockRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -96,6 +97,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
         setIsDockExpanded(false);
         setHasTappedDock(false);
+        setIsAutoExpanded(false);
       }
     };
 
@@ -126,6 +128,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       if (collapseTimerRef.current) clearTimeout(collapseTimerRef.current);
       setIsDockExpanded(false);
       setHasTappedDock(false);
+      setIsAutoExpanded(false);
       return;
     }
 
@@ -142,12 +145,14 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
         expandTimerRef.current = null;
         setIsDockExpanded(true);
         setHasTappedDock(true);
+        setIsAutoExpanded(true); // Track that this was an auto-expansion
 
         // Start collapse timer
         collapseTimerRef.current = setTimeout(() => {
           collapseTimerRef.current = null;
           setIsDockExpanded(false);
           setHasTappedDock(false);
+          setIsAutoExpanded(false);
         }, 4000);
       }, 4000);
     }
@@ -236,6 +241,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       if (!hasTappedDock) {
         setIsDockExpanded(true);
         setHasTappedDock(true);
+        setIsAutoExpanded(false); // User manually tapped, not auto-expanded
       } else if (isDockExpanded) {
         // Second tap - navigate with sparkle burst
         setIsNavigating(true);
@@ -271,11 +277,13 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
     if (diff > 30 && !isDockExpanded) {
       setIsDockExpanded(true);
       setHasTappedDock(true);
+      setIsAutoExpanded(false); // User manually swiped, not auto-expanded
     }
     // Swipe down to close
     else if (diff < -30 && isDockExpanded) {
       setIsDockExpanded(false);
       setHasTappedDock(false);
+      setIsAutoExpanded(false);
     }
   }, [isDockExpanded]);
 
@@ -501,7 +509,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
                 {/* Tap hint on mobile */}
                 {hasTappedDock && (
                   <p className="text-xs text-gray-400 text-center md:hidden pt-1">
-                    Tap again to watch
+                    {isAutoExpanded ? 'Tap to watch' : 'Tap again to watch'}
                   </p>
                 )}
               </div>
