@@ -81,7 +81,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const [isRestoredSession, setIsRestoredSession] = useState(false); // Track if restored from saved state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
+  const { playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
   const { saveRitualState, loadRitualState, clearRitualState, hasRestoredState, markRestored } = useRitualState();
   const prevLayoutModeRef = useRef<LayoutMode>('stacked');
 
@@ -180,18 +180,13 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
     });
   }, [cards, revealedCards, layoutMode, saveRitualState, hasRestoredState]);
 
-  // Play sound when cards are ready
-  // - Fresh load: play full shuffleanddeal sound
-  // - Restored session: play shorter shuffle sound
+  // Play shuffle sound when returning to a restored session
+  // (No sound on fresh load - browser autoplay policies block it anyway)
   useEffect(() => {
-    if (imagesReady && cards.length > 0) {
-      if (isRestoredSession) {
-        playShuffleSound(); // Shorter sound for restored sessions
-      } else {
-        playShuffleAndDealSound(); // Full sound for fresh deals
-      }
+    if (imagesReady && cards.length > 0 && isRestoredSession) {
+      playShuffleSound();
     }
-  }, [imagesReady, cards.length, isRestoredSession, playShuffleAndDealSound, playShuffleSound]);
+  }, [imagesReady, cards.length, isRestoredSession, playShuffleSound]);
 
   // Play shuffle sound when layout transitions from stacked to spread
   useEffect(() => {
