@@ -79,6 +79,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
+  const [isRestoredSession, setIsRestoredSession] = useState(false); // Track if restored from saved state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
   const { saveRitualState, loadRitualState, clearRitualState, hasRestoredState, markRestored } = useRitualState();
@@ -153,6 +154,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
 
     if (savedState && savedState.cardSlugs.length === 3) {
       // Restore previous ritual state
+      setIsRestoredSession(true); // Mark as restored for sound selection
       fetchCards(savedState.cardSlugs, {
         revealedIndices: savedState.revealedIndices,
         layoutMode: savedState.layoutMode,
@@ -160,6 +162,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       markRestored();
     } else {
       // Fetch new random cards
+      setIsRestoredSession(false);
       fetchCards();
       markRestored();
     }
@@ -177,12 +180,18 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
     });
   }, [cards, revealedCards, layoutMode, saveRitualState, hasRestoredState]);
 
-  // Play shuffleanddeal sound when cards first cascade in (initial deal)
+  // Play sound when cards are ready
+  // - Fresh load: play full shuffleanddeal sound
+  // - Restored session: play shorter shuffle sound
   useEffect(() => {
     if (imagesReady && cards.length > 0) {
-      playShuffleAndDealSound();
+      if (isRestoredSession) {
+        playShuffleSound(); // Shorter sound for restored sessions
+      } else {
+        playShuffleAndDealSound(); // Full sound for fresh deals
+      }
     }
-  }, [imagesReady, cards.length, playShuffleAndDealSound]);
+  }, [imagesReady, cards.length, isRestoredSession, playShuffleAndDealSound, playShuffleSound]);
 
   // Play shuffle sound when layout transitions from stacked to spread
   useEffect(() => {
@@ -289,10 +298,12 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   }, [layoutMode]);
 
   const handleRedraw = useCallback(() => {
+    playShuffleSound(); // Play shuffle sound for redraw action
     clearRitualState(); // Clear saved state when drawing new cards
+    setIsRestoredSession(false); // Fresh draw, not a restore
     setCards([]);
     fetchCards();
-  }, [fetchCards, clearRitualState]);
+  }, [fetchCards, clearRitualState, playShuffleSound]);
 
   if (hasError) {
     return (
