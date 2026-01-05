@@ -3,7 +3,8 @@
 this project is a web application that maps the **Rider–Waite–Smith Tarot** to curated **TED and TEDx talks**. it is designed as an exploratory tool for reflection, divination-inspired inquiry, and discovering new ideas through the intersection of symbols and storytelling.
 
 ### Live App
-👉 [https://tarotted.vercel.app/](https://tarotted.vercel.app/)
+👉 [https://tarotted.com/](https://tarotted.com/) - fresh more friendly production deployment
+👉 [https://tarotted.vercel.app/](https://tarotted.vercel.app/) - original production deployment
 
 ---
 ## backstory
