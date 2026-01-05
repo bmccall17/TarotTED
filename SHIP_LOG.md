@@ -4,6 +4,55 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.2.1 - Zero-Cost Image Delivery 🖼️
+**Release Date:** January 5, 2026
+**Status:** Production Ready
+
+### Overview
+
+Eliminates Vercel Image Optimization costs while maintaining excellent UX. Disables the `/_next/image` pipeline entirely and adds manual lazy loading + proper `sizes` attributes to all Image components.
+
+### ✨ Changes
+
+#### **Cost Elimination**
+- Set `unoptimized: true` in `next.config.ts` to disable Vercel Image Optimization
+- **Result:** $0 image cache writes, no risk of billing overages
+
+#### **UX Preservation**
+- Added `loading="lazy"` to all below-fold Image components
+- Added proper `sizes` attributes to thumbnails missing them
+- Hero images retain `priority` for above-fold performance
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `next.config.ts` | Added `unoptimized: true` |
+| `components/cards/CardListItem.tsx` | Added `sizes="80px"`, `loading="lazy"` |
+| `components/cards/CardsGrid.tsx` | Added `loading="lazy"` |
+| `components/talks/TalksGrid.tsx` | Added `sizes="64px"`, `loading="lazy"` |
+| `app/talks/[slug]/page.tsx` | Added `sizes`, `loading="lazy"` to mapped cards |
+| `app/themes/[slug]/page.tsx` | Added `loading="lazy"` |
+| `app/search/page.tsx` | Added `loading="lazy"` |
+
+### 📊 Impact
+
+| Metric | Before | After |
+|--------|--------|-------|
+| Vercel Image Cache Writes | Spiking (cost risk) | **$0** |
+| Image delivery | Via `/_next/image` | Direct from Supabase CDN |
+| Lazy loading | Automatic (Next.js) | Manual via `loading="lazy"` |
+| Below-fold images | Preloaded | Lazy loaded |
+
+### 📝 Notes
+
+- Images now served directly from Supabase Storage CDN
+- Card images are already WebP format (pre-optimized)
+- No visual quality degradation for end users
+- If UX issues arise, can selectively re-enable optimization for hero images only
+
+---
+
 ## v1.2.0 - Home Screen Ready 📱
 **Release Date:** January 5, 2026
 **Status:** Production Ready
