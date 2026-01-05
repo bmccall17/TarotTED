@@ -171,6 +171,8 @@ export function TalksGrid({ talks }: TalksGridProps) {
                         src={talk.primaryCard.imageUrl}
                         alt={talk.primaryCard.name}
                         fill
+                        sizes="64px"
+                        loading="lazy"
                         className="object-cover"
                       />
                     </div>

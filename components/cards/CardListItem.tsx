@@ -32,6 +32,8 @@ export function CardListItem({
             src={imageUrl}
             alt={name}
             fill
+            sizes="80px"
+            loading="lazy"
             className="object-contain"
           />
         </div>

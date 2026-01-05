@@ -15,19 +15,19 @@ Below are **step-by-step instructions for each 🔴 CRITICAL SECURITY ISSUE** ca
 #### A) Rotate Supabase credentials (do this first)
 
 1. **Rotate your Supabase JWT secret (this effectively rotates API keys).**
-
    * Supabase Dashboard → **Project Settings** → **API**
    * Find **JWT Settings / JWT Secret** → rotate/regenerate (wording varies by Supabase UI).
    * After this, your **anon key** and **service role key** (JWTs) must be replaced everywhere.
-
+   + "Successfully migrated JWT secret"
+   + 
+? please review the JWT options in Supabase and advise me
+? please help me clean up what's no longer needed in .env.local by reviewing this cleaned version. what can be deleted, what needs to stay exactly as it is, and what needs rotation?
 2. **Rotate the database password** (if it was in `.env.local`).
-
    * Supabase Dashboard → **Project Settings** → **Database**
    * Reset/rotate the **database password**.
    * Update any connection strings (server-side only).
 
 3. **Update your app’s environment variables everywhere**
-
    * **Local:** update `.env.local` (but do *not* commit it).
    * **Vercel:** Project → **Settings → Environment Variables** → replace:
 

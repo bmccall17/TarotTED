@@ -169,6 +169,8 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
                         src={item.card.imageUrl}
                         alt={item.card.name}
                         fill
+                        sizes="(max-width: 768px) 96px, 128px"
+                        loading="lazy"
                         className="object-contain"
                       />
                     </div>

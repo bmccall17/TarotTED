@@ -104,8 +104,9 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
                         src={card.imageUrl}
                         alt={card.name}
                         fill
-                        className="object-contain"
                         sizes="(max-width: 768px) 50vw, 25vw"
+                        loading="lazy"
+                        className="object-contain"
                       />
                     </div>
                     <h3 className="font-semibold text-gray-100 text-sm mb-1">{card.name}</h3>
