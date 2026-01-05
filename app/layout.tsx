@@ -8,6 +8,29 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 export const metadata: Metadata = {
   title: 'TarotTED - Tarot Cards Mapped to TED Talks',
   description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
+  metadataBase: new URL('https://tarotted.com'),
+  openGraph: {
+    title: 'TarotTED - Tarot Cards Mapped to TED Talks',
+    description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
+    url: 'https://tarotted.com',
+    siteName: 'TarotTED',
+    images: [
+      {
+        url: '/applicationhero.png',
+        width: 745,
+        height: 642,
+        alt: 'TarotTED - Tarot Cards Mapped to TED Talks',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'TarotTED - Tarot Cards Mapped to TED Talks',
+    description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
+    images: ['/applicationhero.png'],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
