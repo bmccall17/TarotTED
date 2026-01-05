@@ -4,6 +4,109 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.2.0 - Home Screen Ready 📱
+**Release Date:** January 5, 2026
+**Status:** Production Ready
+
+### Overview
+
+Prepares TarotTED for the tarotted.com domain launch with full home screen shortcut support for iOS and Android. Users can now add the webapp to their phone's home screen for one-tap access. Also includes sound system refinements and mobile UX polish.
+
+### ✨ New Features
+
+#### **Home Screen Shortcut Support**
+- Full web app manifest with app name, icons, and theme colors
+- Dynamic PNG icon generation (32, 180, 192, 512 sizes)
+- iOS: Optimized apple-touch-icon with gradient background
+- Android: Manifest icons with maskable support
+- Standalone display mode with dark theme
+
+#### **Sound System Refinements**
+- "Draw New Cards" button now plays `shuffleanddeal` sound
+- Restored sessions play shorter `shuffle` sound (not full deal)
+- Removed initial page load sound (browser autoplay blocks it)
+- Fixed flip sound not triggering on desktop (click IS interaction)
+- Improved autoplay detection with AudioContext and multiple event types
+
+#### **Mobile Dock UX Fix**
+- Auto-expanded dock now shows "Tap to watch" (not "Tap again")
+- Manual dock tap still shows "Tap again to watch"
+- Clearer user guidance based on interaction type
+
+### 📁 New Files Created
+
+```
+app/
+├── manifest.ts                   # Web app manifest (name, icons, colors)
+├── icon.tsx                      # Dynamic 32x32 favicon
+├── apple-icon.tsx                # Dynamic 180x180 iOS home screen icon
+└── api/icons/route.tsx           # Dynamic PNG icons (192, 512) for Android
+```
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `app/layout.tsx` | Added appleWebApp meta tags, mobile-web-app-capable |
+| `lib/hooks/useCardSounds.ts` | AudioContext init, expanded interaction detection, localStorage persistence |
+| `components/ritual/CardCascade.tsx` | Sound trigger refinements (shuffle vs shuffleanddeal) |
+| `components/ritual/RitualCard.tsx` | isAutoExpanded state for dock message differentiation |
+
+### 🎯 User Flow: Add to Home Screen
+
+**iOS (Safari):**
+1. Open tarotted.com
+2. Tap Share button (square with arrow)
+3. Scroll down, tap "Add to Home Screen"
+4. Tap "Add"
+
+**Android (Chrome):**
+1. Open tarotted.com
+2. Tap ⋮ menu (three dots)
+3. Tap "Add to Home Screen" or "Install app"
+4. Tap "Add"
+
+### 🔧 Technical Details
+
+**Manifest Configuration:**
+```typescript
+{
+  name: 'TarotTED',
+  short_name: 'TarotTED',
+  display: 'standalone',
+  background_color: '#030712',
+  theme_color: '#1e1b4b',
+  orientation: 'portrait',
+}
+```
+
+**Icon Sizes:**
+| Size | Purpose |
+|------|---------|
+| 32x32 | Browser favicon |
+| 180x180 | iOS apple-touch-icon |
+| 192x192 | Android home screen |
+| 512x512 | Android splash/maskable |
+
+**Sound Trigger Matrix (Updated):**
+| Action | Sound |
+|--------|-------|
+| Fresh page load | *(none - browser blocks)* |
+| Restored session | `shuffle` |
+| Click "Draw New Cards" | `shuffleanddeal` |
+| Click card 0 | `flip` |
+| Spread transition | `shuffle` |
+| Click card 1/2 (spread) | `flip2` |
+
+### 📝 Notes
+
+- Removed `app/icon.svg` in favor of dynamic `app/icon.tsx`
+- Icons use edge runtime for fast generation
+- Star cluster design matches TarotTED mystical branding
+- Domain: tarotted.com (configured on Vercel)
+
+---
+
 ## v1.1.4 - Ritual State Preservation 🔮
 **Release Date:** January 4, 2026
 **Status:** Production Ready
