@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    unoptimized: true,          // ✅ airtight: disables Vercel/Next image optimization pipeline
     formats: ['image/webp'],
     remotePatterns: [
       {
@@ -46,9 +47,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
-module.exports = {
-  images: {
-    unoptimized: true,
-  },
-}
