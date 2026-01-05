@@ -4,13 +4,13 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
-## v1.2.1 - Zero-Cost Image Delivery 🖼️
+## v1.2.1 - Zero-Cost Image Delivery + Social Sharing 🖼️
 **Release Date:** January 5, 2026
 **Status:** Production Ready
 
 ### Overview
 
-Eliminates Vercel Image Optimization costs while maintaining excellent UX. Disables the `/_next/image` pipeline entirely and adds manual lazy loading + proper `sizes` attributes to all Image components.
+Eliminates Vercel Image Optimization costs while maintaining excellent UX. Disables the `/_next/image` pipeline entirely and adds manual lazy loading + proper `sizes` attributes to all Image components. Also adds full social sharing support with Open Graph and Twitter Card meta tags.
 
 ### ✨ Changes
 
@@ -23,11 +23,18 @@ Eliminates Vercel Image Optimization costs while maintaining excellent UX. Disab
 - Added proper `sizes` attributes to thumbnails missing them
 - Hero images retain `priority` for above-fold performance
 
+#### **Social Sharing**
+- Full Open Graph meta tags (title, description, image, site name)
+- Twitter Card support with `summary_large_image` card type
+- Uses `/applicationhero.png` as share preview image
+- Works on Facebook, Discord, Twitter/X, LinkedIn
+
 ### 🔧 Modified Files
 
 | File | Changes |
 |------|---------|
 | `next.config.ts` | Added `unoptimized: true` |
+| `app/layout.tsx` | Added Open Graph & Twitter Card meta tags |
 | `components/cards/CardListItem.tsx` | Added `sizes="80px"`, `loading="lazy"` |
 | `components/cards/CardsGrid.tsx` | Added `loading="lazy"` |
 | `components/talks/TalksGrid.tsx` | Added `sizes="64px"`, `loading="lazy"` |
