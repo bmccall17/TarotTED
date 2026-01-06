@@ -4,6 +4,70 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 ---
 
+## v1.2.2 - PWA Share Button + Dynamic OG Images 📤
+**Release Date:** January 5, 2026
+**Status:** Production Ready
+
+### Overview
+
+Adds native share functionality for PWA users and dynamic Open Graph images so shared links show the actual card or talk thumbnail in text messages and social previews.
+
+### ✨ New Features
+
+#### **PWA Share Button**
+- Share icon appears in header on Card, Talk, and Theme detail pages
+- Only visible when running as installed PWA (not in browser)
+- Uses native Web Share API for iOS/Android share sheets
+- Falls back to clipboard copy if Web Share unavailable
+- Truncated descriptions (50 chars) keep shares clean
+
+#### **Dynamic Open Graph Images**
+- Card pages: Shows the actual tarot card image in link previews
+- Talk pages: Shows the YouTube/TED thumbnail in link previews
+- Theme pages: Uses app hero image
+- Full Twitter Card support (`summary_large_image`)
+- Works in iMessage, Android Messages, WhatsApp, Slack, etc.
+
+### 📁 New Files Created
+
+```
+components/ui/ShareButton.tsx    # PWA-only share button with truncation
+```
+
+### 🔧 Modified Files
+
+| File | Changes |
+|------|---------|
+| `app/cards/[slug]/page.tsx` | Added ShareButton, dynamic OG metadata with card image |
+| `app/talks/[slug]/page.tsx` | Added ShareButton, dynamic OG metadata with thumbnail |
+| `app/themes/[slug]/page.tsx` | Added ShareButton, dynamic OG metadata |
+
+### 📊 Share Preview Examples
+
+**Card Share:**
+```
+The Tower - TarotTED
+Sudden upheaval, revelation, and breakthrough...
+https://tarotted.com/cards/the-tower
+[Card image preview]
+```
+
+**Talk Share:**
+```
+The Power of Vulnerability - TarotTED
+Brené Brown studies human connection -- our...
+https://tarotted.com/talks/brene-brown-the-power-of-vulnerability
+[Talk thumbnail preview]
+```
+
+### 📝 Notes
+
+- Share button uses `(display-mode: standalone)` detection
+- Descriptions truncated to 50 characters with ellipsis
+- OG images served directly from source (Supabase/YouTube CDN)
+
+---
+
 ## v1.2.1 - Zero-Cost Image Delivery + Social Sharing 🖼️
 **Release Date:** January 5, 2026
 **Status:** Production Ready
