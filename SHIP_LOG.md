@@ -25,7 +25,6 @@ A chronological record of major releases and feature deployments for TarotTED.
 
 | Version | Title | Date |
 |---------|-------|------|
-| [v1.3.0](devnotes/releases/v1.3.0.md) | Complete Metadata & Upsert Workflows | Dec 12, 2025 |
 | [v1.2.2](devnotes/releases/v1.2.2.md) | PWA Share Button + Dynamic OG Images 📤 | Jan 5, 2026 |
 | [v1.2.1](devnotes/releases/v1.2.1.md) | Zero-Cost Image Delivery + Social Sharing 🖼️ | Jan 5, 2026 |
 | [v1.2.0](devnotes/releases/v1.2.0.md) | Home Screen Ready 📱 | Jan 5, 2026 |
@@ -47,6 +46,7 @@ A chronological record of major releases and feature deployments for TarotTED.
 | [v0.3.0](devnotes/releases/v0.3.0.md) | Advanced Search & Inline Validation Fixes 🔍 | Dec 22, 2024 |
 | [v0.2.0](devnotes/releases/v0.2.0.md) | Admin Portal & Data Management 🛠️ | Dec 22, 2024 |
 | [v0.1.0](devnotes/releases/v0.1.0.md) | Initial Public Prototype 🎉 | Dec 20, 2024 |
+| [v0.0.3](devnotes/releases/v0.0.3.md) | Complete Metadata & Upsert Workflows | Dec 12, 2025 |
 
 ---
 
