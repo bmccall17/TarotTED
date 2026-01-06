@@ -6,6 +6,7 @@ import { CardDetailClient } from '@/components/cards/CardDetailClient';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { Play, ExternalLink, Clock, Calendar } from 'lucide-react';
 import { SmartBackButton } from '@/components/ui/SmartBackButton';
+import { ShareButton } from '@/components/ui/ShareButton';
 
 // Disable caching to immediately reflect admin changes
 export const revalidate = 0;
@@ -62,6 +63,10 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
               {card.arcanaType === 'major' ? 'Major Arcana' : card.suit}
             </p>
           </div>
+          <ShareButton
+            title={`${card.name} - TarotTED`}
+            text={card.summary || `Discover the ${card.name} tarot card on TarotTED`}
+          />
           <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
             Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </Link>

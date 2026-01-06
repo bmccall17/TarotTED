@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getThemeWithCardsAndTalks, getAllThemes } from '@/lib/db/queries/themes';
 import { getThumbnailUrl } from '@/lib/utils/thumbnails';
 import { ArrowLeft, Sparkles, Play, ExternalLink } from 'lucide-react';
+import { ShareButton } from '@/components/ui/ShareButton';
 
 // Disable caching to immediately reflect admin changes
 export const revalidate = 0;
@@ -64,10 +65,14 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
           >
             <ArrowLeft className="w-5 h-5 text-gray-400" />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <div className={`w-3 h-3 rounded-full ${themeColors[theme.slug] || 'bg-indigo-500'}`} />
             <h2 className="font-semibold text-gray-100">{theme.name}</h2>
           </div>
+          <ShareButton
+            title={`${theme.name} - TarotTED`}
+            text={theme.description || `Explore the ${theme.name} theme on TarotTED`}
+          />
         </div>
       </div>
 
