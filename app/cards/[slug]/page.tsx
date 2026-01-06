@@ -89,7 +89,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
               {card.arcanaType === 'major' ? 'Major Arcana' : card.suit}
             </p>
           </div>
-          <ShareButton title={`${card.name} - TarotTED`} />
+          <ShareButton title={`${card.name} - TarotTED`} description={card.summary || undefined} />
           <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
             Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </Link>

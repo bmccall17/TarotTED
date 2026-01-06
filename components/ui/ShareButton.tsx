@@ -5,11 +5,18 @@ import { Share2 } from 'lucide-react';
 
 interface ShareButtonProps {
   title: string;
+  description?: string;
   url?: string;
   className?: string;
 }
 
-export function ShareButton({ title, url, className = '' }: ShareButtonProps) {
+// Truncate text to ~50 chars with ellipsis
+function truncate(text: string, maxLength = 50): string {
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength).trimEnd() + '...';
+}
+
+export function ShareButton({ title, description, url, className = '' }: ShareButtonProps) {
   const [isStandalone, setIsStandalone] = useState(false);
   const [canShare, setCanShare] = useState(false);
 
@@ -36,6 +43,7 @@ export function ShareButton({ title, url, className = '' }: ShareButtonProps) {
       try {
         await navigator.share({
           title,
+          text: description ? truncate(description) : undefined,
           url: shareUrl,
         });
       } catch (err) {

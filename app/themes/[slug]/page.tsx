@@ -93,7 +93,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
             <div className={`w-3 h-3 rounded-full ${themeColors[theme.slug] || 'bg-indigo-500'}`} />
             <h2 className="font-semibold text-gray-100">{theme.name}</h2>
           </div>
-          <ShareButton title={`${theme.name} - TarotTED`} />
+          <ShareButton title={`${theme.name} - TarotTED`} description={theme.description || undefined} />
         </div>
       </div>
 
