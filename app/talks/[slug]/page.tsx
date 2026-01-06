@@ -27,9 +27,38 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const description = talk.description || `A TED talk by ${talk.speakerName}`;
+  const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId);
+
+  // Use a high-quality YouTube thumbnail if available, fallback to stored thumbnail
+  const ogImageUrl = thumbnailUrl || '/applicationhero.png';
+
   return {
     title: `${talk.title} - TarotTED`,
-    description: talk.description || `A TED talk by ${talk.speakerName}`,
+    description,
+    openGraph: {
+      title: `${talk.title} - TarotTED`,
+      description,
+      url: `https://tarotted.com/talks/${talk.slug}`,
+      siteName: 'TarotTED',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1280,
+          height: 720,
+          alt: `${talk.title} by ${talk.speakerName}`,
+        },
+      ],
+      locale: 'en_US',
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${talk.title} - TarotTED`,
+      description,
+      images: [ogImageUrl],
+    },
+    keywords: ['TED talk', talk.speakerName, 'tarot', 'TarotTED'],
   };
 }
 
@@ -54,10 +83,7 @@ export default async function TalkDetailPage({ params }: { params: Promise<{ slu
             <h2 className="font-semibold text-gray-100 truncate">{talk.title}</h2>
             <p className="text-sm text-gray-500">{talk.speakerName}</p>
           </div>
-          <ShareButton
-            title={`${talk.title} - TarotTED`}
-            text={talk.description || `Watch "${talk.title}" by ${talk.speakerName} on TarotTED`}
-          />
+          <ShareButton title={`${talk.title} - TarotTED`} />
           <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
             Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </Link>

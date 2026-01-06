@@ -28,9 +28,35 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const keywords = card.keywords ? JSON.parse(card.keywords) : [];
+  const description = card.summary || `Explore the ${card.name} tarot card and discover TED talks that embody its wisdom.`;
+
   return {
     title: `${card.name} - TarotTED`,
-    description: card.summary,
+    description,
+    openGraph: {
+      title: `${card.name} - TarotTED`,
+      description,
+      url: `https://tarotted.com/cards/${card.slug}`,
+      siteName: 'TarotTED',
+      images: [
+        {
+          url: card.imageUrl,
+          width: 400,
+          height: 560,
+          alt: `${card.name} Tarot Card`,
+        },
+      ],
+      locale: 'en_US',
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${card.name} - TarotTED`,
+      description,
+      images: [card.imageUrl],
+    },
+    keywords: [card.name, 'tarot', 'TED talks', ...keywords],
   };
 }
 
@@ -63,10 +89,7 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
               {card.arcanaType === 'major' ? 'Major Arcana' : card.suit}
             </p>
           </div>
-          <ShareButton
-            title={`${card.name} - TarotTED`}
-            text={card.summary || `Discover the ${card.name} tarot card on TarotTED`}
-          />
+          <ShareButton title={`${card.name} - TarotTED`} />
           <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
             Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
           </Link>

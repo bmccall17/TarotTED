@@ -26,9 +26,33 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const description = theme.description || `Explore the ${theme.name} theme on TarotTED - curated tarot cards and TED talks.`;
+
   return {
     title: `${theme.name} - TarotTED`,
-    description: theme.description,
+    description,
+    openGraph: {
+      title: `${theme.name} - TarotTED`,
+      description,
+      url: `https://tarotted.com/themes/${theme.slug}`,
+      siteName: 'TarotTED',
+      images: [
+        {
+          url: '/applicationhero.png',
+          width: 745,
+          height: 642,
+          alt: `${theme.name} Theme - TarotTED`,
+        },
+      ],
+      locale: 'en_US',
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${theme.name} - TarotTED`,
+      description,
+      images: ['/applicationhero.png'],
+    },
   };
 }
 
@@ -69,10 +93,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
             <div className={`w-3 h-3 rounded-full ${themeColors[theme.slug] || 'bg-indigo-500'}`} />
             <h2 className="font-semibold text-gray-100">{theme.name}</h2>
           </div>
-          <ShareButton
-            title={`${theme.name} - TarotTED`}
-            text={theme.description || `Explore the ${theme.name} theme on TarotTED`}
-          />
+          <ShareButton title={`${theme.name} - TarotTED`} />
         </div>
       </div>
 

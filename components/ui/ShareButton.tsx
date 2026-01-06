@@ -5,12 +5,11 @@ import { Share2 } from 'lucide-react';
 
 interface ShareButtonProps {
   title: string;
-  text?: string;
   url?: string;
   className?: string;
 }
 
-export function ShareButton({ title, text, url, className = '' }: ShareButtonProps) {
+export function ShareButton({ title, url, className = '' }: ShareButtonProps) {
   const [isStandalone, setIsStandalone] = useState(false);
   const [canShare, setCanShare] = useState(false);
 
@@ -37,7 +36,6 @@ export function ShareButton({ title, text, url, className = '' }: ShareButtonPro
       try {
         await navigator.share({
           title,
-          text: text || title,
           url: shareUrl,
         });
       } catch (err) {
