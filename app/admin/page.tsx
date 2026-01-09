@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
 import { cards, talks, cardTalkMappings, themes, cardThemes, talkThemes } from '@/lib/db/schema';
-import { count, eq, and, isNull, or, lt, sql } from 'drizzle-orm';
+import { count, eq, and, sql } from 'drizzle-orm';
 import { getTalksStats } from '@/lib/db/queries/admin-talks';
 import Link from 'next/link';
 import { Video, Link as LinkIcon, AlertTriangle, LayoutGrid, Sparkles, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
@@ -10,7 +10,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   try {
-    // Fetch comprehensive statistics
+    // Fetch comprehensive statistics - all queries run in parallel
+    // Note: getTalksStats() already includes deleted and withoutThumbnail counts
     const [
       cardsCount,
       talksStats,
@@ -19,17 +20,16 @@ export default async function AdminDashboard() {
       cardThemesCount,
       talkThemesCount,
       primaryMappingsCount,
-      validationCounts
+      cardsWithoutPrimaryCount,
+      unmappedTalksCount,
     ] = await Promise.all([
-    db.select({ count: count() }).from(cards),
-    getTalksStats(),
-    db.select({ count: count() }).from(cardTalkMappings),
-    db.select({ count: count() }).from(themes),
-    db.select({ count: count() }).from(cardThemes),
-    db.select({ count: count() }).from(talkThemes),
-    db.select({ count: count() }).from(cardTalkMappings).where(eq(cardTalkMappings.isPrimary, true)),
-    // Get validation issue counts
-    Promise.all([
+      db.select({ count: count() }).from(cards),
+      getTalksStats(),
+      db.select({ count: count() }).from(cardTalkMappings),
+      db.select({ count: count() }).from(themes),
+      db.select({ count: count() }).from(cardThemes),
+      db.select({ count: count() }).from(talkThemes),
+      db.select({ count: count() }).from(cardTalkMappings).where(eq(cardTalkMappings.isPrimary, true)),
       // Cards without primary mapping
       db.select({ count: count() }).from(cards).where(
         sql`NOT EXISTS (
@@ -48,14 +48,7 @@ export default async function AdminDashboard() {
           )`
         )
       ),
-      // Talks missing thumbnails
-      db.select({ count: count() }).from(talks).where(
-        and(eq(talks.isDeleted, false), isNull(talks.thumbnailUrl))
-      ),
-      // Soft-deleted talks
-      db.select({ count: count() }).from(talks).where(eq(talks.isDeleted, true)),
-    ])
-  ]);
+    ]);
 
   const stats = {
     cards: cardsCount[0]?.count || 0,
@@ -71,11 +64,12 @@ export default async function AdminDashboard() {
     talksWithoutThumbnail: talksStats.withoutThumbnail,
   };
 
+  // Use values from getTalksStats() to avoid duplicate queries
   const validation = {
-    cardsWithoutPrimary: validationCounts[0][0]?.count || 0,
-    unmappedTalks: validationCounts[1][0]?.count || 0,
-    missingThumbnails: validationCounts[2][0]?.count || 0,
-    softDeleted: validationCounts[3][0]?.count || 0,
+    cardsWithoutPrimary: cardsWithoutPrimaryCount[0]?.count || 0,
+    unmappedTalks: unmappedTalksCount[0]?.count || 0,
+    missingThumbnails: talksStats.withoutThumbnail, // Reuse from getTalksStats
+    softDeleted: talksStats.deleted, // Reuse from getTalksStats
   };
 
   const totalIssues = validation.cardsWithoutPrimary + validation.unmappedTalks + validation.missingThumbnails;

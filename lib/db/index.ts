@@ -13,5 +13,14 @@ const getConnectionString = () => {
   return connectionString;
 };
 
-const client = postgres(getConnectionString(), { prepare: false });
+const client = postgres(getConnectionString(), {
+  prepare: false,
+  // Connection timeout settings for serverless environments
+  connect_timeout: 10, // 10 seconds to establish connection
+  idle_timeout: 20, // Close idle connections after 20 seconds
+  max_lifetime: 60 * 30, // Max connection lifetime 30 minutes
+  // Limit connections for serverless
+  max: 1, // Single connection per serverless instance
+});
+
 export const db = drizzle(client, { schema });

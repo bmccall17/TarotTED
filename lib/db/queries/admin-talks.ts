@@ -294,37 +294,25 @@ export async function hardDeleteTalk(id: string) {
 
 /**
  * Get statistics for the admin dashboard
+ * Runs all queries in parallel to avoid timeout on serverless
  */
 export async function getTalksStats() {
-  const totalResult = await db
-    .select({ count: count() })
-    .from(talks)
-    .where(activeFilter);
-
-  const deletedResult = await db
-    .select({ count: count() })
-    .from(talks)
-    .where(eq(talks.isDeleted, true));
-
-  const withYoutubeResult = await db
-    .select({ count: count() })
-    .from(talks)
-    .where(
+  const [totalResult, deletedResult, withYoutubeResult, withoutThumbnailResult] = await Promise.all([
+    db.select({ count: count() }).from(talks).where(activeFilter),
+    db.select({ count: count() }).from(talks).where(eq(talks.isDeleted, true)),
+    db.select({ count: count() }).from(talks).where(
       and(
         activeFilter,
         sql`${talks.youtubeVideoId} IS NOT NULL`
       )
-    );
-
-  const withoutThumbnailResult = await db
-    .select({ count: count() })
-    .from(talks)
-    .where(
+    ),
+    db.select({ count: count() }).from(talks).where(
       and(
         activeFilter,
         sql`${talks.thumbnailUrl} IS NULL`
       )
-    );
+    ),
+  ]);
 
   return {
     total: totalResult[0]?.count || 0,
