@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**TarotTED** is a lookup instrument that maps the Tarot deck (all 78 cards) to TED talks. It helps users discover TED talks based on Tarot cards they've pulled, find cards that match talks they love, and explore curated themes that blend Tarot archetypes with TED content.
+**TarotTALKS** is a lookup instrument that maps the Tarot deck (all 78 cards) to TED talks. It helps users discover TED talks based on Tarot cards they've pulled, find cards that match talks they love, and explore curated themes that blend Tarot archetypes with TED content.
 
 ## Current State
 

@@ -1,6 +1,6 @@
 # Seed Data Structure
 
-This directory contains all the seed data for the TarotTED database.
+This directory contains all the seed data for the TarotTALKS database.
 
 ## Files
 

@@ -1,8 +1,8 @@
- TarotTED Search System Audit & Improvement Plan
+ TarotTALKS Search System Audit & Improvement Plan
 
  Executive Summary
 
- The TarotTED search system is functional but has inconsistent UX patterns, search quality gaps, and some
+ The TarotTALKS search system is functional but has inconsistent UX patterns, search quality gaps, and some
  performance issues. Given the current scale (~200 talks), performance is manageable but search quality
  improvements will have the most user-visible impact.
 

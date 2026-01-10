@@ -1,4 +1,4 @@
-# TarotTED Admin Portal Implementation Plan (v3)
+# TarotTALKS Admin Portal Implementation Plan (v3)
 
 ## Overview
 Build an admin portal at `/admin` to manage TED talks and card-talk mappings, with a data validation dashboard to fix quality issues. Lightweight token-based protection from day one.
@@ -300,7 +300,7 @@ auditLog('MAPPING_CREATED', { cardId, talkId, isPrimary });
 **AdminNav Component (Two Modes)**:
 ```
 ┌─────────────────────────┐
-│  TarotTED Admin         │
+│  TarotTALKS Admin         │
 ├─────────────────────────┤
 │  🎨 CURATION            │
 │    📺 Talks             │

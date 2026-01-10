@@ -26,22 +26,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const description = theme.description || `Explore the ${theme.name} theme on TarotTED - curated tarot cards and TED talks.`;
+  const description = theme.description || `Explore the ${theme.name} theme on TarotTALKS - curated tarot cards and TED talks.`;
 
   return {
-    title: `${theme.name} - TarotTED`,
+    title: `${theme.name} - TarotTALKS`,
     description,
     openGraph: {
-      title: `${theme.name} - TarotTED`,
+      title: `${theme.name} - TarotTALKS`,
       description,
-      url: `https://tarotted.com/themes/${theme.slug}`,
-      siteName: 'TarotTED',
+      url: `https://tarottalks.app/themes/${theme.slug}`,
+      siteName: 'TarotTALKS',
       images: [
         {
           url: '/applicationhero.png',
           width: 745,
           height: 642,
-          alt: `${theme.name} Theme - TarotTED`,
+          alt: `${theme.name} Theme - TarotTALKS`,
         },
       ],
       locale: 'en_US',
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${theme.name} - TarotTED`,
+      title: `${theme.name} - TarotTALKS`,
       description,
       images: ['/applicationhero.png'],
     },
@@ -93,7 +93,7 @@ export default async function ThemeDetailPage({ params }: { params: Promise<{ sl
             <div className={`w-3 h-3 rounded-full ${themeColors[theme.slug] || 'bg-indigo-500'}`} />
             <h2 className="font-semibold text-gray-100">{theme.name}</h2>
           </div>
-          <ShareButton title={`${theme.name} - TarotTED`} description={theme.description || undefined} />
+          <ShareButton title={`${theme.name} - TarotTALKS`} description={theme.description || undefined} />
         </div>
       </div>
 

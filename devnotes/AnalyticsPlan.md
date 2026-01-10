@@ -1,4 +1,4 @@
- Analytics Implementation Plan for TarotTED (v3.1)
+ Analytics Implementation Plan for TarotTALKS (v3.1)
 
  # Overview
 

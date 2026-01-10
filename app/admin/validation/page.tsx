@@ -2,7 +2,7 @@ import { getValidationIssues } from '@/lib/db/queries/admin-validation';
 import { ValidationDashboard } from '@/components/admin/validation/ValidationDashboard';
 
 export const metadata = {
-  title: 'Data Validation | TarotTED Admin',
+  title: 'Data Validation | TarotTALKS Admin',
   description: 'Review and fix data quality issues',
 };
 

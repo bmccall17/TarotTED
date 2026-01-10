@@ -14,9 +14,9 @@ v0.1.0: Initial Public Prototype - 78 Cards, 76 Talks
 
 ---
 
-## 🎯 TarotTED v0.1.0 - Initial Prototype Release
+## 🎯 TarotTALKS v0.1.0 - Initial Prototype Release
 
-**First public release** of TarotTED, a web application that maps the 78-card Tarot deck to TED talks, helping users discover meaningful content through archetypal wisdom.
+**First public release** of TarotTALKS, a web application that maps the 78-card Tarot deck to TED talks, helping users discover meaningful content through archetypal wisdom.
 
 ### ✨ What's Included
 

@@ -6,20 +6,20 @@ import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata: Metadata = {
-  title: 'TarotTED - Tarot Cards Mapped to TED Talks',
+  title: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
   description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
-  metadataBase: new URL('https://tarotted.com'),
+  metadataBase: new URL('https://tarottalks.app'),
   openGraph: {
-    title: 'TarotTED - Tarot Cards Mapped to TED Talks',
+    title: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
     description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
-    url: 'https://tarotted.com',
-    siteName: 'TarotTED',
+    url: 'https://tarottalks.app',
+    siteName: 'TarotTALKS',
     images: [
       {
         url: '/applicationhero.png',
         width: 745,
         height: 642,
-        alt: 'TarotTED - Tarot Cards Mapped to TED Talks',
+        alt: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
       },
     ],
     locale: 'en_US',
@@ -27,14 +27,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'TarotTED - Tarot Cards Mapped to TED Talks',
+    title: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
     description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
     images: ['/applicationhero.png'],
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'TarotTED',
+    title: 'TarotTALKS',
   },
   formatDetection: {
     telephone: false,

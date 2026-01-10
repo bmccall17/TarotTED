@@ -1,4 +1,4 @@
-# TarotTED Project Cleanup Plan
+# TarotTALKS Project Cleanup Plan
 
 ## Overview
 

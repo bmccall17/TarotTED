@@ -109,7 +109,7 @@ export default async function AdminDashboard() {
         <div className="mb-8 flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-bold text-gray-100">Dashboard</h1>
-            <p className="text-gray-400 mt-1">TarotTED Content Management</p>
+            <p className="text-gray-400 mt-1">TarotTALKS Content Management</p>
           </div>
           <div className={`flex items-center gap-2 px-4 py-2 rounded-lg ${health.bgClass} border ${health.borderClass}`}>
             <HealthIcon className={`w-5 h-5 ${health.textClass}`} />

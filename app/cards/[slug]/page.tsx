@@ -32,13 +32,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = card.summary || `Explore the ${card.name} tarot card and discover TED talks that embody its wisdom.`;
 
   return {
-    title: `${card.name} - TarotTED`,
+    title: `${card.name} - TarotTALKS`,
     description,
     openGraph: {
-      title: `${card.name} - TarotTED`,
+      title: `${card.name} - TarotTALKS`,
       description,
-      url: `https://tarotted.com/cards/${card.slug}`,
-      siteName: 'TarotTED',
+      url: `https://tarottalks.app/cards/${card.slug}`,
+      siteName: 'TarotTALKS',
       images: [
         {
           url: card.imageUrl,
@@ -52,11 +52,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${card.name} - TarotTED`,
+      title: `${card.name} - TarotTALKS`,
       description,
       images: [card.imageUrl],
     },
-    keywords: [card.name, 'tarot', 'TED talks', ...keywords],
+    keywords: [card.name, 'tarot', 'TED talks', 'TarotTALKS', ...keywords],
   };
 }
 
@@ -89,9 +89,9 @@ export default async function CardDetailPage({ params }: { params: Promise<{ slu
               {card.arcanaType === 'major' ? 'Major Arcana' : card.suit}
             </p>
           </div>
-          <ShareButton title={`${card.name} - TarotTED`} description={card.summary || undefined} />
+          <ShareButton title={`${card.name} - TarotTALKS`} description={card.summary || undefined} />
           <Link href="/" className="text-lg font-light text-gray-200/60 tracking-wide flex-shrink-0">
-            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TALKS</span>
           </Link>
         </div>
       </div>

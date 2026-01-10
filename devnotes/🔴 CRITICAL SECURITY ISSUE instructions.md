@@ -43,7 +43,7 @@ Below are **step-by-step instructions for each 🔴 CRITICAL SECURITY ISSUE** ca
 #### B) Rotate YouTube API key
 
 1. Google Cloud Console → **APIs & Services → Credentials**
-2. Find the **YouTube Data API key** used by TarotTED
+2. Find the **YouTube Data API key** used by TarotTALKS
 3. **Regenerate** (or create a new key and delete the old one)
 4. Update Vercel + local env vars
 5. Redeploy

@@ -1,4 +1,4 @@
-# TarotTED - Next Steps & Development Roadmap
+# TarotTALKS - Next Steps & Development Roadmap
 
 **Last Updated:** December 22, 2024
 **Current Version:** v0.3.0

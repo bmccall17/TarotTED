@@ -66,7 +66,7 @@ export function InstallBanner() {
               </div>
               <div>
                 <p className="text-white font-medium">Tap "Add"</p>
-                <p className="text-gray-400 text-sm">TarotTED will appear on your home screen</p>
+                <p className="text-gray-400 text-sm">TarotTALKS will appear on your home screen</p>
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ export function InstallBanner() {
             <Download className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white font-medium text-sm">Add TarotTED to Home Screen</p>
+            <p className="text-white font-medium text-sm">Add TarotTALKS to Home Screen</p>
             <p className="text-indigo-300 text-xs">One-tap access to your readings</p>
           </div>
           <button

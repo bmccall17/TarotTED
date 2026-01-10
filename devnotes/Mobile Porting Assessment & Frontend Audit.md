@@ -111,7 +111,7 @@ Mobile Porting Assessment & Frontend Audit
 
   Phase 5: Mobile App Scaffold (Expo + React Native)
 
-  1. npx create-expo-app tarotted-mobile --template tabs
+  1. npx create-expo-app tarottalks-mobile --template tabs
   2. Install dependencies:
     - expo-av (audio)
     - @react-native-async-storage/async-storage

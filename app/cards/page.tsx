@@ -3,7 +3,7 @@ import { getAllCards } from '@/lib/db/queries/cards';
 import { CardsGrid } from '@/components/cards/CardsGrid';
 
 export const metadata = {
-  title: 'Browse Tarot Cards | TarotTED',
+  title: 'Browse Tarot Cards | TarotTALKS',
   description: 'Explore all 78 Tarot cards and discover their meanings',
 };
 
@@ -19,7 +19,7 @@ export default async function CardsPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
-            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TALKS</span>
           </Link>
           <p className="text-gray-400">Explore the 78 cards and their wisdom</p>
         </div>

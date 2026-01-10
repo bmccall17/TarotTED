@@ -273,4 +273,4 @@ If you need to modify or extend this feature:
 
 **Implementation Date:** December 10, 2025
 **Developer:** Claude (Anthropic)
-**Project:** TarotTED
+**Project:** TarotTALKS

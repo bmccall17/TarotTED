@@ -2,7 +2,7 @@
 
  Overview
 
- Migrate TarotTED from local filesystem image storage to Supabase Storage:
+ Migrate TarotTALKS from local filesystem image storage to Supabase Storage:
  - Talk thumbnails (public/images/talks/) → talk-thumbnails bucket
  - Card images (public/images/cards/) → card-images bucket
 

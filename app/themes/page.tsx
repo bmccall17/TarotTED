@@ -3,7 +3,7 @@ import { getAllThemes } from '@/lib/db/queries/themes';
 import { Sparkles } from 'lucide-react';
 
 export const metadata = {
-  title: 'Explore Themes | TarotTED',
+  title: 'Explore Themes | TarotTALKS',
   description: 'Curated collections of cards and talks for life\'s journeys',
 };
 
@@ -33,7 +33,7 @@ export default async function ThemesPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
-            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TALKS</span>
           </Link>
           <p className="text-gray-400">Curated collections for life&apos;s journeys</p>
         </div>

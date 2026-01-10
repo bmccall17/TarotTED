@@ -1,6 +1,6 @@
-# 🚢 TarotTED Ship Log
+# 🚢 TarotTALKS Ship Log
 
-A chronological record of major releases and feature deployments for TarotTED.
+A chronological record of major releases and feature deployments for TarotTALKS.
 
 > **Note:** Each version has its own detailed release notes in [`devnotes/releases/`](devnotes/releases/).
 

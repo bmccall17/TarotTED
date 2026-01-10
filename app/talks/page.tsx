@@ -3,7 +3,7 @@ import { getAllTalks } from '@/lib/db/queries/talks';
 import { TalksGrid } from '@/components/talks/TalksGrid';
 
 export const metadata = {
-  title: 'Browse TED Talks | TarotTED',
+  title: 'Browse TED Talks | TarotTALKS',
   description: 'Explore curated TED talks mapped to Tarot archetypes',
 };
 
@@ -19,7 +19,7 @@ export default async function TalksPage() {
         {/* Header */}
         <div className="text-center">
           <Link href="/" className="inline-block text-2xl font-light text-gray-200/60 tracking-wide mb-2">
-            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TED</span>
+            Tarot<span className="font-bold text-[#EB0028]" style={{ fontFamily: 'Helvetica, Arial, sans-serif' }}>TALKS</span>
           </Link>
           <p className="text-gray-400">Discover wisdom through curated TED talks</p>
         </div>

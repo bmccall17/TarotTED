@@ -14,7 +14,7 @@ Best path to keep cost at $0 (do this in order)
 
 Step A — Reduce how many different widths you generate (biggest win)
 In `next.config.ts`, shrink `deviceSizes` and `imageSizes` so Next generates fewer variants. Vercel themselves recommend limiting variants as a primary cost-control lever (and managing cache behavior). 
-A reasonable “TarotTED is mostly-mobile” set:
+A reasonable “TarotTALKS is mostly-mobile” set:
   `deviceSizes`: [360, 640, 1080]
   `imageSizes` (for small UI thumbs): [64, 96, 128, 256]
 This alone usually cuts variants dramatically.
@@ -32,7 +32,7 @@ Rules of thumb:
 This reduces the number of unique `w=` values created.
 
 Step D — Stop optimizing the high-volume images
-For TarotTED, the most numerous images are usually:
+For TarotTALKS, the most numerous images are usually:
 	talk thumbnails in lists
 	card thumbnails in grids
 	tiny “mapped” thumbnails in admin tables
@@ -55,7 +55,7 @@ You can do that by:
 	ensuring you’re not producing desktop-sized variants unnecessarily
 	optionally using quality={70} (or similar) on the biggest images
 
-What I would do for TarotTED (concrete recommendation)
+What I would do for TarotTALKS (concrete recommendation)
 Implement Step A + Step B immediately (fast, low risk).
 Add/verify sizes on every <Image> used in grids/lists (this is often the real source of variant explosion).
 Mark thumbnails as unoptimized (or switch them to <img>) in:

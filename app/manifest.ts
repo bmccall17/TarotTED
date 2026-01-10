@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'TarotTED',
-    short_name: 'TarotTED',
+    name: 'TarotTALKS',
+    short_name: 'TarotTALKS',
     description: 'Discover TED talks through the wisdom of Tarot',
     start_url: '/',
     display: 'standalone',

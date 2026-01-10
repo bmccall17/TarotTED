@@ -2,7 +2,7 @@ import { getAllCardsWithMappingCounts, getMappingsStats } from '@/lib/db/queries
 import { MappingEditor } from '@/components/admin/mappings/MappingEditor';
 
 export const metadata = {
-  title: 'Card-Talk Mappings | TarotTED Admin',
+  title: 'Card-Talk Mappings | TarotTALKS Admin',
   description: 'Manage card-to-talk mappings',
 };
 

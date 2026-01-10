@@ -1,4 +1,4 @@
-# TarotTED v0.1.0 - Initial Prototype Release
+# TarotTALKS v0.1.0 - Initial Prototype Release
 
 **Release Date**: December 20, 2024
 **Tag**: `v0.1.0`
@@ -8,7 +8,7 @@
 
 ## 🎯 Release Title
 
-**TarotTED v0.1.0: Initial Public Prototype - 78 Cards, 76 Talks**
+**TarotTALKS v0.1.0: Initial Public Prototype - 78 Cards, 76 Talks**
 
 ---
 
@@ -16,7 +16,7 @@
 
 ### Overview
 
-TarotTED is a lookup instrument that maps the 78-card Tarot deck to TED talks, helping users discover meaningful content through the archetypal wisdom of Tarot. This initial release provides a fully functional web application with card browsing, talk discovery, search, and curated themes.
+TarotTALKS is a lookup instrument that maps the 78-card Tarot deck to TED talks, helping users discover meaningful content through the archetypal wisdom of Tarot. This initial release provides a fully functional web application with card browsing, talk discovery, search, and curated themes.
 
 ---
 
@@ -238,8 +238,8 @@ This release includes some data quality issues that will be resolved in v0.2.0:
 
 ```bash
 # Clone repository
-git clone https://github.com/[username]/TarotTED.git
-cd TarotTED
+git clone https://github.com/[username]/TarotTALKS.git
+cd TarotTALKS
 
 # Install dependencies
 npm install
@@ -275,7 +275,7 @@ DATABASE_URL=postgresql://...  # Supabase connection string
 ## 📁 Project Structure
 
 ```
-TarotTED/
+TarotTALKS/
 ├── app/                        # Next.js App Router pages
 │   ├── cards/                  # Card browsing and detail
 │   ├── talks/                  # Talk browsing and detail
@@ -342,8 +342,8 @@ This project welcomes contributions! Areas of interest:
 
 ## 📞 Support & Contact
 
-- **Issues**: [GitHub Issues](https://github.com/[username]/TarotTED/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/[username]/TarotTED/discussions)
+- **Issues**: [GitHub Issues](https://github.com/[username]/TarotTALKS/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/[username]/TarotTALKS/discussions)
 - **Email**: [your-email@example.com]
 
 ---
@@ -356,6 +356,6 @@ See `ADMIN_PORTAL_PLAN.md` for the detailed implementation plan.
 
 ---
 
-**Thank you for trying TarotTED v0.1.0!**
+**Thank you for trying TarotTALKS v0.1.0!**
 
 We're excited to combine the wisdom of Tarot with the inspiration of TED talks. Pull a card, discover a talk, and explore new perspectives.

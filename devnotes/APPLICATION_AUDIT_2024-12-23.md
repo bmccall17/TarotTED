@@ -1,4 +1,4 @@
-# TarotTED Comprehensive Application Audit
+# TarotTALKS Comprehensive Application Audit
 
 **Audit Date:** December 23, 2024
 **Auditor:** Claude Code
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-This audit covers security vulnerabilities, performance issues, and functional dead ends in the TarotTED Next.js application. **2 critical security issues require immediate action before public release.**
+This audit covers security vulnerabilities, performance issues, and functional dead ends in the TarotTALKS Next.js application. **2 critical security issues require immediate action before public release.**
 
 | Category | Critical | High | Medium | Low | Total |
 |----------|----------|------|--------|-----|-------|
