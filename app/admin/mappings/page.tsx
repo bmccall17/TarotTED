@@ -14,10 +14,9 @@ export default async function MappingsPage({
   searchParams: Promise<{ cardId?: string }>;
 }) {
   const params = await searchParams;
-  const [cards, stats] = await Promise.all([
-    getAllCardsWithMappingCounts(),
-    getMappingsStats(),
-  ]);
+  // Run queries sequentially to avoid connection pool exhaustion on Vercel Postgres
+  const cards = await getAllCardsWithMappingCounts();
+  const stats = await getMappingsStats();
 
   return (
     <div className="p-8 pb-24">

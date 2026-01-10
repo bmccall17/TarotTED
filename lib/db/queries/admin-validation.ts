@@ -101,29 +101,18 @@ export interface ValidationIssues {
 
 /**
  * Get all validation issues
+ * Runs queries sequentially to avoid connection pool exhaustion on Vercel Postgres
  */
 export async function getValidationIssues(): Promise<ValidationIssues> {
-  const [
-    duplicateYoutubeIds,
-    talksWithOnlyYoutubeUrl,
-    missingBothUrls,
-    missingThumbnails,
-    externalThumbnails,
-    shortDescriptions,
-    cardsWithoutPrimaryMapping,
-    talksNotMappedToAnyCard,
-    softDeletedTalks,
-  ] = await Promise.all([
-    getDuplicateYoutubeIds(),
-    getTalksWithOnlyYoutubeUrl(),
-    getMissingBothUrls(),
-    getMissingThumbnails(),
-    getExternalThumbnails(),
-    getShortDescriptions(),
-    getCardsWithoutPrimaryMapping(),
-    getTalksNotMappedToAnyCard(),
-    getSoftDeletedTalks(),
-  ]);
+  const duplicateYoutubeIds = await getDuplicateYoutubeIds();
+  const talksWithOnlyYoutubeUrl = await getTalksWithOnlyYoutubeUrl();
+  const missingBothUrls = await getMissingBothUrls();
+  const missingThumbnails = await getMissingThumbnails();
+  const externalThumbnails = await getExternalThumbnails();
+  const shortDescriptions = await getShortDescriptions();
+  const cardsWithoutPrimaryMapping = await getCardsWithoutPrimaryMapping();
+  const talksNotMappedToAnyCard = await getTalksNotMappedToAnyCard();
+  const softDeletedTalks = await getSoftDeletedTalks();
 
   return {
     duplicateYoutubeIds,
@@ -140,6 +129,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
 
 /**
  * Get duplicate YouTube video IDs
+ * Runs queries sequentially to avoid connection pool exhaustion
  */
 async function getDuplicateYoutubeIds() {
   // First, find YouTube IDs that appear more than once
@@ -158,30 +148,29 @@ async function getDuplicateYoutubeIds() {
     .groupBy(talks.youtubeVideoId)
     .having(sql`COUNT(*) > 1`);
 
-  // For each duplicate, get the talks
-  const result = await Promise.all(
-    duplicates.map(async (dup) => {
-      const affectedTalks = await db
-        .select({
-          id: talks.id,
-          title: talks.title,
-          speakerName: talks.speakerName,
-          slug: talks.slug,
-        })
-        .from(talks)
-        .where(
-          and(
-            eq(talks.isDeleted, false),
-            eq(talks.youtubeVideoId, dup.youtubeVideoId!)
-          )
-        );
+  // For each duplicate, get the talks sequentially
+  const result = [];
+  for (const dup of duplicates) {
+    const affectedTalks = await db
+      .select({
+        id: talks.id,
+        title: talks.title,
+        speakerName: talks.speakerName,
+        slug: talks.slug,
+      })
+      .from(talks)
+      .where(
+        and(
+          eq(talks.isDeleted, false),
+          eq(talks.youtubeVideoId, dup.youtubeVideoId!)
+        )
+      );
 
-      return {
-        youtubeVideoId: dup.youtubeVideoId!,
-        talks: affectedTalks,
-      };
-    })
-  );
+    result.push({
+      youtubeVideoId: dup.youtubeVideoId!,
+      talks: affectedTalks,
+    });
+  }
 
   return result;
 }
