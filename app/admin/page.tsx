@@ -10,45 +10,38 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   try {
-    // Fetch comprehensive statistics - all queries run in parallel
-    // Note: getTalksStats() already includes deleted and withoutThumbnail counts
-    const [
-      cardsCount,
-      talksStats,
-      mappingsCount,
-      themesCount,
-      cardThemesCount,
-      talkThemesCount,
-      primaryMappingsCount,
-      cardsWithoutPrimaryCount,
-      unmappedTalksCount,
-    ] = await Promise.all([
-      db.select({ count: count() }).from(cards),
-      getTalksStats(),
-      db.select({ count: count() }).from(cardTalkMappings),
-      db.select({ count: count() }).from(themes),
-      db.select({ count: count() }).from(cardThemes),
-      db.select({ count: count() }).from(talkThemes),
-      db.select({ count: count() }).from(cardTalkMappings).where(eq(cardTalkMappings.isPrimary, true)),
-      // Cards without primary mapping
-      db.select({ count: count() }).from(cards).where(
+    // Fetch comprehensive statistics - run sequentially to avoid connection pool exhaustion
+    // Vercel Postgres has limited connections, parallel queries can timeout
+
+    // First batch: simple count queries
+    const cardsCount = await db.select({ count: count() }).from(cards);
+    const mappingsCount = await db.select({ count: count() }).from(cardTalkMappings);
+    const themesCount = await db.select({ count: count() }).from(themes);
+    const cardThemesCount = await db.select({ count: count() }).from(cardThemes);
+    const talkThemesCount = await db.select({ count: count() }).from(talkThemes);
+    const primaryMappingsCount = await db.select({ count: count() }).from(cardTalkMappings).where(eq(cardTalkMappings.isPrimary, true));
+
+    // Second batch: talk stats (runs 4 queries internally but sequentially)
+    const talksStats = await getTalksStats();
+
+    // Third batch: complex subqueries
+    const cardsWithoutPrimaryCount = await db.select({ count: count() }).from(cards).where(
+      sql`NOT EXISTS (
+        SELECT 1 FROM card_talk_mappings
+        WHERE card_talk_mappings.card_id = cards.id
+        AND card_talk_mappings.is_primary = true
+      )`
+    );
+
+    const unmappedTalksCount = await db.select({ count: count() }).from(talks).where(
+      and(
+        eq(talks.isDeleted, false),
         sql`NOT EXISTS (
           SELECT 1 FROM card_talk_mappings
-          WHERE card_talk_mappings.card_id = cards.id
-          AND card_talk_mappings.is_primary = true
+          WHERE card_talk_mappings.talk_id = talks.id
         )`
-      ),
-      // Talks not mapped to any card
-      db.select({ count: count() }).from(talks).where(
-        and(
-          eq(talks.isDeleted, false),
-          sql`NOT EXISTS (
-            SELECT 1 FROM card_talk_mappings
-            WHERE card_talk_mappings.talk_id = talks.id
-          )`
-        )
-      ),
-    ]);
+      )
+    );
 
   const stats = {
     cards: cardsCount[0]?.count || 0,
