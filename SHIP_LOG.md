@@ -10,6 +10,7 @@ A chronological record of major releases and feature deployments for TarotTALKS.
 
 | Version | Title | Date |
 |---------|-------|------|
+| [v1.3.0](devnotes/releases/v1.3.0.md) | TarotTALKS Rebrand 🎨 | Jan 9, 2026 |
 | [v1.2.2](devnotes/releases/v1.2.2.md) | PWA Share Button + Dynamic OG Images 📤 | Jan 5, 2026 |
 | [v1.2.1](devnotes/releases/v1.2.1.md) | Zero-Cost Image Delivery + Social Sharing 🖼️ | Jan 5, 2026 |
 | [v1.2.0](devnotes/releases/v1.2.0.md) | Home Screen Ready 📱 | Jan 5, 2026 |
@@ -25,6 +26,7 @@ A chronological record of major releases and feature deployments for TarotTALKS.
 
 | Version | Title | Date |
 |---------|-------|------|
+| [v1.3.0](devnotes/releases/v1.3.0.md) | TarotTALKS Rebrand 🎨 | Jan 9, 2026 |
 | [v1.2.2](devnotes/releases/v1.2.2.md) | PWA Share Button + Dynamic OG Images 📤 | Jan 5, 2026 |
 | [v1.2.1](devnotes/releases/v1.2.1.md) | Zero-Cost Image Delivery + Social Sharing 🖼️ | Jan 5, 2026 |
 | [v1.2.0](devnotes/releases/v1.2.0.md) | Home Screen Ready 📱 | Jan 5, 2026 |
