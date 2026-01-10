@@ -5,13 +5,13 @@ import Link from 'next/link';
 
 type IssueType =
   | 'duplicateYoutube'
-  | 'youtubeOnly'
   | 'missingUrls'
   | 'missingThumbnail'
   | 'externalThumbnail'
   | 'shortDescription'
   | 'cardNoPrimary'
   | 'unmappedTalk'
+  | 'missingLongRationale'
   | 'softDeleted';
 
 type DuplicateYoutubeData = {
@@ -40,9 +40,22 @@ type CardData = {
   mappingsCount: number;
 };
 
+type MappingData = {
+  mappingId: string;
+  cardId: string;
+  cardName: string;
+  cardSlug: string;
+  cardImageUrl: string;
+  talkId: string;
+  talkTitle: string;
+  talkSpeakerName: string;
+  talkSlug: string;
+  rationaleShort: string | null;
+};
+
 type Props = {
   type: IssueType;
-  data: DuplicateYoutubeData | TalkData | CardData;
+  data: DuplicateYoutubeData | TalkData | CardData | MappingData;
   onFix?: (type: IssueType, data: any) => void;
   isFixed?: boolean;
   isFixing?: boolean;
@@ -124,7 +137,6 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
 
   // Talk-based issues
   if (
-    type === 'youtubeOnly' ||
     type === 'missingUrls' ||
     type === 'missingThumbnail' ||
     type === 'externalThumbnail' ||
@@ -139,8 +151,6 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
       if (isFixing) return 'Fixing...';
 
       switch (type) {
-        case 'youtubeOnly':
-          return 'Add TED URL';
         case 'missingUrls':
           return 'Add URLs';
         case 'missingThumbnail':
@@ -279,6 +289,43 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
           >
             <Edit2 className="w-3 h-3" />
             Edit
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Mapping-based issues (missing long rationale)
+  if (type === 'missingLongRationale') {
+    const item = data as MappingData;
+    return (
+      <div className={`flex items-center justify-between bg-gray-900/50 border rounded-lg p-4 transition-all ${isFixed ? 'border-green-500/50 bg-green-500/5' : 'border-gray-700'}`}>
+        <div className="flex items-center gap-4">
+          <img
+            src={item.cardImageUrl}
+            alt={item.cardName}
+            className="w-10 h-14 object-cover rounded"
+          />
+          <div>
+            <p className="text-sm font-medium text-gray-100">{item.cardName}</p>
+            <p className="text-xs text-gray-400">
+              → {item.talkTitle} <span className="text-gray-500">by {item.talkSpeakerName}</span>
+            </p>
+            {item.rationaleShort && (
+              <p className="text-xs text-gray-500 mt-1 truncate max-w-md">
+                Short: "{item.rationaleShort}"
+              </p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isFixed && <Check className="w-4 h-4 text-green-400" />}
+          <Link
+            href={`/admin/mappings?cardId=${item.cardId}`}
+            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-indigo-600/20 text-indigo-400 hover:bg-indigo-600/30 rounded transition-colors"
+          >
+            <Edit2 className="w-3 h-3" />
+            Add Long Rationale
           </Link>
         </div>
       </div>

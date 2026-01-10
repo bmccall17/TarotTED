@@ -9,6 +9,10 @@ export function AdminNav() {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
+    // Dashboard (/admin) should only match exactly, not all admin routes
+    if (path === '/admin') {
+      return pathname === '/admin';
+    }
     return pathname === path || pathname?.startsWith(path + '/');
   };
 

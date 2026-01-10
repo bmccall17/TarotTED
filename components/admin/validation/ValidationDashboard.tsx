@@ -4,7 +4,6 @@ import { useState } from 'react';
 import {
   AlertTriangle,
   AlertCircle,
-  Link2,
   Image,
   Download,
   FileText,
@@ -12,7 +11,6 @@ import {
   Trash2,
   ChevronDown,
   ChevronRight,
-  ExternalLink,
   RefreshCw,
 } from 'lucide-react';
 import { IssueCard } from './IssueCard';
@@ -31,16 +29,6 @@ type ValidationIssues = {
   duplicateYoutubeIds: Array<{
     youtubeVideoId: string;
     talks: Array<{ id: string; title: string; speakerName: string; slug: string }>;
-  }>;
-  talksWithOnlyYoutubeUrl: Array<{
-    id: string;
-    title: string;
-    speakerName: string;
-    slug: string;
-    youtubeUrl: string | null;
-    tedUrl?: string | null;
-    youtubeVideoId?: string | null;
-    thumbnailUrl?: string | null;
   }>;
   missingBothUrls: Array<{
     id: string;
@@ -100,6 +88,18 @@ type ValidationIssues = {
     youtubeUrl?: string | null;
     youtubeVideoId?: string | null;
   }>;
+  mappingsMissingLongRationale: Array<{
+    mappingId: string;
+    cardId: string;
+    cardName: string;
+    cardSlug: string;
+    cardImageUrl: string;
+    talkId: string;
+    talkTitle: string;
+    talkSpeakerName: string;
+    talkSlug: string;
+    rationaleShort: string | null;
+  }>;
   softDeletedTalks: Array<{
     id: string;
     title: string;
@@ -121,26 +121,26 @@ type SectionKey = keyof ValidationIssues;
 
 type IssueType =
   | 'duplicateYoutube'
-  | 'youtubeOnly'
   | 'missingUrls'
   | 'missingThumbnail'
   | 'externalThumbnail'
   | 'shortDescription'
   | 'cardNoPrimary'
   | 'unmappedTalk'
+  | 'missingLongRationale'
   | 'softDeleted';
 
 export function ValidationDashboard({ initialIssues }: Props) {
   const [issues, setIssues] = useState<ValidationIssues>(initialIssues);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     duplicateYoutubeIds: true,
-    talksWithOnlyYoutubeUrl: false,
     missingBothUrls: true,
     missingThumbnails: false,
     externalThumbnails: true,
     shortDescriptions: false,
     cardsWithoutPrimaryMapping: true,
     talksNotMappedToAnyCard: false,
+    mappingsMissingLongRationale: true,
     softDeletedTalks: false,
   });
   const [refreshing, setRefreshing] = useState(false);
@@ -219,11 +219,6 @@ export function ValidationDashboard({ initialIssues }: Props) {
       icon: <AlertTriangle className="w-5 h-5" />,
       severity: 'critical',
     },
-    talksWithOnlyYoutubeUrl: {
-      title: 'Talks with Only YouTube URL',
-      icon: <Link2 className="w-5 h-5" />,
-      severity: 'important',
-    },
     missingBothUrls: {
       title: 'Missing Both URLs',
       icon: <AlertCircle className="w-5 h-5" />,
@@ -252,6 +247,11 @@ export function ValidationDashboard({ initialIssues }: Props) {
     talksNotMappedToAnyCard: {
       title: 'Unmapped Talks',
       icon: <Map className="w-5 h-5" />,
+      severity: 'mapping',
+    },
+    mappingsMissingLongRationale: {
+      title: 'Mappings Missing Long Rationale',
+      icon: <FileText className="w-5 h-5" />,
       severity: 'mapping',
     },
     softDeletedTalks: {
@@ -310,21 +310,6 @@ export function ValidationDashboard({ initialIssues }: Props) {
                   <IssueCard
                     key={item.youtubeVideoId}
                     type="duplicateYoutube"
-                    data={item}
-                    onFix={handleFix}
-                    isFixed={fixedIssues.has(issueId)}
-                    isFixing={fixingId === issueId}
-                  />
-                );
-              })}
-
-            {key === 'talksWithOnlyYoutubeUrl' &&
-              issues.talksWithOnlyYoutubeUrl.map((item) => {
-                const issueId = getIssueId('youtubeOnly', item);
-                return (
-                  <IssueCard
-                    key={item.id}
-                    type="youtubeOnly"
                     data={item}
                     onFix={handleFix}
                     isFixed={fixedIssues.has(issueId)}
@@ -423,6 +408,21 @@ export function ValidationDashboard({ initialIssues }: Props) {
                 );
               })}
 
+            {key === 'mappingsMissingLongRationale' &&
+              issues.mappingsMissingLongRationale.map((item) => {
+                const issueId = item.mappingId;
+                return (
+                  <IssueCard
+                    key={item.mappingId}
+                    type="missingLongRationale"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
+
             {key === 'softDeletedTalks' &&
               issues.softDeletedTalks.map((item) => {
                 const issueId = getIssueId('softDeleted', item);
@@ -492,8 +492,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
           )}
 
           {/* Important Issues */}
-          {(issues.talksWithOnlyYoutubeUrl.length > 0 ||
-            issues.missingThumbnails.length > 0 ||
+          {(issues.missingThumbnails.length > 0 ||
             issues.externalThumbnails.length > 0 ||
             issues.shortDescriptions.length > 0) && (
             <div>
@@ -502,7 +501,6 @@ export function ValidationDashboard({ initialIssues }: Props) {
                 Important Issues
               </h2>
               <div className="space-y-4">
-                {renderSection('talksWithOnlyYoutubeUrl')}
                 {renderSection('missingThumbnails')}
                 {renderSection('externalThumbnails')}
                 {renderSection('shortDescriptions')}
@@ -512,7 +510,8 @@ export function ValidationDashboard({ initialIssues }: Props) {
 
           {/* Mapping Issues */}
           {(issues.cardsWithoutPrimaryMapping.length > 0 ||
-            issues.talksNotMappedToAnyCard.length > 0) && (
+            issues.talksNotMappedToAnyCard.length > 0 ||
+            issues.mappingsMissingLongRationale.length > 0) && (
             <div>
               <h2 className="text-sm font-medium text-orange-400 mb-3 flex items-center gap-2">
                 <Map className="w-4 h-4" />
@@ -521,6 +520,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
               <div className="space-y-4">
                 {renderSection('cardsWithoutPrimaryMapping')}
                 {renderSection('talksNotMappedToAnyCard')}
+                {renderSection('mappingsMissingLongRationale')}
               </div>
             </div>
           )}
@@ -565,16 +565,6 @@ export function ValidationDashboard({ initialIssues }: Props) {
         />
       )}
 
-      {activeModal === 'youtubeOnly' && selectedIssue && (
-        <QuickEditModal
-          talk={selectedIssue}
-          fields={[
-            { name: 'tedUrl', label: 'TED URL', type: 'url', placeholder: 'https://www.ted.com/talks/...' },
-          ]}
-          onClose={handleModalClose}
-          onSuccess={handleFixSuccess}
-        />
-      )}
 
       {activeModal === 'missingUrls' && selectedIssue && (
         <QuickEditModal

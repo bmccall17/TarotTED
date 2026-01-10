@@ -14,13 +14,13 @@ export default async function ValidationPage() {
   const summary = {
     critical: issues.duplicateYoutubeIds.length,
     important:
-      issues.talksWithOnlyYoutubeUrl.length +
       issues.missingBothUrls.length +
       issues.missingThumbnails.length +
       issues.shortDescriptions.length,
     mappings:
       issues.cardsWithoutPrimaryMapping.length +
-      issues.talksNotMappedToAnyCard.length,
+      issues.talksNotMappedToAnyCard.length +
+      issues.mappingsMissingLongRationale.length,
     info: issues.softDeletedTalks.length,
   };
 

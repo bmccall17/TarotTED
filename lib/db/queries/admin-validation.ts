@@ -14,16 +14,6 @@ export interface ValidationIssues {
   }>;
 
   // Important
-  talksWithOnlyYoutubeUrl: Array<{
-    id: string;
-    title: string;
-    speakerName: string;
-    slug: string;
-    youtubeUrl: string | null;
-    tedUrl: string | null;
-    youtubeVideoId: string | null;
-    thumbnailUrl: string | null;
-  }>;
   missingBothUrls: Array<{
     id: string;
     title: string;
@@ -84,6 +74,18 @@ export interface ValidationIssues {
     youtubeUrl: string | null;
     youtubeVideoId: string | null;
   }>;
+  mappingsMissingLongRationale: Array<{
+    mappingId: string;
+    cardId: string;
+    cardName: string;
+    cardSlug: string;
+    cardImageUrl: string;
+    talkId: string;
+    talkTitle: string;
+    talkSpeakerName: string;
+    talkSlug: string;
+    rationaleShort: string | null;
+  }>;
 
   // Info
   softDeletedTalks: Array<{
@@ -105,24 +107,24 @@ export interface ValidationIssues {
  */
 export async function getValidationIssues(): Promise<ValidationIssues> {
   const duplicateYoutubeIds = await getDuplicateYoutubeIds();
-  const talksWithOnlyYoutubeUrl = await getTalksWithOnlyYoutubeUrl();
   const missingBothUrls = await getMissingBothUrls();
   const missingThumbnails = await getMissingThumbnails();
   const externalThumbnails = await getExternalThumbnails();
   const shortDescriptions = await getShortDescriptions();
   const cardsWithoutPrimaryMapping = await getCardsWithoutPrimaryMapping();
   const talksNotMappedToAnyCard = await getTalksNotMappedToAnyCard();
+  const mappingsMissingLongRationale = await getMappingsMissingLongRationale();
   const softDeletedTalks = await getSoftDeletedTalks();
 
   return {
     duplicateYoutubeIds,
-    talksWithOnlyYoutubeUrl,
     missingBothUrls,
     missingThumbnails,
     externalThumbnails,
     shortDescriptions,
     cardsWithoutPrimaryMapping,
     talksNotMappedToAnyCard,
+    mappingsMissingLongRationale,
     softDeletedTalks,
   };
 }
@@ -173,32 +175,6 @@ async function getDuplicateYoutubeIds() {
   }
 
   return result;
-}
-
-/**
- * Get talks that only have YouTube URL (no TED.com URL)
- */
-async function getTalksWithOnlyYoutubeUrl() {
-  return await db
-    .select({
-      id: talks.id,
-      title: talks.title,
-      speakerName: talks.speakerName,
-      slug: talks.slug,
-      youtubeUrl: talks.youtubeUrl,
-      tedUrl: talks.tedUrl,
-      youtubeVideoId: talks.youtubeVideoId,
-      thumbnailUrl: talks.thumbnailUrl,
-    })
-    .from(talks)
-    .where(
-      and(
-        eq(talks.isDeleted, false),
-        isNull(talks.tedUrl),
-        sql`${talks.youtubeUrl} IS NOT NULL`
-      )
-    )
-    .orderBy(talks.title);
 }
 
 /**
@@ -372,6 +348,38 @@ async function getTalksNotMappedToAnyCard() {
 }
 
 /**
+ * Get mappings that are missing long rationale
+ */
+async function getMappingsMissingLongRationale() {
+  return await db
+    .select({
+      mappingId: cardTalkMappings.id,
+      cardId: cardTalkMappings.cardId,
+      cardName: cards.name,
+      cardSlug: cards.slug,
+      cardImageUrl: cards.imageUrl,
+      talkId: cardTalkMappings.talkId,
+      talkTitle: talks.title,
+      talkSpeakerName: talks.speakerName,
+      talkSlug: talks.slug,
+      rationaleShort: cardTalkMappings.rationaleShort,
+    })
+    .from(cardTalkMappings)
+    .innerJoin(cards, eq(cardTalkMappings.cardId, cards.id))
+    .innerJoin(talks, eq(cardTalkMappings.talkId, talks.id))
+    .where(
+      and(
+        eq(talks.isDeleted, false),
+        or(
+          isNull(cardTalkMappings.rationaleLong),
+          sql`${cardTalkMappings.rationaleLong} = ''`
+        )
+      )
+    )
+    .orderBy(cards.sequenceIndex, talks.title);
+}
+
+/**
  * Get soft-deleted talks
  */
 async function getSoftDeletedTalks() {
@@ -401,34 +409,34 @@ export async function getValidationSummary() {
   return {
     critical: issues.duplicateYoutubeIds.length,
     important:
-      issues.talksWithOnlyYoutubeUrl.length +
       issues.missingBothUrls.length +
       issues.missingThumbnails.length +
       issues.externalThumbnails.length +
       issues.shortDescriptions.length,
     mappings:
       issues.cardsWithoutPrimaryMapping.length +
-      issues.talksNotMappedToAnyCard.length,
+      issues.talksNotMappedToAnyCard.length +
+      issues.mappingsMissingLongRationale.length,
     info: issues.softDeletedTalks.length,
     total:
       issues.duplicateYoutubeIds.length +
-      issues.talksWithOnlyYoutubeUrl.length +
       issues.missingBothUrls.length +
       issues.missingThumbnails.length +
       issues.externalThumbnails.length +
       issues.shortDescriptions.length +
       issues.cardsWithoutPrimaryMapping.length +
       issues.talksNotMappedToAnyCard.length +
+      issues.mappingsMissingLongRationale.length +
       issues.softDeletedTalks.length,
     details: {
       duplicateYoutubeIds: issues.duplicateYoutubeIds.length,
-      talksWithOnlyYoutubeUrl: issues.talksWithOnlyYoutubeUrl.length,
       missingBothUrls: issues.missingBothUrls.length,
       missingThumbnails: issues.missingThumbnails.length,
       externalThumbnails: issues.externalThumbnails.length,
       shortDescriptions: issues.shortDescriptions.length,
       cardsWithoutPrimaryMapping: issues.cardsWithoutPrimaryMapping.length,
       talksNotMappedToAnyCard: issues.talksNotMappedToAnyCard.length,
+      mappingsMissingLongRationale: issues.mappingsMissingLongRationale.length,
       softDeletedTalks: issues.softDeletedTalks.length,
     },
   };
