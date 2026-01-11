@@ -43,9 +43,17 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'OpenDyslexic', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure OpenDyslexic applies to form elements */
+input,
+textarea,
+select,
+button {
+  font-family: inherit;
 }
 
 /* Admin portal uses OpenDyslexic for better readability */
