@@ -9,7 +9,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900">
+    <div className="admin-dyslexic-font flex min-h-screen bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900">
       <AdminNav />
       <main className="flex-1 overflow-auto">
         {/* Mobile Notice - shown only on small screens */}
