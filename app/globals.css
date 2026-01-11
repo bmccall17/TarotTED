@@ -3,7 +3,37 @@
 @tailwind utilities;
 
 /* OpenDyslexic font for admin portal accessibility */
-@import url('https://fonts.cdnfonts.com/css/opendyslexic');
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
 
 :root {
   --background: #030712;
@@ -19,12 +49,13 @@ body {
 }
 
 /* Admin portal uses OpenDyslexic for better readability */
-.admin-dyslexic-font {
-  font-family: 'OpenDyslexic', system-ui, sans-serif;
-}
-
-.admin-dyslexic-font * {
-  font-family: inherit;
+.admin-dyslexic-font,
+.admin-dyslexic-font *,
+.admin-dyslexic-font input,
+.admin-dyslexic-font textarea,
+.admin-dyslexic-font select,
+.admin-dyslexic-font button {
+  font-family: 'OpenDyslexic', system-ui, sans-serif !important;
 }
 
 @layer utilities {
