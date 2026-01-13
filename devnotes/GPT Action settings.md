@@ -1,5 +1,7 @@
 Here are your GPT Action settings for connecting to Supabase:
 
+# update: abandoning this as i dont want the GPT to be locked in too deep on the mappings that are already in the app... maybe it finds something new!
+
   ---
   Option 1: Direct Supabase REST API (Simplest)
 
@@ -17,6 +19,7 @@ Here are your GPT Action settings for connecting to Supabase:
   ────────────────────────────────────────
   Field: Custom Header Name
   Value: apikey
+
   OpenAPI Schema
 
   Paste this into the Schema field (replace YOUR_PROJECT_REF with your actual Supabase project reference):
@@ -27,7 +30,7 @@ Here are your GPT Action settings for connecting to Supabase:
     description: Query card-talk mappings from TarotTALKS
     version: 1.0.0
   servers:
-    - url: https://YOUR_PROJECT_REF.supabase.co/rest/v1
+    - url: https://hldbacbxyosqpbsataqt.supabase.co [example: https://YOUR_PROJECT_REF.supabase.co/rest/v1]
   paths:
     /cards:
       get:
