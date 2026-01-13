@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RitualCard } from './RitualCard';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, BookOpen } from 'lucide-react';
 import { useCardSounds } from '@/lib/hooks/useCardSounds';
 import { useRitualState } from '@/lib/hooks/useRitualState';
 
@@ -392,20 +392,41 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
         )}
       </div>
 
-      {/* Redraw Button */}
-      <div
-        className={`
-          mt-6 transition-all duration-500
-          ${showRedraw ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
-        `}
-      >
-        <button
-          onClick={handleRedraw}
-          className="flex items-center gap-2 px-6 py-3 bg-gray-800/80 hover:bg-gray-700 border border-gray-600 rounded-xl text-gray-300 hover:text-white transition-all"
+      {/* Action Buttons */}
+      <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+        {/* Read My Spread Button - appears when 2+ cards revealed */}
+        <div
+          className={`
+            transition-all duration-500
+            ${revealedCards.length >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+          `}
         >
-          <RefreshCw className="w-4 h-4" />
-          <span>Draw New Cards</span>
-        </button>
+          <a
+            href="https://chatgpt.com/g/g-6965a1a328ec8191bc976bd89d963972-tarottalks-spread-reader"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 rounded-xl text-white transition-all"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Read My Spread</span>
+          </a>
+        </div>
+
+        {/* Redraw Button */}
+        <div
+          className={`
+            transition-all duration-500
+            ${showRedraw ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
+          `}
+        >
+          <button
+            onClick={handleRedraw}
+            className="flex items-center gap-2 px-6 py-3 bg-gray-800/80 hover:bg-gray-700 border border-gray-600 rounded-xl text-gray-300 hover:text-white transition-all"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Draw New Cards</span>
+          </button>
+        </div>
       </div>
     </div>
   );
