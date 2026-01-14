@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { RitualCard } from './RitualCard';
+import { SpreadShareModal } from './SpreadShareModal';
 import { RefreshCw, BookOpen } from 'lucide-react';
 import { useCardSounds } from '@/lib/hooks/useCardSounds';
 import { useRitualState } from '@/lib/hooks/useRitualState';
@@ -78,6 +79,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const [revealedCards, setRevealedCards] = useState<number[]>([]);
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('stacked');
   const [showRedraw, setShowRedraw] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [centeredCardIndex, setCenteredCardIndex] = useState<number>(0);
   const [isRestoredSession, setIsRestoredSession] = useState(false); // Track if restored from saved state
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -401,15 +403,13 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
             ${revealedCards.length >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}
           `}
         >
-          <a
-            href="https://chatgpt.com/g/g-6965a1a328ec8191bc976bd89d963972-tarottalks-spread-reader"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setShowShareModal(true)}
             className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 rounded-xl text-white transition-all"
           >
             <BookOpen className="w-4 h-4" />
             <span>Read My Spread</span>
-          </a>
+          </button>
         </div>
 
         {/* Redraw Button */}
@@ -428,6 +428,15 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
           </button>
         </div>
       </div>
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <SpreadShareModal
+          cards={cards}
+          revealedCards={revealedCards}
+          onClose={() => setShowShareModal(false)}
+        />
+      )}
     </div>
   );
 }
