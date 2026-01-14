@@ -114,6 +114,21 @@ export default function HomePage() {
             <br />Draw a card above, or explore through the navigation below.
           </p>
         </div>
+
+        {/* Support Block */}
+        <div className="text-center mt-16 opacity-60 hover:opacity-100 transition-opacity duration-500">
+          <p className="text-gray-400 text-sm leading-relaxed mb-4">
+            Free forever. No ads. Help keep it alive...
+          </p>
+          <a
+            href="https://buymeacoffee.com/bmccall17"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-6 py-2.5 border border-gray-600/70 rounded-xl text-gray-300 hover:text-gray-200 hover:border-gray-500 hover:bg-gray-800/30 transition-all text-sm"
+          >
+            buy me a coffee!
+          </a>
+        </div>
       </div>
     </div>
   );

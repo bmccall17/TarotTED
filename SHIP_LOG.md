@@ -6,6 +6,18 @@ A chronological record of major releases and feature deployments for TarotTALKS.
 
 ---
 
+## Pending for Next Release
+
+Features and changes staged for the next version:
+
+- **Read My Spread Button**: New button appears when 2+ cards are revealed, links to TarotTALKS Spread Reader GPT
+- **Spread Share Modal**: Mobile-friendly modal for copying spread data before opening GPT
+  - Mobile: Auto-copies spread text ("Aware Self: X, Supporting Shadow: Y, Emerging Path: Z")
+  - Desktop: Optional checkbox to copy text (for users who already took a screenshot)
+- **Files changed**: `components/ritual/CardCascade.tsx`, `components/ritual/SpreadShareModal.tsx` (new)
+
+---
+
 ## Recent Releases
 
 | Version | Title | Date |

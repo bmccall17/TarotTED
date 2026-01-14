@@ -52,22 +52,12 @@
 
  Non-Intrusiveness Requirement
 
- The "Draw New Cards" button is described as intrusive because it:
- - Uses prominent button styling (px-6 py-3, icon + text)
- - Appears with noticeable animation
- - Commands attention after ritual completion
-
- "Read My Spread" should be the opposite:
- - Styled as a subtle text link, not a button
+ "Read My Spread" should be unintrusive:
  - Uses muted gray color (text-gray-400) with gentle hover state
  - Positioned above the Draw New Cards button (or in a separate visual zone)
  - Appears with a fade-in only (no translate/slide)
  - Optional sparkle icon (✨) or subtle indicator
 
- Suggested styling:
- <button className="text-gray-400 hover:text-gray-200 text-sm transition-colors">
-   ✨ Read My Spread
- </button>
 
  ---
  Technical Architecture
