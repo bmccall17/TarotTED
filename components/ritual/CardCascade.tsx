@@ -395,7 +395,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-6 flex flex-col sm:flex-row items-center gap-3">
+      <div className="mt-6 flex flex-col items-center gap-3">
         {/* Read My Spread Button - appears when 2+ cards revealed */}
         <div
           className={`

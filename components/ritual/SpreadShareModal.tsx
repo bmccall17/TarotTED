@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { X, Copy, ExternalLink } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Copy, ExternalLink, Check } from 'lucide-react';
 
 const POSITION_LABELS = ['Aware Self', 'Supporting Shadow', 'Emerging Path'];
 const GPT_URL = 'https://chatgpt.com/g/g-6965a1a328ec8191bc976bd89d963972-tarottalks-spread-reader';
@@ -19,6 +19,18 @@ interface SpreadShareModalProps {
 
 export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareModalProps) {
   const [copied, setCopied] = useState(false);
+  const [copyEnabled, setCopyEnabled] = useState(true);
+  const [isMobile, setIsMobile] = useState(true); // Default to mobile behavior
+
+  // Detect mobile vs desktop
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Build the spread text from revealed cards in position order
   const getSpreadText = () => {
@@ -39,24 +51,26 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
 
   const spreadText = getSpreadText();
 
-  const handleCopyAndContinue = async () => {
-    try {
-      await navigator.clipboard.writeText(spreadText);
-      setCopied(true);
+  const handleContinue = async () => {
+    // On mobile, always copy. On desktop, only copy if checkbox is checked.
+    const shouldCopy = isMobile || copyEnabled;
 
-      // Open GPT in new tab
-      window.open(GPT_URL, '_blank', 'noopener,noreferrer');
-
-      // Close modal after a brief delay
-      setTimeout(() => {
-        onClose();
-      }, 300);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      // Still open GPT even if copy fails
-      window.open(GPT_URL, '_blank', 'noopener,noreferrer');
-      onClose();
+    if (shouldCopy) {
+      try {
+        await navigator.clipboard.writeText(spreadText);
+        setCopied(true);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+      }
     }
+
+    // Open GPT in new tab
+    window.open(GPT_URL, '_blank', 'noopener,noreferrer');
+
+    // Close modal after a brief delay
+    setTimeout(() => {
+      onClose();
+    }, 300);
   };
 
   return (
@@ -76,7 +90,9 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
         {/* Content */}
         <div className="p-4 space-y-4">
           <p className="text-sm text-gray-400">
-            Copy your spread below, then paste it into the GPT to get your reading.
+            {isMobile
+              ? 'Copy your spread below, then paste it into the GPT to get your reading.'
+              : 'Share your spread with the GPT to get your reading.'}
           </p>
 
           {/* Spread Text Box */}
@@ -85,6 +101,23 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
               {spreadText}
             </p>
           </div>
+
+          {/* Desktop: Copy checkbox */}
+          {!isMobile && (
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div
+                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                  copyEnabled
+                    ? 'bg-indigo-600 border-indigo-600'
+                    : 'border-gray-500 group-hover:border-gray-400'
+                }`}
+                onClick={() => setCopyEnabled(!copyEnabled)}
+              >
+                {copyEnabled && <Check className="w-3 h-3 text-white" />}
+              </div>
+              <span className="text-sm text-gray-300">Copy spread text to clipboard</span>
+            </label>
+          )}
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
@@ -95,7 +128,7 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
               Cancel
             </button>
             <button
-              onClick={handleCopyAndContinue}
+              onClick={handleContinue}
               className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               {copied ? (
@@ -103,10 +136,15 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
                   <Copy className="w-4 h-4" />
                   Copied!
                 </>
-              ) : (
+              ) : isMobile ? (
                 <>
                   <ExternalLink className="w-4 h-4" />
                   Copy & Continue
+                </>
+              ) : (
+                <>
+                  <ExternalLink className="w-4 h-4" />
+                  Continue to GPT
                 </>
               )}
             </button>
