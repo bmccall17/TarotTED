@@ -14,7 +14,9 @@ Features and changes staged for the next version:
 - **Spread Share Modal**: Mobile-friendly modal for copying spread data before opening GPT
   - Mobile: Auto-copies spread text ("Aware Self: X, Supporting Shadow: Y, Emerging Path: Z")
   - Desktop: Optional checkbox to copy text (for users who already took a screenshot)
-- **Files changed**: `components/ritual/CardCascade.tsx`, `components/ritual/SpreadShareModal.tsx` (new)
+- **Buy Me a Coffee**: Support message and button added to landing page bottom
+  - "Free forever. No ads. Help keep it alive..." with link to Buy Me a Coffee
+- **Files changed**: `app/page.tsx`, `components/ritual/CardCascade.tsx`, `components/ritual/SpreadShareModal.tsx` (new)
 
 ---
 
