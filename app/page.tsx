@@ -106,9 +106,8 @@ export default function HomePage() {
 */}
         {/* Reassurance Block */}
         <div className="text-center opacity-60 hover:opacity-100 transition-opacity duration-500">
-          <p className="text-gray-500 text-xs leading-relaxed">
-            Each tarot card is paired with <span style={{ fontFamily: 'Helvetica, Inter, Arial, sans-serif'}}><a href="https://www.ted.com/" target="_blank">TED</a></span> talks (and similar talks) that echo its wisdom.
-            <br />Draw a card above, or explore through the navigation below.\
+          <p className="text-gray-500 text-ms leading-relaxed">
+            Each tarot card is paired with <span style={{ fontFamily: 'Helvetica, Inter, Arial, sans-serif'}}><a href="https://www.ted.com/" target="_blank">TED</a></span> talks that echo its wisdom.
             <br /><br />
           </p>
         </div>
