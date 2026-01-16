@@ -61,7 +61,7 @@ export default function HomePage() {
       </div>
 
       {/* Scroll Indicator */}
-      <div className="relative z-10 flex justify-center mt-16 mb-8">
+{/*      <div className="relative z-10 flex justify-center mt-16 mb-8">
         <button
           onClick={() => {
             const belowFold = document.getElementById('below-fold');
@@ -73,7 +73,7 @@ export default function HomePage() {
           <ChevronDown className="w-6 h-6" />
         </button>
       </div>
-
+*/}
       {/* Below the Fold - De-emphasized Content */}
       <div
         id="below-fold"
