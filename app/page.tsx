@@ -116,13 +116,6 @@ export default function HomePage() {
             <br />This website is an independent project and is not affiliated with, sponsored by or endorsed by TED in any way.
           </p>
         </div>
-        <div className="text-center opacity-60 hover:opacity-100 transition-opacity duration-500">
-          <p className="text-gray-400 text-sm leading-relaxed mb-6">
-            You are here and you know exactly why.
-          </p>
-          <p className="text-gray-600 text-xs leading-relaxed">
-          </p>
-        </div>
 
         {/* Support Block */}
         <div className="text-center mt-16 opacity-60 hover:opacity-100 transition-opacity duration-500">
