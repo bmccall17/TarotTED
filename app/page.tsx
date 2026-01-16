@@ -112,14 +112,15 @@ export default function HomePage() {
           <p className="text-gray-500 text-xs leading-relaxed">
             Each tarot card is paired with <span style={{ fontFamily: 'Helvetica, Inter, Arial, sans-serif'}}><a href="https://www.ted.com/" target="_blank">TED</a></span> talks (and similar talks) that echo its wisdom.
             <br />Draw a card above, or explore through the navigation below.
+            <br />TED and TED Talks are registered trademarks of TED Conferences LLC. 
+            <br />This website is an independent project and is not affiliated with, sponsored by or endorsed by TED in any way.
           </p>
         </div>
         <div className="text-center opacity-60 hover:opacity-100 transition-opacity duration-500">
           <p className="text-gray-400 text-sm leading-relaxed mb-6">
             You are here and you know exactly why.
           </p>
-          <p className="text-gray-300 text-xs leading-relaxed">
-            TED and TED Talks are registered trademarks of TED Conferences LLC. This website is an independent project and is not affiliated with, sponsored by or endorsed by TED in any way.
+          <p className="text-gray-600 text-xs leading-relaxed">
           </p>
         </div>
 
