@@ -91,8 +91,8 @@ export function SpreadShareModal({ cards, revealedCards, onClose }: SpreadShareM
         <div className="p-4 space-y-4">
           <p className="text-sm text-gray-400">
             {isMobile
-              ? 'Copy your spread below, then paste it into the GPT to get your reading.'
-              : 'Share your spread with the GPT to get your reading.'}
+              ? 'Copy your spread below, then paste it into the GPT to get a single talk based on a reading for this spread.'
+              : 'Share your spread with the GPT to get a single talk based on a reading for this spread.'}
           </p>
 
           {/* Spread Text Box */}
