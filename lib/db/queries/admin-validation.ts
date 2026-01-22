@@ -99,6 +99,16 @@ export interface ValidationIssues {
     youtubeVideoId: string | null;
     thumbnailUrl: string | null;
   }>;
+  youtubeOnlyTalks: Array<{
+    id: string;
+    title: string;
+    speakerName: string;
+    slug: string;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+    youtubeVideoId: string | null;
+    thumbnailUrl: string | null;
+  }>;
 }
 
 /**
