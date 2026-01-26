@@ -16,6 +16,7 @@ Features and changes staged for the next version:
   - Desktop: Optional checkbox to copy text (for users who already took a screenshot)
 - **Buy Me a Coffee**: Support message and button added to landing page bottom
   - "Free forever. No ads. Help keep it alive..." with link to Buy Me a Coffee
+- **Linktree Icon**: Added standalone SVG icon for external profile links (`public/linktree-icon.svg`)
 - **Files changed**: `app/page.tsx`, `components/ritual/CardCascade.tsx`, `components/ritual/SpreadShareModal.tsx` (new)
 
 ---
