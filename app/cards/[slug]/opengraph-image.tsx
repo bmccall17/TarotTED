@@ -8,22 +8,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'TarotTALKS Card';
 
-// Background style options - change this to switch between styles
-// Options: 'gradient' | 'solid' | 'starfield'
-const BACKGROUND_STYLE: 'gradient' | 'solid' | 'starfield' = 'gradient';
-
-function getBackground(style: 'gradient' | 'solid' | 'starfield') {
-  switch (style) {
-    case 'solid':
-      return '#1a1a2e';
-    case 'gradient':
-    case 'starfield':
-    default:
-      return 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)';
-  }
-}
-
-// SVG sparkle for starfield effect
+// Sparkle component for starfield effect
 function Sparkle({ x, y, size, opacity }: { x: number; y: number; size: number; opacity: number }) {
   return (
     <div
@@ -46,7 +31,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const card = await getCardBySlug(slug);
 
   if (!card) {
-    // Return a fallback image for missing cards
     return new ImageResponse(
       (
         <div
@@ -76,10 +60,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     ? card.imageUrl
     : `https://tarottalks.app${card.imageUrl}`;
 
-  const background = getBackground(BACKGROUND_STYLE);
+  // Truncate summary for display
+  const truncatedSummary = card.summary && card.summary.length > 120
+    ? card.summary.slice(0, 117) + '...'
+    : card.summary;
 
   // Sparkle positions for starfield effect
-  const sparkles = BACKGROUND_STYLE === 'starfield' ? [
+  const sparkles = [
     { x: 50, y: 80, size: 4, opacity: 0.8 },
     { x: 150, y: 150, size: 3, opacity: 0.6 },
     { x: 80, y: 350, size: 5, opacity: 0.7 },
@@ -92,7 +79,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     { x: 1050, y: 100, size: 4, opacity: 0.7 },
     { x: 1100, y: 300, size: 3, opacity: 0.5 },
     { x: 1130, y: 500, size: 5, opacity: 0.6 },
-  ] : [];
+  ];
 
   return new ImageResponse(
     (
@@ -101,7 +88,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           width: '100%',
           height: '100%',
           display: 'flex',
-          background,
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
           padding: 50,
           position: 'relative',
         }}
@@ -111,7 +98,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <Sparkle key={i} {...sparkle} />
         ))}
 
-        {/* Left side: Branding + Card Name + Keywords */}
+        {/* Left side: Branding + Card Name + Summary + Keywords */}
         <div
           style={{
             flex: 1,
@@ -146,16 +133,31 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div
             style={{
               color: '#ffffff',
-              fontSize: 64,
+              fontSize: 52,
               fontWeight: 700,
               lineHeight: 1.1,
-              marginBottom: 24,
+              marginBottom: 16,
               textTransform: 'uppercase',
               letterSpacing: '-0.02em',
             }}
           >
             {card.name}
           </div>
+
+          {/* Summary */}
+          {truncatedSummary && (
+            <div
+              style={{
+                color: '#d1d5db',
+                fontSize: 20,
+                lineHeight: 1.4,
+                marginBottom: 20,
+                maxWidth: 500,
+              }}
+            >
+              {truncatedSummary}
+            </div>
+          )}
 
           {/* Keywords */}
           <div
@@ -173,7 +175,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                   color: '#a5b4fc',
                   padding: '10px 20px',
                   borderRadius: 24,
-                  fontSize: 22,
+                  fontSize: 18,
                   border: '1px solid rgba(99, 102, 241, 0.4)',
                 }}
               >
@@ -183,10 +185,11 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
         </div>
 
-        {/* Right side: Card Image */}
+        {/* Right side: Card Image - full card, no cropping */}
         <div
           style={{
-            width: 320,
+            width: 340,
+            height: 530,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -197,9 +200,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             src={cardImageUrl}
             alt={card.name}
             style={{
-              width: 280,
-              height: 'auto',
-              maxHeight: 530,
+              maxWidth: '100%',
+              maxHeight: '100%',
               borderRadius: 16,
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
               objectFit: 'contain',
