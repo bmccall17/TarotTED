@@ -56,10 +56,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
     },
     twitter: {
-      card: 'summary',  // Use 'summary' for portrait tarot card images (works better than summary_large_image)
+      card: 'summary_large_image',  // Use branded horizontal OG images via twitter-image.tsx
       title: `${card.name} - TarotTALKS`,
       description,
-      images: [cardImageUrl],
+      // Image is automatically handled by twitter-image.tsx
     },
     keywords: [card.name, 'tarot', 'TED talks', 'TarotTALKS', ...keywords],
   };
