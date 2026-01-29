@@ -2,19 +2,39 @@
 
 ## ✅ IMPLEMENTED - Jan 29, 2026
 
+### Session Summary
+Implemented a zero-cost first-party analytics pipeline for tracking user engagement on the landing page ritual experience. The system tracks card flips, spread readiness, and conversions using Vercel Postgres with batched event ingestion.
+
 ### Files Created
-- `lib/db/schema.ts` - Added `behaviorEvents` table
-- `app/api/events/route.ts` - Event ingestion endpoint (rate-limited)
-- `lib/hooks/useAnalytics.ts` - Client-side hook with batching
+- `lib/db/schema.ts` - Added `behaviorEvents` table with indexes
+- `app/api/events/route.ts` - Event ingestion endpoint (rate-limited, 30 req/min)
+- `lib/hooks/useAnalytics.ts` - Client-side hook with batching (5s or 5 events)
 - `lib/db/queries/admin-behavior.ts` - Dashboard query functions
 - `app/api/admin/behavior/route.ts` - Admin API endpoint
-- `app/admin/behavior/page.tsx` - Dashboard UI
-- `scripts/create-behavior-events-table.ts` - DB migration script
+- `app/admin/behavior/page.tsx` - Dashboard UI with metrics cards and charts
+- `scripts/create-behavior-events-table.ts` - DB migration script (workaround for drizzle-kit bug)
+- `lib/db/migrations/0003_amazing_bruce_banner.sql` - Generated migration
 
 ### Files Modified
-- `components/ritual/CardCascade.tsx` - Added tracking calls
-- `components/ritual/RitualCard.tsx` - Added tracking callbacks
-- `components/admin/ui/AdminNav.tsx` - Added Behavior link
+- `components/ritual/CardCascade.tsx` - Added tracking calls for card_flip, spread_ready, read_spread_click
+- `components/ritual/RitualCard.tsx` - Added tracking callbacks for talk_click, card_detail_click
+- `components/admin/ui/AdminNav.tsx` - Added Analytics section with Behavior link
+
+### Events Tracked
+- `session_start` - New session begins
+- `card_flip` - User reveals a card
+- `spread_ready` - 2+ cards revealed (once per session)
+- `read_spread_click` - "Read My Spread" button clicked
+- `talk_click` - User clicks talk dock
+- `card_detail_click` - User clicks revealed card
+
+### Dashboard Metrics
+- Total sessions and bounce rate
+- Time to first flip
+- Flip distribution (0/1/2/3+ cards)
+- Landing funnel with dropoff
+- Read My Spread CTR
+- Device breakdown (mobile/desktop)
 
 ---
 
