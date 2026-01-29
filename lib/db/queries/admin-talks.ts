@@ -30,6 +30,8 @@ export async function getAllTalksForAdmin(includeDeleted: boolean = false) {
       year: talks.year,
       thumbnailUrl: talks.thumbnailUrl,
       language: talks.language,
+      speakerTwitterHandle: talks.speakerTwitterHandle,
+      speakerBlueskyHandle: talks.speakerBlueskyHandle,
       isDeleted: talks.isDeleted,
       deletedAt: talks.deletedAt,
       createdAt: talks.createdAt,
@@ -136,6 +138,8 @@ export async function searchTalksForAdmin(query: string, includeDeleted: boolean
       thumbnailUrl: talks.thumbnailUrl,
       year: talks.year,
       isDeleted: talks.isDeleted,
+      speakerTwitterHandle: talks.speakerTwitterHandle,
+      speakerBlueskyHandle: talks.speakerBlueskyHandle,
     })
     .from(talks)
     .where(whereClause)

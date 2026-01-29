@@ -109,6 +109,16 @@ export interface ValidationIssues {
     youtubeVideoId: string | null;
     thumbnailUrl: string | null;
   }>;
+  missingSocialHandles: Array<{
+    id: string;
+    title: string;
+    speakerName: string;
+    slug: string;
+    speakerTwitterHandle: string | null;
+    speakerBlueskyHandle: string | null;
+    tedUrl: string | null;
+    youtubeUrl: string | null;
+  }>;
 }
 
 /**
@@ -126,6 +136,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
   const mappingsMissingLongRationale = await getMappingsMissingLongRationale();
   const softDeletedTalks = await getSoftDeletedTalks();
   const youtubeOnlyTalks = await getYoutubeOnlyTalks();
+  const missingSocialHandles = await getMissingSocialHandles();
 
   return {
     duplicateYoutubeIds,
@@ -138,6 +149,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
     mappingsMissingLongRationale,
     softDeletedTalks,
     youtubeOnlyTalks,
+    missingSocialHandles,
   };
 }
 
@@ -439,6 +451,34 @@ async function getYoutubeOnlyTalks() {
 }
 
 /**
+ * Get talks missing social media handles (Tag Pack)
+ */
+async function getMissingSocialHandles() {
+  return await db
+    .select({
+      id: talks.id,
+      title: talks.title,
+      speakerName: talks.speakerName,
+      slug: talks.slug,
+      speakerTwitterHandle: talks.speakerTwitterHandle,
+      speakerBlueskyHandle: talks.speakerBlueskyHandle,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+    })
+    .from(talks)
+    .where(
+      and(
+        eq(talks.isDeleted, false),
+        or(
+          isNull(talks.speakerTwitterHandle),
+          isNull(talks.speakerBlueskyHandle)
+        )
+      )
+    )
+    .orderBy(talks.speakerName);
+}
+
+/**
  * Get validation summary counts
  */
 export async function getValidationSummary() {
@@ -455,7 +495,7 @@ export async function getValidationSummary() {
       issues.cardsWithoutPrimaryMapping.length +
       issues.talksNotMappedToAnyCard.length +
       issues.mappingsMissingLongRationale.length,
-    info: issues.softDeletedTalks.length,
+    info: issues.softDeletedTalks.length + issues.missingSocialHandles.length,
     total:
       issues.duplicateYoutubeIds.length +
       issues.missingBothUrls.length +
@@ -465,7 +505,8 @@ export async function getValidationSummary() {
       issues.cardsWithoutPrimaryMapping.length +
       issues.talksNotMappedToAnyCard.length +
       issues.mappingsMissingLongRationale.length +
-      issues.softDeletedTalks.length,
+      issues.softDeletedTalks.length +
+      issues.missingSocialHandles.length,
     details: {
       duplicateYoutubeIds: issues.duplicateYoutubeIds.length,
       missingBothUrls: issues.missingBothUrls.length,
@@ -476,6 +517,7 @@ export async function getValidationSummary() {
       talksNotMappedToAnyCard: issues.talksNotMappedToAnyCard.length,
       mappingsMissingLongRationale: issues.mappingsMissingLongRationale.length,
       softDeletedTalks: issues.softDeletedTalks.length,
+      missingSocialHandles: issues.missingSocialHandles.length,
     },
   };
 }

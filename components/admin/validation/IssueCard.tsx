@@ -12,7 +12,8 @@ type IssueType =
   | 'cardNoPrimary'
   | 'unmappedTalk'
   | 'missingLongRationale'
-  | 'softDeleted';
+  | 'softDeleted'
+  | 'missingSocialHandles';
 
 type DuplicateYoutubeData = {
   youtubeVideoId: string;
@@ -30,6 +31,8 @@ type TalkData = {
   tedUrl?: string | null;
   youtubeVideoId?: string | null;
   deletedAt?: Date | null;
+  speakerTwitterHandle?: string | null;
+  speakerBlueskyHandle?: string | null;
 };
 
 type CardData = {
@@ -142,7 +145,8 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
     type === 'externalThumbnail' ||
     type === 'shortDescription' ||
     type === 'unmappedTalk' ||
-    type === 'softDeleted'
+    type === 'softDeleted' ||
+    type === 'missingSocialHandles'
   ) {
     const item = data as TalkData;
 
@@ -163,6 +167,8 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
           return 'Add Mapping';
         case 'softDeleted':
           return 'Restore';
+        case 'missingSocialHandles':
+          return 'Add Handles';
         default:
           return 'Fix';
       }
@@ -201,6 +207,11 @@ export function IssueCard({ type, data, onFix, isFixed, isFixing }: Props) {
             {type === 'softDeleted' && item.deletedAt && (
               <p className="text-xs text-gray-500 mt-1">
                 Deleted: {new Date(item.deletedAt).toLocaleDateString()}
+              </p>
+            )}
+            {type === 'missingSocialHandles' && (
+              <p className="text-xs text-gray-500 mt-1">
+                Missing: {!item.speakerTwitterHandle && !item.speakerBlueskyHandle ? 'Both' : !item.speakerTwitterHandle ? 'X/Twitter' : 'Bluesky'}
               </p>
             )}
           </div>

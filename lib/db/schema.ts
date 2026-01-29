@@ -43,6 +43,9 @@ export const talks = pgTable('talks', {
   year: integer('year'),
   thumbnailUrl: text('thumbnail_url'),
   language: varchar('language', { length: 10 }),
+  // Social Media Handles (Tag Pack)
+  speakerTwitterHandle: varchar('speaker_twitter_handle', { length: 50 }),
+  speakerBlueskyHandle: varchar('speaker_bluesky_handle', { length: 100 }),
   isDeleted: boolean('is_deleted').default(false).notNull(),
   deletedAt: timestamp('deleted_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),

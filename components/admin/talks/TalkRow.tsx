@@ -26,6 +26,8 @@ type Talk = {
   year: number | null;
   isDeleted: boolean;
   mappings: Mapping[];
+  speakerTwitterHandle?: string | null;
+  speakerBlueskyHandle?: string | null;
 };
 
 type Props = {
@@ -141,9 +143,28 @@ export function TalkRow({ talk, onDeleted, onRestored, onHardDeleted }: Props) {
           </div>
         </td>
         <td className="px-6 py-4">
-          <p className={talk.isDeleted ? 'text-gray-500' : 'text-gray-300'}>
-            {talk.speakerName}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className={talk.isDeleted ? 'text-gray-500' : 'text-gray-300'}>
+              {talk.speakerName}
+            </p>
+            {/* Social Handle Indicators */}
+            {(talk.speakerTwitterHandle || talk.speakerBlueskyHandle) && (
+              <div className="flex items-center gap-1">
+                {talk.speakerTwitterHandle && (
+                  <span
+                    className="w-2 h-2 rounded-full bg-blue-400"
+                    title={`X: @${talk.speakerTwitterHandle}`}
+                  />
+                )}
+                {talk.speakerBlueskyHandle && (
+                  <span
+                    className="w-2 h-2 rounded-full bg-sky-400"
+                    title={`Bluesky: @${talk.speakerBlueskyHandle}`}
+                  />
+                )}
+              </div>
+            )}
+          </div>
         </td>
         <td className="px-6 py-4">
           <p className="text-gray-400 text-sm">

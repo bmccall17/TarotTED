@@ -12,6 +12,7 @@ import {
   ChevronDown,
   ChevronRight,
   RefreshCw,
+  AtSign,
 } from 'lucide-react';
 import { IssueCard } from './IssueCard';
 import { Toast } from '../ui/Toast';
@@ -111,6 +112,16 @@ type ValidationIssues = {
     youtubeVideoId?: string | null;
     thumbnailUrl?: string | null;
   }>;
+  missingSocialHandles: Array<{
+    id: string;
+    title: string;
+    speakerName: string;
+    slug: string;
+    speakerTwitterHandle: string | null;
+    speakerBlueskyHandle: string | null;
+    tedUrl?: string | null;
+    youtubeUrl?: string | null;
+  }>;
 };
 
 type Props = {
@@ -128,7 +139,8 @@ type IssueType =
   | 'cardNoPrimary'
   | 'unmappedTalk'
   | 'missingLongRationale'
-  | 'softDeleted';
+  | 'softDeleted'
+  | 'missingSocialHandles';
 
 export function ValidationDashboard({ initialIssues }: Props) {
   const [issues, setIssues] = useState<ValidationIssues>(initialIssues);
@@ -142,6 +154,7 @@ export function ValidationDashboard({ initialIssues }: Props) {
     talksNotMappedToAnyCard: false,
     mappingsMissingLongRationale: true,
     softDeletedTalks: false,
+    missingSocialHandles: false,
   });
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -257,6 +270,11 @@ export function ValidationDashboard({ initialIssues }: Props) {
     softDeletedTalks: {
       title: 'Soft-Deleted Talks',
       icon: <Trash2 className="w-5 h-5" />,
+      severity: 'info',
+    },
+    missingSocialHandles: {
+      title: 'Missing Social Handles (Tag Pack)',
+      icon: <AtSign className="w-5 h-5" />,
       severity: 'info',
     },
   };
@@ -437,6 +455,21 @@ export function ValidationDashboard({ initialIssues }: Props) {
                   />
                 );
               })}
+
+            {key === 'missingSocialHandles' &&
+              issues.missingSocialHandles.map((item) => {
+                const issueId = getIssueId('missingSocialHandles', item);
+                return (
+                  <IssueCard
+                    key={item.id}
+                    type="missingSocialHandles"
+                    data={item}
+                    onFix={handleFix}
+                    isFixed={fixedIssues.has(issueId)}
+                    isFixing={fixingId === issueId}
+                  />
+                );
+              })}
           </div>
         )}
       </div>
@@ -526,13 +559,16 @@ export function ValidationDashboard({ initialIssues }: Props) {
           )}
 
           {/* Info Items */}
-          {issues.softDeletedTalks.length > 0 && (
+          {(issues.softDeletedTalks.length > 0 || issues.missingSocialHandles.length > 0) && (
             <div>
               <h2 className="text-sm font-medium text-blue-400 mb-3 flex items-center gap-2">
-                <Trash2 className="w-4 h-4" />
+                <AtSign className="w-4 h-4" />
                 Info Items
               </h2>
-              <div className="space-y-4">{renderSection('softDeletedTalks')}</div>
+              <div className="space-y-4">
+                {renderSection('softDeletedTalks')}
+                {renderSection('missingSocialHandles')}
+              </div>
             </div>
           )}
         </div>
