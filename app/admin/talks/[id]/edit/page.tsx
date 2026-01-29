@@ -26,6 +26,8 @@ export default async function EditTalkPage({ params }: { params: Promise<{ id: s
         eventName: talk.eventName || '',
         thumbnailUrl: talk.thumbnailUrl || '',
         language: talk.language || 'en',
+        speakerTwitterHandle: talk.speakerTwitterHandle || '',
+        speakerBlueskyHandle: talk.speakerBlueskyHandle || '',
       }}
       mappings={talk.mappings}
     />
