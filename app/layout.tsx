@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     siteName: 'TarotTALKS',
     images: [
       {
-        url: '/applicationhero.png',
-        width: 745,
-        height: 642,
+        url: 'https://tarottalks.app/opengraph-image.png',
+        width: 1200,
+        height: 630,
         alt: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
       },
     ],
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TarotTALKS - Tarot Cards Mapped to TED Talks',
     description: 'Discover TED talks through the wisdom of Tarot. Explore the intersection of ancient archetypes and modern insights.',
-    images: ['/applicationhero.png'],
+    images: ['https://tarottalks.app/opengraph-image.png'],
   },
   appleWebApp: {
     capable: true,

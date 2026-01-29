@@ -38,9 +38,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: 'TarotTALKS',
       images: [
         {
-          url: '/applicationhero.png',
-          width: 745,
-          height: 642,
+          url: 'https://tarottalks.app/opengraph-image.png',
+          width: 1200,
+          height: 630,
           alt: `${theme.name} Theme - TarotTALKS`,
         },
       ],
@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: 'summary_large_image',
       title: `${theme.name} - TarotTALKS`,
       description,
-      images: ['/applicationhero.png'],
+      images: ['https://tarottalks.app/opengraph-image.png'],
     },
   };
 }

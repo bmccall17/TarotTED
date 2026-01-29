@@ -31,6 +31,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const keywords = card.keywords ? JSON.parse(card.keywords) : [];
   const description = card.summary || `Explore the ${card.name} tarot card and discover TED talks that embody its wisdom.`;
 
+  // Use absolute URL for card image
+  const cardImageUrl = card.imageUrl.startsWith('http')
+    ? card.imageUrl
+    : `https://tarottalks.app${card.imageUrl}`;
+
   return {
     title: `${card.name} - TarotTALKS`,
     description,
@@ -41,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: 'TarotTALKS',
       images: [
         {
-          url: card.imageUrl,
+          url: cardImageUrl,
           width: 400,
           height: 560,
           alt: `${card.name} Tarot Card`,
@@ -51,10 +56,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       type: 'article',
     },
     twitter: {
-      card: 'summary_large_image',
+      card: 'summary',  // Use 'summary' for portrait tarot card images (works better than summary_large_image)
       title: `${card.name} - TarotTALKS`,
       description,
-      images: [card.imageUrl],
+      images: [cardImageUrl],
     },
     keywords: [card.name, 'tarot', 'TED talks', 'TarotTALKS', ...keywords],
   };

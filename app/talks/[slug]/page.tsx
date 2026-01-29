@@ -30,8 +30,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = talk.description || `A TED talk by ${talk.speakerName}`;
   const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId);
 
-  // Use a high-quality YouTube thumbnail if available, fallback to stored thumbnail
-  const ogImageUrl = thumbnailUrl || '/applicationhero.png';
+  // Use a high-quality YouTube thumbnail if available, fallback to site OG image (with absolute URL)
+  const ogImageUrl = thumbnailUrl || 'https://tarottalks.app/opengraph-image.png';
+
+  // Determine image dimensions based on source
+  const imageWidth = thumbnailUrl ? 1280 : 1200;
+  const imageHeight = thumbnailUrl ? 720 : 630;
 
   return {
     title: `${talk.title} - TarotTALKS`,
@@ -44,8 +48,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: [
         {
           url: ogImageUrl,
-          width: 1280,
-          height: 720,
+          width: imageWidth,
+          height: imageHeight,
           alt: `${talk.title} by ${talk.speakerName}`,
         },
       ],
