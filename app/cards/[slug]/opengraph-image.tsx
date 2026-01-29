@@ -6,90 +6,15 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'TarotTALKS Card';
 
-// Sparkle component for starfield effect
-function Sparkle({ x, y, starSize, opacity }: { x: number; y: number; starSize: number; opacity: number }) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: x,
-        top: y,
-        width: starSize,
-        height: starSize,
-        background: `rgba(255, 255, 255, ${opacity})`,
-        borderRadius: '50%',
-        boxShadow: `0 0 ${starSize * 2}px ${starSize}px rgba(255, 255, 255, ${opacity * 0.5})`,
-      }}
-    />
-  );
-}
-
-// Generate unique sparkles using current time as seed
-function generateSparkles() {
-  let seed = Date.now();
-
-  // Seeded random function
-  const seededRandom = () => {
-    seed = (seed * 9301 + 49297) % 233280;
-    return seed / 233280;
-  };
-
-  // Generate 12-15 sparkles with random positions
-  const count = 12 + Math.floor(seededRandom() * 4);
-  const sparkles = [];
-
-  for (let i = 0; i < count; i++) {
-    sparkles.push({
-      x: Math.floor(seededRandom() * 1150) + 25,
-      y: Math.floor(seededRandom() * 580) + 25,
-      starSize: Math.floor(seededRandom() * 3) + 3,
-      opacity: 0.4 + seededRandom() * 0.5,
-    });
-  }
-
-  return sparkles;
-}
-
-// Load OpenDyslexic font
-async function loadFonts() {
-  const baseUrl = 'https://tarottalks.app';
-  try {
-    const [regularRes, boldRes] = await Promise.all([
-      fetch(`${baseUrl}/fonts/OpenDyslexic-Regular.woff`),
-      fetch(`${baseUrl}/fonts/OpenDyslexic-Bold.woff`),
-    ]);
-
-    if (!regularRes.ok || !boldRes.ok) {
-      return null;
-    }
-
-    return {
-      regular: await regularRes.arrayBuffer(),
-      bold: await boldRes.arrayBuffer(),
-    };
-  } catch {
-    return null;
-  }
-}
-
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // Load fonts and card data in parallel
-  const [fonts, cardData] = await Promise.all([
-    loadFonts(),
-    getCardWithMappings(slug),
-  ]);
-
-  const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
-  const fontOptions = fonts
-    ? {
-        fonts: [
-          { name: 'OpenDyslexic', data: fonts.regular, weight: 400 as const },
-          { name: 'OpenDyslexic', data: fonts.bold, weight: 700 as const },
-        ],
-      }
-    : {};
+  let cardData = null;
+  try {
+    cardData = await getCardWithMappings(slug);
+  } catch (error) {
+    console.error('Error fetching card data:', error);
+  }
 
   if (!cardData) {
     return new ImageResponse(
@@ -104,13 +29,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             color: 'white',
             fontSize: 48,
-            fontFamily,
+            fontFamily: 'system-ui, sans-serif',
           }}
         >
-          Card Not Found
+          Card Not Found: {slug}
         </div>
       ),
-      { ...size, ...fontOptions }
+      { ...size }
     );
   }
 
@@ -131,13 +56,28 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     ? `https://tarottalks.app${primaryTalk.thumbnailUrl}`
     : null;
 
-  // Full summary
   const fullSummary = cardData.summary || '';
 
-  // Truncate talk title if very long
   const truncatedTalkTitle = primaryTalk?.title && primaryTalk.title.length > 55
     ? primaryTalk.title.slice(0, 52) + '...'
     : primaryTalk?.title;
+
+  // Generate sparkles with inline calculation
+  const sparkles: Array<{ x: number; y: number; s: number; o: number }> = [];
+  let seed = Date.now();
+  const random = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+  const sparkleCount = 12 + Math.floor(random() * 4);
+  for (let i = 0; i < sparkleCount; i++) {
+    sparkles.push({
+      x: Math.floor(random() * 1150) + 25,
+      y: Math.floor(random() * 580) + 25,
+      s: Math.floor(random() * 3) + 3,
+      o: 0.4 + random() * 0.5,
+    });
+  }
 
   return new ImageResponse(
     (
@@ -148,16 +88,28 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           display: 'flex',
           background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
           padding: 36,
-          paddingBottom: 80, // Safe buffer for platform overlays
+          paddingBottom: 80,
           position: 'relative',
-          fontFamily,
+          fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {generateSparkles().map((s, i) => (
-          <Sparkle key={i} x={s.x} y={s.y} starSize={s.starSize} opacity={s.opacity} />
+        {/* Sparkles */}
+        {sparkles.map((sp, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              left: sp.x,
+              top: sp.y,
+              width: sp.s,
+              height: sp.s,
+              background: `rgba(255, 255, 255, ${sp.o})`,
+              borderRadius: '50%',
+            }}
+          />
         ))}
 
-        {/* Left: Brand + Talk */}
+        {/* Left Column: Brand + Talk */}
         <div
           style={{
             display: 'flex',
@@ -166,25 +118,23 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             width: 320,
           }}
         >
-          {/* Brand - top left (baseline aligned) */}
-          <div style={{ fontSize: 32, lineHeight: 1 }}>
-            <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
-            <span style={{ color: '#EB0028', fontWeight: 700, position: 'relative', top: -1 }}>TALKS</span>
+          {/* Brand */}
+          <div style={{ display: 'flex', fontSize: 32 }}>
+            <span style={{ color: '#9ca3af' }}>Tarot</span>
+            <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
           </div>
 
-          {/* Talk - bottom left (with buffer for overlay) */}
+          {/* Talk */}
           {primaryTalk && talkThumbnailUrl && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={talkThumbnailUrl}
                 alt=""
+                width={300}
+                height={150}
                 style={{
-                  width: 300,
-                  height: 150,
                   borderRadius: 12,
                   objectFit: 'cover',
-                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
                 }}
               />
               <div
@@ -192,7 +142,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                   color: '#ffffff',
                   fontSize: 20,
                   fontWeight: 700,
-                  lineHeight: 1.2,
                   marginTop: 10,
                   maxWidth: 300,
                 }}
@@ -206,7 +155,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           )}
         </div>
 
-        {/* Right: Content + Card */}
+        {/* Right Column: Content + Card */}
         <div
           style={{
             flex: 1,
@@ -214,7 +163,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             paddingLeft: 24,
           }}
         >
-          {/* Text - right justified, vertically centered */}
+          {/* Text Content */}
           <div
             style={{
               flex: 1,
@@ -222,7 +171,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'flex-end',
-              textAlign: 'right',
               paddingRight: 20,
             }}
           >
@@ -232,7 +180,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 color: '#ffffff',
                 fontSize: 48,
                 fontWeight: 700,
-                lineHeight: 1.1,
                 marginBottom: 14,
                 textTransform: 'uppercase',
               }}
@@ -240,14 +187,14 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               {cardData.name}
             </div>
 
-            {/* Full Summary */}
+            {/* Summary */}
             <div
               style={{
                 color: '#d1d5db',
                 fontSize: 20,
-                lineHeight: 1.4,
                 marginBottom: 16,
                 maxWidth: 420,
+                textAlign: 'right',
               }}
             >
               {fullSummary}
@@ -264,7 +211,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                     padding: '8px 16px',
                     borderRadius: 20,
                     fontSize: 16,
-                    border: '1px solid rgba(99, 102, 241, 0.4)',
                   }}
                 >
                   {keyword}
@@ -283,15 +229,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               justifyContent: 'center',
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={cardImageUrl}
               alt={cardData.name}
+              width={260}
+              height={514}
               style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
                 borderRadius: 14,
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
                 objectFit: 'contain',
               }}
             />
@@ -299,6 +243,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size, ...fontOptions }
+    { ...size }
   );
 }
