@@ -24,14 +24,9 @@ function Sparkle({ x, y, size, opacity }: { x: number; y: number; size: number; 
   );
 }
 
-// Generate unique sparkles based on card slug
-function generateSparkles(slug: string) {
-  // Simple hash function to create seed from slug
-  let seed = 0;
-  for (let i = 0; i < slug.length; i++) {
-    seed = ((seed << 5) - seed) + slug.charCodeAt(i);
-    seed = seed & seed;
-  }
+// Generate unique sparkles using current time as seed
+function generateSparkles() {
+  let seed = Date.now();
 
   // Seeded random function
   const seededRandom = () => {
@@ -158,7 +153,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           fontFamily,
         }}
       >
-        {generateSparkles(slug).map((sparkle, i) => (
+        {generateSparkles().map((sparkle, i) => (
           <Sparkle key={i} {...sparkle} />
         ))}
 

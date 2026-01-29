@@ -39,7 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       description,
       url: `https://tarottalks.app/cards/${card.slug}`,
       siteName: 'TarotTALKS',
-      // Images automatically handled by opengraph-image.tsx (1200x630 branded layout)
+      images: [{
+        url: `https://tarottalks.app/cards/${card.slug}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: `${card.name} - TarotTALKS`,
+      }],
       locale: 'en_US',
       type: 'article',
     },
@@ -47,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       card: 'summary_large_image',
       title: `${card.name} - TarotTALKS`,
       description,
-      // Image automatically handled by twitter-image.tsx
+      images: [`https://tarottalks.app/cards/${card.slug}/twitter-image`],
     },
     keywords: [card.name, 'tarot', 'TED talks', 'TarotTALKS', ...keywords],
   };
