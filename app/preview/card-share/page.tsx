@@ -46,13 +46,13 @@ const sparkles = [
   { x: 1130, y: 500, size: 5, opacity: 0.6 },
 ];
 
-// Brand component
+// Brand component - fixed baseline alignment using single text block
 function Brand({ fontSize = 32 }: { fontSize?: number }) {
   return (
-    <div className="flex items-end" style={{ lineHeight: 1 }}>
-      <span style={{ color: '#9ca3af', fontWeight: 400, fontSize }}>Tarot</span>
-      <span style={{ color: '#EB0028', fontWeight: 700, fontSize }}>TALKS</span>
-    </div>
+    <p style={{ fontSize, lineHeight: 1, margin: 0 }}>
+      <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
+      <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
+    </p>
   );
 }
 
@@ -96,8 +96,8 @@ function LayoutA1({ card }: { card: CardData }) {
           <Brand fontSize={28} />
         </div>
         <div className="flex flex-1">
-          {/* Text - right justified */}
-          <div className="flex-1 flex flex-col justify-center items-end text-right pr-5">
+          {/* Text - right justified, top aligned */}
+          <div className="flex-1 flex flex-col justify-start items-end text-right pr-5">
             <div className="text-white font-bold uppercase" style={{ fontSize: 48, lineHeight: 1.1, marginBottom: 14 }}>
               {card.name}
             </div>
