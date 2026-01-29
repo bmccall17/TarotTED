@@ -56,21 +56,46 @@ const sparkles = [
   { x: 1130, y: 500, size: 5, opacity: 0.6 },
 ];
 
+// Font loading helper
+async function loadFonts() {
+  const baseUrl = 'https://tarottalks.app';
+  const [regularRes, boldRes] = await Promise.all([
+    fetch(`${baseUrl}/fonts/OpenDyslexic-Regular.woff`),
+    fetch(`${baseUrl}/fonts/OpenDyslexic-Bold.woff`),
+  ]);
+
+  if (!regularRes.ok || !boldRes.ok) {
+    throw new Error('Failed to load fonts');
+  }
+
+  return {
+    regular: await regularRes.arrayBuffer(),
+    bold: await boldRes.arrayBuffer(),
+  };
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get('slug') || 'the-fool';
   const layout = searchParams.get('layout') || 'a1';
 
-  // Load OpenDyslexic font
-  const fontRegular = await fetch(
-    new URL('/fonts/OpenDyslexic-Regular.woff', 'https://tarottalks.app')
-  ).then((res) => res.arrayBuffer());
+  // Load fonts and card data in parallel
+  const [fonts, cardData] = await Promise.all([
+    loadFonts().catch(() => null),
+    getCardWithMappings(slug),
+  ]);
 
-  const fontBold = await fetch(
-    new URL('/fonts/OpenDyslexic-Bold.woff', 'https://tarottalks.app')
-  ).then((res) => res.arrayBuffer());
+  // Font options - use OpenDyslexic if loaded, otherwise no custom fonts
+  const fontOptions = fonts
+    ? {
+        fonts: [
+          { name: 'OpenDyslexic', data: fonts.regular, weight: 400 as const },
+          { name: 'OpenDyslexic', data: fonts.bold, weight: 700 as const },
+        ],
+      }
+    : {};
 
-  const cardData = await getCardWithMappings(slug);
+  const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
 
   if (!cardData) {
     return new ImageResponse(
@@ -85,19 +110,13 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             color: 'white',
             fontSize: 48,
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           Card Not Found: {slug}
         </div>
       ),
-      {
-        ...size,
-        fonts: [
-          { name: 'OpenDyslexic', data: fontRegular, weight: 400 },
-          { name: 'OpenDyslexic', data: fontBold, weight: 700 },
-        ],
-      }
+      { ...size, ...fontOptions }
     );
   }
 
@@ -126,13 +145,6 @@ export async function GET(request: NextRequest) {
     ? primaryTalk.title.slice(0, 52) + '...'
     : primaryTalk?.title;
 
-  const fontOptions = {
-    fonts: [
-      { name: 'OpenDyslexic', data: fontRegular, weight: 400 as const },
-      { name: 'OpenDyslexic', data: fontBold, weight: 700 as const },
-    ],
-  };
-
   // ============================================
   // LAYOUT A1: Brand TOP-LEFT, content right-justified
   // ============================================
@@ -147,7 +159,7 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 36,
             position: 'relative',
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           {sparkles.map((sparkle, i) => (
@@ -315,7 +327,7 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 36,
             position: 'relative',
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           {sparkles.map((sparkle, i) => (
@@ -491,7 +503,7 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 36,
             position: 'relative',
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           {sparkles.map((sparkle, i) => (
@@ -652,7 +664,7 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 36,
             position: 'relative',
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           {sparkles.map((sparkle, i) => (
@@ -836,7 +848,7 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 36,
             position: 'relative',
-            fontFamily: 'OpenDyslexic',
+            fontFamily,
           }}
         >
           {sparkles.map((sparkle, i) => (
@@ -1031,7 +1043,7 @@ export async function GET(request: NextRequest) {
           background: '#1e1b4b',
           color: 'white',
           fontSize: 28,
-          fontFamily: 'OpenDyslexic',
+          fontFamily,
           gap: 20,
         }}
       >
