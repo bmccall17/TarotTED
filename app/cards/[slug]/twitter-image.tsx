@@ -76,10 +76,17 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
 
   // Load fonts and card data in parallel
-  const [fonts, cardData] = await Promise.all([
-    loadFonts(),
-    getCardWithMappings(slug),
-  ]);
+  let fonts = null;
+  let cardData = null;
+
+  try {
+    [fonts, cardData] = await Promise.all([
+      loadFonts(),
+      getCardWithMappings(slug),
+    ]);
+  } catch (error) {
+    console.error('Error loading data for Twitter image:', error);
+  }
 
   const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
   const fontOptions = fonts
