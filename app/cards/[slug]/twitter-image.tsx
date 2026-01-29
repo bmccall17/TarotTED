@@ -6,15 +6,48 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'TarotTALKS Card';
 
+// Load OpenDyslexic font
+async function loadFonts() {
+  try {
+    const [regularRes, boldRes] = await Promise.all([
+      fetch('https://tarottalks.app/fonts/OpenDyslexic-Regular.woff'),
+      fetch('https://tarottalks.app/fonts/OpenDyslexic-Bold.woff'),
+    ]);
+
+    if (!regularRes.ok || !boldRes.ok) {
+      return null;
+    }
+
+    return {
+      regular: await regularRes.arrayBuffer(),
+      bold: await boldRes.arrayBuffer(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  let cardData = null;
-  try {
-    cardData = await getCardWithMappings(slug);
-  } catch (error) {
-    console.error('Error fetching card data:', error);
-  }
+  // Load fonts and card data in parallel
+  const [fonts, cardData] = await Promise.all([
+    loadFonts(),
+    getCardWithMappings(slug).catch((error) => {
+      console.error('Error fetching card data:', error);
+      return null;
+    }),
+  ]);
+
+  const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
+  const fontOptions = fonts
+    ? {
+        fonts: [
+          { name: 'OpenDyslexic', data: fonts.regular, weight: 400 as const },
+          { name: 'OpenDyslexic', data: fonts.bold, weight: 700 as const },
+        ],
+      }
+    : {};
 
   if (!cardData) {
     return new ImageResponse(
@@ -29,13 +62,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             color: 'white',
             fontSize: 48,
-            fontFamily: 'system-ui, sans-serif',
+            fontFamily,
           }}
         >
           Card Not Found: {slug}
         </div>
       ),
-      { ...size }
+      { ...size, ...fontOptions }
     );
   }
 
@@ -90,7 +123,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           padding: 36,
           paddingBottom: 80,
           position: 'relative',
-          fontFamily: 'system-ui, sans-serif',
+          fontFamily,
         }}
       >
         {/* Sparkles */}
@@ -243,6 +276,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, ...fontOptions }
   );
 }
