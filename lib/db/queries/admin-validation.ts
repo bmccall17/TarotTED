@@ -125,6 +125,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
   const talksNotMappedToAnyCard = await getTalksNotMappedToAnyCard();
   const mappingsMissingLongRationale = await getMappingsMissingLongRationale();
   const softDeletedTalks = await getSoftDeletedTalks();
+  const youtubeOnlyTalks = await getYoutubeOnlyTalks();
 
   return {
     duplicateYoutubeIds,
@@ -136,6 +137,7 @@ export async function getValidationIssues(): Promise<ValidationIssues> {
     talksNotMappedToAnyCard,
     mappingsMissingLongRationale,
     softDeletedTalks,
+    youtubeOnlyTalks,
   };
 }
 
@@ -408,6 +410,32 @@ async function getSoftDeletedTalks() {
     .from(talks)
     .where(eq(talks.isDeleted, true))
     .orderBy(talks.deletedAt);
+}
+
+/**
+ * Get talks that only have YouTube URL (no TED URL)
+ */
+async function getYoutubeOnlyTalks() {
+  return await db
+    .select({
+      id: talks.id,
+      title: talks.title,
+      speakerName: talks.speakerName,
+      slug: talks.slug,
+      tedUrl: talks.tedUrl,
+      youtubeUrl: talks.youtubeUrl,
+      youtubeVideoId: talks.youtubeVideoId,
+      thumbnailUrl: talks.thumbnailUrl,
+    })
+    .from(talks)
+    .where(
+      and(
+        eq(talks.isDeleted, false),
+        isNull(talks.tedUrl),
+        sql`${talks.youtubeUrl} IS NOT NULL`
+      )
+    )
+    .orderBy(talks.title);
 }
 
 /**
