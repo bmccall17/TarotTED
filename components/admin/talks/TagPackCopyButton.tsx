@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Copy, Check, Twitter } from 'lucide-react';
+import { Copy, Check, Twitter, Link2 } from 'lucide-react';
 import { formatTagPack } from '@/lib/utils/social-handles';
 
 // Bluesky butterfly icon (simplified SVG as component)
@@ -17,23 +17,72 @@ function BlueskyIcon({ className }: { className?: string }) {
   );
 }
 
+type MappingInfo = {
+  cardName: string;
+  cardSlug: string;
+  isPrimary: boolean;
+  rationaleShort: string | null;
+};
+
 type Props = {
   twitterHandle: string;
   blueskyHandle: string;
   speakerName: string;
+  talkTitle: string;
+  year: number | null;
+  eventName: string;
+  mappings?: MappingInfo[];
 };
 
-export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }: Props) {
+export function TagPackCopyButton({
+  twitterHandle,
+  blueskyHandle,
+  speakerName,
+  talkTitle,
+  year,
+  eventName,
+  mappings = [],
+}: Props) {
   const [copiedTwitter, setCopiedTwitter] = useState(false);
   const [copiedBluesky, setCopiedBluesky] = useState(false);
-  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedFull, setCopiedFull] = useState(false);
 
   const twitterTagPack = formatTagPack('twitter', twitterHandle, true);
   const blueskyTagPack = formatTagPack('bluesky', blueskyHandle, true);
 
   const hasTwitter = !!twitterHandle?.trim();
   const hasBluesky = !!blueskyHandle?.trim();
-  const hasAny = hasTwitter || hasBluesky;
+
+  // Get primary mapping (or first one if none is primary)
+  const primaryMapping = mappings.find((m) => m.isPrimary) || mappings[0];
+
+  // Build the full tag pack text
+  const buildFullTagPack = (platform: 'twitter' | 'bluesky') => {
+    const lines: string[] = [];
+    const tags = platform === 'twitter' ? twitterTagPack : blueskyTagPack;
+
+    // Talk info
+    if (talkTitle) {
+      const eventInfo = [eventName, year].filter(Boolean).join(' ');
+      lines.push(`"${talkTitle}"${eventInfo ? ` (${eventInfo})` : ''}`);
+    }
+
+    // Card link and rationale
+    if (primaryMapping) {
+      const cardUrl = `https://tarottalks.com/cards/${primaryMapping.cardSlug}`;
+      lines.push(`🃏 ${primaryMapping.cardName}: ${cardUrl}`);
+      if (primaryMapping.rationaleShort) {
+        lines.push(`💡 ${primaryMapping.rationaleShort}`);
+      }
+    }
+
+    // Tags
+    if (tags) {
+      lines.push(`${tags}`);
+    }
+
+    return lines.join('\n');
+  };
 
   const copyToClipboard = async (text: string, setCopied: (v: boolean) => void) => {
     try {
@@ -47,12 +96,13 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
 
   const handleCopyTwitter = () => copyToClipboard(twitterTagPack, setCopiedTwitter);
   const handleCopyBluesky = () => copyToClipboard(blueskyTagPack, setCopiedBluesky);
-  const handleCopyAll = () => {
-    const allText = [twitterTagPack, blueskyTagPack].filter(Boolean).join('\n');
-    copyToClipboard(allText, setCopiedAll);
-  };
+  const handleCopyFullTwitter = () => copyToClipboard(buildFullTagPack('twitter'), setCopiedFull);
+  const handleCopyFullBluesky = () => copyToClipboard(buildFullTagPack('bluesky'), setCopiedFull);
 
-  if (!hasAny) {
+  // Show preview even without handles (for the other info)
+  const hasContent = talkTitle || primaryMapping;
+
+  if (!hasContent && !hasTwitter && !hasBluesky) {
     return (
       <div className="text-sm text-gray-500 italic">
         Add speaker handles above to enable tag pack copying
@@ -62,9 +112,42 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
 
   return (
     <div className="space-y-3">
-      {/* Preview */}
+      {/* Full Preview */}
       <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-3 space-y-2">
         <p className="text-xs text-gray-400 uppercase tracking-wider">Preview</p>
+
+        {/* Talk Title & Event */}
+        {talkTitle && (
+          <div className="text-sm text-gray-200">
+            "{talkTitle}"
+            {(eventName || year) && (
+              <span className="text-gray-400">
+                {' '}({[eventName, year].filter(Boolean).join(' ')})
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Card Link */}
+        {primaryMapping && (
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-amber-400">🃏</span>
+              <span className="text-amber-300">{primaryMapping.cardName}:</span>
+              <code className="text-purple-300 bg-purple-900/20 px-2 py-0.5 rounded text-xs">
+                tarottalks.com/cards/{primaryMapping.cardSlug}
+              </code>
+            </div>
+            {primaryMapping.rationaleShort && (
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-yellow-400">💡</span>
+                <span className="text-gray-300 italic">{primaryMapping.rationaleShort}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Social Tags */}
         {hasTwitter && (
           <div className="flex items-center gap-2 text-sm">
             <Twitter className="w-4 h-4 text-gray-400" />
@@ -81,6 +164,7 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
 
       {/* Copy Buttons */}
       <div className="flex flex-wrap gap-2">
+        {/* Tags Only */}
         {hasTwitter && (
           <button
             type="button"
@@ -95,7 +179,7 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
             ) : (
               <>
                 <Twitter className="w-4 h-4" />
-                Copy X Tags
+                X Tags
               </>
             )}
           </button>
@@ -115,19 +199,20 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
             ) : (
               <>
                 <BlueskyIcon className="w-4 h-4" />
-                Copy Bluesky Tags
+                Bluesky Tags
               </>
             )}
           </button>
         )}
 
-        {hasTwitter && hasBluesky && (
+        {/* Full Pack */}
+        {hasTwitter && hasContent && (
           <button
             type="button"
-            onClick={handleCopyAll}
-            className="flex items-center gap-2 px-3 py-1.5 bg-gray-600/20 hover:bg-gray-600/30 text-gray-300 border border-gray-500/30 rounded-lg text-sm transition-colors"
+            onClick={handleCopyFullTwitter}
+            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-lg text-sm transition-colors"
           >
-            {copiedAll ? (
+            {copiedFull ? (
               <>
                 <Check className="w-4 h-4" />
                 Copied!
@@ -135,7 +220,27 @@ export function TagPackCopyButton({ twitterHandle, blueskyHandle, speakerName }:
             ) : (
               <>
                 <Copy className="w-4 h-4" />
-                Copy All
+                Full X Post
+              </>
+            )}
+          </button>
+        )}
+
+        {hasBluesky && hasContent && !hasTwitter && (
+          <button
+            type="button"
+            onClick={handleCopyFullBluesky}
+            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 rounded-lg text-sm transition-colors"
+          >
+            {copiedFull ? (
+              <>
+                <Check className="w-4 h-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4" />
+                Full Bluesky Post
               </>
             )}
           </button>

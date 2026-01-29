@@ -508,6 +508,15 @@ export function TalkForm({ initialData, talkId, mode, mappings = [] }: Props) {
                   twitterHandle={formData.speakerTwitterHandle}
                   blueskyHandle={formData.speakerBlueskyHandle}
                   speakerName={formData.speakerName}
+                  talkTitle={formData.title}
+                  year={formData.year}
+                  eventName={formData.eventName}
+                  mappings={mappings.map((m) => ({
+                    cardName: m.cardName,
+                    cardSlug: m.cardSlug,
+                    isPrimary: m.isPrimary,
+                    rationaleShort: m.rationaleShort,
+                  }))}
                 />
               </div>
             </div>
