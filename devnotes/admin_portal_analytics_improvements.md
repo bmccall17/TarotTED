@@ -1,4 +1,26 @@
-You are a senior product analytics + Next.js engineer. I’m building TarotTALKS (Next.js on Vercel) and I want to upgrade my Admin Dashboard to show “what users do after they land.”
+# Admin Portal Behavioral Analytics
+
+## ✅ IMPLEMENTED - Jan 29, 2026
+
+### Files Created
+- `lib/db/schema.ts` - Added `behaviorEvents` table
+- `app/api/events/route.ts` - Event ingestion endpoint (rate-limited)
+- `lib/hooks/useAnalytics.ts` - Client-side hook with batching
+- `lib/db/queries/admin-behavior.ts` - Dashboard query functions
+- `app/api/admin/behavior/route.ts` - Admin API endpoint
+- `app/admin/behavior/page.tsx` - Dashboard UI
+- `scripts/create-behavior-events-table.ts` - DB migration script
+
+### Files Modified
+- `components/ritual/CardCascade.tsx` - Added tracking calls
+- `components/ritual/RitualCard.tsx` - Added tracking callbacks
+- `components/admin/ui/AdminNav.tsx` - Added Behavior link
+
+---
+
+## Original Requirements
+
+You are a senior product analytics + Next.js engineer. I'm building TarotTALKS (Next.js on Vercel) and I want to upgrade my Admin Dashboard to show "what users do after they land."
 
 CONTEXT
 - TarotTALKS is a ritual-first landing page where users flip tarot cards. (It’s the home page experience.)

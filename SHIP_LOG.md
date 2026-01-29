@@ -10,6 +10,11 @@ A chronological record of major releases and feature deployments for TarotTALKS.
 
 Features and changes staged for the next version:
 
+- **Behavioral Analytics Dashboard**: New `/admin/behavior` page tracking user engagement
+  - Events: `session_start`, `card_flip`, `spread_ready`, `read_spread_click`, `talk_click`, `card_detail_click`
+  - Metrics: Sessions, bounce rate, time to first flip, flip distribution, landing funnel, Read My Spread CTR, device breakdown
+  - Zero-cost: Uses existing Vercel Postgres with batched event ingestion
+  - Files: `lib/hooks/useAnalytics.ts`, `app/api/events/route.ts`, `app/admin/behavior/page.tsx`, `lib/db/queries/admin-behavior.ts`
 - **Read My Spread Button**: New button appears when 2+ cards are revealed, links to TarotTALKS Spread Reader GPT
 - **Spread Share Modal**: Mobile-friendly modal for copying spread data before opening GPT
   - Mobile: Auto-copies spread text ("Aware Self: X, Supporting Shadow: Y, Emerging Path: Z")
