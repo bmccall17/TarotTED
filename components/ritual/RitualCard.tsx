@@ -30,6 +30,8 @@ type RitualCardProps = {
   onFlipSound?: () => void;
   onFlip2Sound?: () => void;
   isCentered?: boolean; // For scroll-based dock expansion on mobile
+  onTalkClick?: (cardIndex: number, talkSlug: string) => void;
+  onCardDetailClick?: (cardIndex: number, cardSlug: string) => void;
 };
 
 type NavigationSparkle = {
@@ -41,7 +43,7 @@ type NavigationSparkle = {
   distance: number;
 };
 
-export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, revealedCount, onReveal, onFlipSound, onFlip2Sound, isCentered }: RitualCardProps) {
+export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, revealedCount, onReveal, onFlipSound, onFlip2Sound, isCentered, onTalkClick, onCardDetailClick }: RitualCardProps) {
   const router = useRouter();
   const [isFlipping, setIsFlipping] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
@@ -225,11 +227,12 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       // Navigate to card detail with sparkle burst and fade
       setIsNavigating(true);
       triggerSparkleBurst();
+      onCardDetailClick?.(index, card.slug);
       setTimeout(() => {
         router.push(`/cards/${card.slug}`);
       }, 600); // Faster navigation after sparkle effect
     }
-  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, onFlipSound, onFlip2Sound, triggerSparkleBurst, primaryTalk, index, layoutMode]);
+  }, [isRevealed, isFlipping, isDockExpanded, isNavigating, card.slug, router, onReveal, onFlipSound, onFlip2Sound, triggerSparkleBurst, primaryTalk, index, layoutMode, onCardDetailClick]);
 
   // Handle dock click/tap
   const handleDockClick = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -246,6 +249,7 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
         // Second tap - navigate with sparkle burst
         setIsNavigating(true);
         triggerSparkleBurst();
+        onTalkClick?.(index, primaryTalk.slug);
         setTimeout(() => {
           router.push(`/talks/${primaryTalk.slug}`);
         }, 600);
@@ -254,11 +258,12 @@ export function RitualCard({ card, primaryTalk, index, layoutMode, isRevealed, r
       // Desktop: click navigates with sparkle burst
       setIsNavigating(true);
       triggerSparkleBurst();
+      onTalkClick?.(index, primaryTalk.slug);
       setTimeout(() => {
         router.push(`/talks/${primaryTalk.slug}`);
       }, 600);
     }
-  }, [primaryTalk, isNavigating, hasTappedDock, isDockExpanded, router, triggerSparkleBurst]);
+  }, [primaryTalk, isNavigating, hasTappedDock, isDockExpanded, router, triggerSparkleBurst, index, onTalkClick]);
 
   // Handle swipe gestures on mobile
   const handleTouchStart = useCallback((e: React.TouchEvent) => {

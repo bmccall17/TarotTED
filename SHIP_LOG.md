@@ -25,6 +25,7 @@ Features and changes staged for the next version:
 
 | Version | Title | Date |
 |---------|-------|------|
+| [v1.3.3](devnotes/releases/v1.3.3.md) | Branded Social Card Images 🎴 | Jan 29, 2026 |
 | [v1.3.2](devnotes/releases/v1.3.2.md) | Security Patch: React Server Components 🔒 | Jan 12, 2026 |
 | [v1.3.1](devnotes/releases/v1.3.1.md) | Admin Portal Improvements 🔧 | Jan 10, 2026 |
 | [v1.3.0](devnotes/releases/v1.3.0.md) | TarotTALKS Rebrand 🎨 | Jan 9, 2026 |
@@ -43,6 +44,7 @@ Features and changes staged for the next version:
 
 | Version | Title | Date |
 |---------|-------|------|
+| [v1.3.3](devnotes/releases/v1.3.3.md) | Branded Social Card Images 🎴 | Jan 29, 2026 |
 | [v1.3.2](devnotes/releases/v1.3.2.md) | Security Patch: React Server Components 🔒 | Jan 12, 2026 |
 | [v1.3.1](devnotes/releases/v1.3.1.md) | Admin Portal Improvements 🔧 | Jan 10, 2026 |
 | [v1.3.0](devnotes/releases/v1.3.0.md) | TarotTALKS Rebrand 🎨 | Jan 9, 2026 |

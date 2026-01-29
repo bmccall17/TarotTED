@@ -1,4 +1,4 @@
-import { pgTable, text, integer, boolean, timestamp, uuid, varchar, pgEnum } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, boolean, timestamp, uuid, varchar, pgEnum, bigint, index } from 'drizzle-orm/pg-core';
 
 // Enums
 export const arcanaTypeEnum = pgEnum('arcana_type', ['major', 'minor']);
@@ -85,3 +85,17 @@ export const talkThemes = pgTable('talk_themes', {
   talkId: uuid('talk_id').references(() => talks.id, { onDelete: 'cascade' }).notNull(),
   themeId: uuid('theme_id').references(() => themes.id, { onDelete: 'cascade' }).notNull(),
 });
+
+// Behavior Events table (for analytics)
+export const behaviorEvents = pgTable('behavior_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  sessionId: varchar('session_id', { length: 12 }).notNull(),
+  eventName: varchar('event_name', { length: 50 }).notNull(),
+  timestamp: bigint('timestamp', { mode: 'number' }).notNull(),
+  properties: text('properties').default('{}'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  idxEventsSession: index('idx_events_session').on(table.sessionId),
+  idxEventsNameTime: index('idx_events_name_time').on(table.eventName, table.timestamp),
+  idxEventsCreated: index('idx_events_created').on(table.createdAt),
+}));

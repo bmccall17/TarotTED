@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react';
+import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft, Sparkles, BarChart3 } from 'lucide-react';
 // import { Palette } from 'lucide-react'; // TODO: Uncomment when Theme management is implemented
 
 export function AdminNav() {
@@ -73,6 +73,19 @@ export function AdminNav() {
             <Link href="/admin/validation" className={navLinkClass('/admin/validation')}>
               <AlertTriangle className="w-4 h-4" />
               <span>Validation</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Analytics */}
+        <div>
+          <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 px-4">
+            📊 Analytics
+          </h2>
+          <div className="space-y-1">
+            <Link href="/admin/behavior" className={navLinkClass('/admin/behavior')}>
+              <BarChart3 className="w-4 h-4" />
+              <span>Behavior</span>
             </Link>
           </div>
         </div>

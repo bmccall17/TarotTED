@@ -6,6 +6,7 @@ import { SpreadShareModal } from './SpreadShareModal';
 import { RefreshCw, BookOpen } from 'lucide-react';
 import { useCardSounds } from '@/lib/hooks/useCardSounds';
 import { useRitualState } from '@/lib/hooks/useRitualState';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 type CardData = {
   id: string;
@@ -85,6 +86,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { playShuffleAndDealSound, playFlipSound, playFlip2Sound, playShuffleSound } = useCardSounds();
   const { saveRitualState, loadRitualState, clearRitualState, hasRestoredState, markRestored } = useRitualState();
+  const { trackCardFlip, trackReadSpreadClick, trackTalkClick, trackCardDetailClick } = useAnalytics();
   const prevLayoutModeRef = useRef<LayoutMode>('stacked');
 
   const fetchCards = useCallback(async (slugs?: string[], restoreState?: { revealedIndices: number[], layoutMode: LayoutMode }) => {
@@ -247,6 +249,12 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
       if (prev.includes(index)) return prev;
       const newRevealed = [...prev, index];
 
+      // Track card flip analytics
+      const card = cards[index];
+      if (card) {
+        trackCardFlip(index, newRevealed.length, card.slug);
+      }
+
       // Update layout mode based on which cards are revealed
       const wasStacked = layoutMode === 'stacked';
       if (newRevealed.length === 1 && index === 0) {
@@ -292,7 +300,7 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
 
       return newRevealed;
     });
-  }, [layoutMode]);
+  }, [layoutMode, cards, trackCardFlip]);
 
   const handleRedraw = useCallback(() => {
     playShuffleAndDealSound(); // Play full shuffle & deal sound for redraw
@@ -367,6 +375,8 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
                 onFlipSound={playFlipSound}
                 onFlip2Sound={playFlip2Sound}
                 isCentered={index === centeredCardIndex}
+                onTalkClick={trackTalkClick}
+                onCardDetailClick={trackCardDetailClick}
               />
             ))
           )}
@@ -404,7 +414,10 @@ export function CardCascade({ onCardsLoaded }: CardCascadeProps) {
           `}
         >
           <button
-            onClick={() => setShowShareModal(true)}
+            onClick={() => {
+              trackReadSpreadClick(revealedCards.length);
+              setShowShareModal(true);
+            }}
             className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 border border-indigo-500 rounded-xl text-white transition-all"
           >
             <BookOpen className="w-4 h-4" />
