@@ -7,18 +7,18 @@ export const contentType = 'image/png';
 export const alt = 'TarotTALKS Card';
 
 // Sparkle component for starfield effect
-function Sparkle({ x, y, size, opacity }: { x: number; y: number; size: number; opacity: number }) {
+function Sparkle({ x, y, starSize, opacity }: { x: number; y: number; starSize: number; opacity: number }) {
   return (
     <div
       style={{
         position: 'absolute',
         left: x,
         top: y,
-        width: size,
-        height: size,
+        width: starSize,
+        height: starSize,
         background: `rgba(255, 255, 255, ${opacity})`,
         borderRadius: '50%',
-        boxShadow: `0 0 ${size * 2}px ${size}px rgba(255, 255, 255, ${opacity * 0.5})`,
+        boxShadow: `0 0 ${starSize * 2}px ${starSize}px rgba(255, 255, 255, ${opacity * 0.5})`,
       }}
     />
   );
@@ -42,7 +42,7 @@ function generateSparkles() {
     sparkles.push({
       x: Math.floor(seededRandom() * 1150) + 25,
       y: Math.floor(seededRandom() * 580) + 25,
-      size: Math.floor(seededRandom() * 3) + 3,
+      starSize: Math.floor(seededRandom() * 3) + 3,
       opacity: 0.4 + seededRandom() * 0.5,
     });
   }
@@ -76,17 +76,10 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
 
   // Load fonts and card data in parallel
-  let fonts = null;
-  let cardData = null;
-
-  try {
-    [fonts, cardData] = await Promise.all([
-      loadFonts(),
-      getCardWithMappings(slug),
-    ]);
-  } catch (error) {
-    console.error('Error loading data for OG image:', error);
-  }
+  const [fonts, cardData] = await Promise.all([
+    loadFonts(),
+    getCardWithMappings(slug),
+  ]);
 
   const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
   const fontOptions = fonts
@@ -160,8 +153,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           fontFamily,
         }}
       >
-        {generateSparkles().map((sparkle, i) => (
-          <Sparkle key={i} {...sparkle} />
+        {generateSparkles().map((s, i) => (
+          <Sparkle key={i} x={s.x} y={s.y} starSize={s.starSize} opacity={s.opacity} />
         ))}
 
         {/* Left: Brand + Talk */}
