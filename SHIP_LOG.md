@@ -14,9 +14,11 @@ Features and changes staged for the next version:
   - Layout A3: Brand top-left, talk thumbnail bottom-left, card info right-justified
   - Primary talk integration: Shows mapped TED talk thumbnail, title, and speaker
   - OpenDyslexic font for accessibility
-  - Unique randomized starfield per card (seeded from slug)
+  - Time-seeded starfield: Unique sparkle pattern on every load (Date.now() seed)
   - 80px bottom safe buffer for Twitter/platform overlays
-  - Files: `app/cards/[slug]/twitter-image.tsx`, `app/cards/[slug]/opengraph-image.tsx`
+  - **Critical fix**: Resolved metadata inheritance bug preventing images from appearing on Twitter/BlueSky
+  - **Preview page**: Added `/preview/card-share` for testing OG image generation
+  - Files: `app/cards/[slug]/twitter-image.tsx`, `app/cards/[slug]/opengraph-image.tsx`, `app/cards/[slug]/page.tsx`, `app/preview/card-share/page.tsx`
 - **Behavioral Analytics Dashboard**: New `/admin/behavior` page tracking user engagement
   - Events: `session_start`, `card_flip`, `spread_ready`, `read_spread_click`, `talk_click`, `card_detail_click`
   - Metrics: Sessions, bounce rate, time to first flip, flip distribution, landing funnel, Read My Spread CTR, device breakdown
