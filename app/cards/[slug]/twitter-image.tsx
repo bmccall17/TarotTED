@@ -24,20 +24,36 @@ function Sparkle({ x, y, size, opacity }: { x: number; y: number; size: number; 
   );
 }
 
-const sparkles = [
-  { x: 50, y: 80, size: 4, opacity: 0.8 },
-  { x: 150, y: 150, size: 3, opacity: 0.6 },
-  { x: 80, y: 350, size: 5, opacity: 0.7 },
-  { x: 200, y: 450, size: 3, opacity: 0.5 },
-  { x: 350, y: 100, size: 4, opacity: 0.6 },
-  { x: 450, y: 280, size: 3, opacity: 0.4 },
-  { x: 550, y: 400, size: 5, opacity: 0.7 },
-  { x: 650, y: 120, size: 3, opacity: 0.5 },
-  { x: 750, y: 350, size: 4, opacity: 0.6 },
-  { x: 1050, y: 100, size: 4, opacity: 0.7 },
-  { x: 1100, y: 280, size: 3, opacity: 0.5 },
-  { x: 1130, y: 450, size: 5, opacity: 0.6 },
-];
+// Generate unique sparkles based on card slug
+function generateSparkles(slug: string) {
+  // Simple hash function to create seed from slug
+  let seed = 0;
+  for (let i = 0; i < slug.length; i++) {
+    seed = ((seed << 5) - seed) + slug.charCodeAt(i);
+    seed = seed & seed;
+  }
+
+  // Seeded random function
+  const seededRandom = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+
+  // Generate 12-15 sparkles with random positions
+  const count = 12 + Math.floor(seededRandom() * 4);
+  const sparkles = [];
+
+  for (let i = 0; i < count; i++) {
+    sparkles.push({
+      x: Math.floor(seededRandom() * 1150) + 25,
+      y: Math.floor(seededRandom() * 580) + 25,
+      size: Math.floor(seededRandom() * 3) + 3,
+      opacity: 0.4 + seededRandom() * 0.5,
+    });
+  }
+
+  return sparkles;
+}
 
 // Load OpenDyslexic font
 async function loadFonts() {
@@ -142,7 +158,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           fontFamily,
         }}
       >
-        {sparkles.map((sparkle, i) => (
+        {generateSparkles(slug).map((sparkle, i) => (
           <Sparkle key={i} {...sparkle} />
         ))}
 
@@ -155,10 +171,10 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             width: 320,
           }}
         >
-          {/* Brand - top left */}
-          <div style={{ display: 'flex', fontSize: 32, lineHeight: 1 }}>
+          {/* Brand - top left (baseline aligned) */}
+          <div style={{ fontSize: 32, lineHeight: 1 }}>
             <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
-            <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
+            <span style={{ color: '#EB0028', fontWeight: 700, position: 'relative', top: -1 }}>TALKS</span>
           </div>
 
           {/* Talk - bottom left (with buffer for overlay) */}
