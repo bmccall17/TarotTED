@@ -28,20 +28,57 @@ const sparkles = [
   { x: 50, y: 80, size: 4, opacity: 0.8 },
   { x: 150, y: 150, size: 3, opacity: 0.6 },
   { x: 80, y: 350, size: 5, opacity: 0.7 },
-  { x: 200, y: 500, size: 3, opacity: 0.5 },
+  { x: 200, y: 450, size: 3, opacity: 0.5 },
   { x: 350, y: 100, size: 4, opacity: 0.6 },
   { x: 450, y: 280, size: 3, opacity: 0.4 },
-  { x: 550, y: 450, size: 5, opacity: 0.7 },
+  { x: 550, y: 400, size: 5, opacity: 0.7 },
   { x: 650, y: 120, size: 3, opacity: 0.5 },
-  { x: 750, y: 380, size: 4, opacity: 0.6 },
+  { x: 750, y: 350, size: 4, opacity: 0.6 },
   { x: 1050, y: 100, size: 4, opacity: 0.7 },
-  { x: 1100, y: 300, size: 3, opacity: 0.5 },
-  { x: 1130, y: 500, size: 5, opacity: 0.6 },
+  { x: 1100, y: 280, size: 3, opacity: 0.5 },
+  { x: 1130, y: 450, size: 5, opacity: 0.6 },
 ];
+
+// Load OpenDyslexic font
+async function loadFonts() {
+  const baseUrl = 'https://tarottalks.app';
+  try {
+    const [regularRes, boldRes] = await Promise.all([
+      fetch(`${baseUrl}/fonts/OpenDyslexic-Regular.woff`),
+      fetch(`${baseUrl}/fonts/OpenDyslexic-Bold.woff`),
+    ]);
+
+    if (!regularRes.ok || !boldRes.ok) {
+      return null;
+    }
+
+    return {
+      regular: await regularRes.arrayBuffer(),
+      bold: await boldRes.arrayBuffer(),
+    };
+  } catch {
+    return null;
+  }
+}
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const cardData = await getCardWithMappings(slug);
+
+  // Load fonts and card data in parallel
+  const [fonts, cardData] = await Promise.all([
+    loadFonts(),
+    getCardWithMappings(slug),
+  ]);
+
+  const fontFamily = fonts ? 'OpenDyslexic' : 'system-ui, sans-serif';
+  const fontOptions = fonts
+    ? {
+        fonts: [
+          { name: 'OpenDyslexic', data: fonts.regular, weight: 400 as const },
+          { name: 'OpenDyslexic', data: fonts.bold, weight: 700 as const },
+        ],
+      }
+    : {};
 
   if (!cardData) {
     return new ImageResponse(
@@ -56,12 +93,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             color: 'white',
             fontSize: 48,
+            fontFamily,
           }}
         >
           Card Not Found
         </div>
       ),
-      { ...size }
+      { ...size, ...fontOptions }
     );
   }
 
@@ -99,7 +137,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           display: 'flex',
           background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
           padding: 36,
+          paddingBottom: 80, // Safe buffer for platform overlays
           position: 'relative',
+          fontFamily,
         }}
       >
         {sparkles.map((sparkle, i) => (
@@ -121,7 +161,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
           </div>
 
-          {/* Talk - bottom left */}
+          {/* Talk - bottom left (with buffer for overlay) */}
           {primaryTalk && talkThumbnailUrl && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -130,7 +170,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 alt=""
                 style={{
                   width: 300,
-                  height: 169,
+                  height: 150,
                   borderRadius: 12,
                   objectFit: 'cover',
                   boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
@@ -139,16 +179,16 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               <div
                 style={{
                   color: '#ffffff',
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: 700,
                   lineHeight: 1.2,
-                  marginTop: 12,
+                  marginTop: 10,
                   maxWidth: 300,
                 }}
               >
                 {truncatedTalkTitle}
               </div>
-              <div style={{ color: '#a5b4fc', fontSize: 18, marginTop: 6 }}>
+              <div style={{ color: '#a5b4fc', fontSize: 16, marginTop: 4 }}>
                 {primaryTalk.speakerName}
               </div>
             </div>
@@ -163,13 +203,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             paddingLeft: 24,
           }}
         >
-          {/* Text - right justified, top aligned */}
+          {/* Text - right justified, vertically centered */}
           <div
             style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'flex-start',
+              justifyContent: 'center',
               alignItems: 'flex-end',
               textAlign: 'right',
               paddingRight: 20,
@@ -226,7 +266,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div
             style={{
               width: 260,
-              height: 558,
+              height: 514,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -248,6 +288,6 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         </div>
       </div>
     ),
-    { ...size }
+    { ...size, ...fontOptions }
   );
 }
