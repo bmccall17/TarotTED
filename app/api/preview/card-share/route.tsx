@@ -45,6 +45,15 @@ export async function GET(request: NextRequest) {
   const slug = searchParams.get('slug') || 'the-fool';
   const layout = searchParams.get('layout') || 'a';
 
+  // Load OpenDyslexic font
+  const fontRegular = await fetch(
+    new URL('/fonts/OpenDyslexic-Regular.woff', 'https://tarottalks.app')
+  ).then((res) => res.arrayBuffer());
+
+  const fontBold = await fetch(
+    new URL('/fonts/OpenDyslexic-Bold.woff', 'https://tarottalks.app')
+  ).then((res) => res.arrayBuffer());
+
   const cardData = await getCardWithMappings(slug);
 
   if (!cardData) {
@@ -60,17 +69,24 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             color: 'white',
             fontSize: 48,
+            fontFamily: 'OpenDyslexic',
           }}
         >
           Card Not Found: {slug}
         </div>
       ),
-      { ...size }
+      {
+        ...size,
+        fonts: [
+          { name: 'OpenDyslexic', data: fontRegular, weight: 400 },
+          { name: 'OpenDyslexic', data: fontBold, weight: 700 },
+        ],
+      }
     );
   }
 
   const keywords: string[] = cardData.keywords ? JSON.parse(cardData.keywords) : [];
-  const displayKeywords = keywords.slice(0, 3);
+  const displayKeywords = keywords.slice(0, 4);
 
   const cardImageUrl = cardData.imageUrl.startsWith('http')
     ? cardData.imageUrl
@@ -86,19 +102,23 @@ export async function GET(request: NextRequest) {
     ? `https://tarottalks.app${primaryTalk.thumbnailUrl}`
     : null;
 
-  // Truncate talk title
-  const truncatedTalkTitle = primaryTalk?.title && primaryTalk.title.length > 50
-    ? primaryTalk.title.slice(0, 47) + '...'
+  // Full summary (no truncation per user request)
+  const fullSummary = cardData.summary || '';
+
+  // Truncate talk title if very long
+  const truncatedTalkTitle = primaryTalk?.title && primaryTalk.title.length > 60
+    ? primaryTalk.title.slice(0, 57) + '...'
     : primaryTalk?.title;
 
-  // Truncate summary based on layout
-  const summaryMaxLength = layout === 'c' ? 80 : 100;
-  const truncatedSummary = cardData.summary && cardData.summary.length > summaryMaxLength
-    ? cardData.summary.slice(0, summaryMaxLength - 3) + '...'
-    : cardData.summary;
+  const fontOptions = {
+    fonts: [
+      { name: 'OpenDyslexic', data: fontRegular, weight: 400 as const },
+      { name: 'OpenDyslexic', data: fontBold, weight: 700 as const },
+    ],
+  };
 
   if (layout === 'a') {
-    // Option A: Compact Talk Strip
+    // Option A: Card RIGHT, Content LEFT, Large talk image bottom-left
     return new ImageResponse(
       (
         <div
@@ -109,34 +129,34 @@ export async function GET(request: NextRequest) {
             background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
             padding: 40,
             position: 'relative',
+            fontFamily: 'OpenDyslexic',
           }}
         >
           {sparkles.map((sparkle, i) => (
             <Sparkle key={i} {...sparkle} />
           ))}
 
-          {/* Left side: Content */}
+          {/* Left side: Content + Talk */}
           <div
             style={{
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              justifyContent: 'space-between',
               paddingRight: 30,
             }}
           >
-            {/* Top section */}
+            {/* Top: Branding + Card Info */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {/* Branding */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'baseline',
-                  fontSize: 24,
-                  marginBottom: 16,
+                  fontSize: 22,
+                  marginBottom: 10,
                 }}
               >
-                <span style={{ color: '#9ca3af', fontWeight: 300 }}>Tarot</span>
+                <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
                 <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
               </div>
 
@@ -144,384 +164,28 @@ export async function GET(request: NextRequest) {
               <div
                 style={{
                   color: '#ffffff',
-                  fontSize: 44,
+                  fontSize: 38,
                   fontWeight: 700,
                   lineHeight: 1.1,
-                  marginBottom: 12,
+                  marginBottom: 10,
                   textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
                 }}
               >
                 {cardData.name}
               </div>
 
-              {/* Summary */}
-              {truncatedSummary && (
-                <div
-                  style={{
-                    color: '#d1d5db',
-                    fontSize: 18,
-                    lineHeight: 1.4,
-                    marginBottom: 16,
-                    maxWidth: 480,
-                  }}
-                >
-                  {truncatedSummary}
-                </div>
-              )}
-
-              {/* Keywords */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                {displayKeywords.map((keyword, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      background: 'rgba(99, 102, 241, 0.3)',
-                      color: '#a5b4fc',
-                      padding: '8px 16px',
-                      borderRadius: 20,
-                      fontSize: 14,
-                      border: '1px solid rgba(99, 102, 241, 0.4)',
-                    }}
-                  >
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom: Talk Strip */}
-            {primaryTalk && (
+              {/* Full Summary */}
               <div
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(0, 0, 0, 0.3)',
-                  borderRadius: 12,
-                  padding: 12,
-                  gap: 14,
-                  marginTop: 20,
-                }}
-              >
-                {talkThumbnailUrl && (
-                  <img
-                    src={talkThumbnailUrl}
-                    alt=""
-                    style={{
-                      width: 70,
-                      height: 52,
-                      borderRadius: 6,
-                      objectFit: 'cover',
-                    }}
-                  />
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div
-                    style={{
-                      color: '#ffffff',
-                      fontSize: 15,
-                      fontWeight: 600,
-                      lineHeight: 1.2,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {truncatedTalkTitle}
-                  </div>
-                  <div style={{ color: '#9ca3af', fontSize: 13 }}>
-                    {primaryTalk.speakerName}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right side: Card Image */}
-          <div
-            style={{
-              width: 300,
-              height: 550,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <img
-              src={cardImageUrl}
-              alt={cardData.name}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                borderRadius: 16,
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                objectFit: 'contain',
-              }}
-            />
-          </div>
-        </div>
-      ),
-      { ...size }
-    );
-  }
-
-  if (layout === 'b') {
-    // Option B: Glass Card Overlay
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
-            padding: 40,
-            position: 'relative',
-          }}
-        >
-          {sparkles.map((sparkle, i) => (
-            <Sparkle key={i} {...sparkle} />
-          ))}
-
-          {/* Left side: Content */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              paddingRight: 30,
-            }}
-          >
-            {/* Top section */}
-            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-              {/* Branding */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  fontSize: 24,
-                  marginBottom: 16,
-                }}
-              >
-                <span style={{ color: '#9ca3af', fontWeight: 300 }}>Tarot</span>
-                <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
-              </div>
-
-              {/* Card Name */}
-              <div
-                style={{
-                  color: '#ffffff',
-                  fontSize: 44,
-                  fontWeight: 700,
-                  lineHeight: 1.1,
+                  color: '#d1d5db',
+                  fontSize: 15,
+                  lineHeight: 1.4,
                   marginBottom: 12,
-                  textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
+                  maxWidth: 500,
                 }}
               >
-                {cardData.name}
+                {fullSummary}
               </div>
-
-              {/* Summary */}
-              {truncatedSummary && (
-                <div
-                  style={{
-                    color: '#d1d5db',
-                    fontSize: 18,
-                    lineHeight: 1.4,
-                    marginBottom: 16,
-                    maxWidth: 480,
-                  }}
-                >
-                  {truncatedSummary}
-                </div>
-              )}
-
-              {/* Keywords */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                {displayKeywords.map((keyword, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      background: 'rgba(99, 102, 241, 0.3)',
-                      color: '#a5b4fc',
-                      padding: '8px 16px',
-                      borderRadius: 20,
-                      fontSize: 14,
-                      border: '1px solid rgba(99, 102, 241, 0.4)',
-                    }}
-                  >
-                    {keyword}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom: Glass Card */}
-            {primaryTalk && (
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  borderRadius: 16,
-                  padding: 16,
-                  gap: 16,
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                  marginTop: 20,
-                }}
-              >
-                {talkThumbnailUrl && (
-                  <img
-                    src={talkThumbnailUrl}
-                    alt=""
-                    style={{
-                      width: 100,
-                      height: 75,
-                      borderRadius: 8,
-                      objectFit: 'cover',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
-                  />
-                )}
-                <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-                  <div
-                    style={{
-                      color: '#a5b4fc',
-                      fontSize: 11,
-                      fontWeight: 600,
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      marginBottom: 4,
-                    }}
-                  >
-                    Featured Talk
-                  </div>
-                  <div
-                    style={{
-                      color: '#ffffff',
-                      fontSize: 16,
-                      fontWeight: 600,
-                      lineHeight: 1.2,
-                      marginBottom: 4,
-                    }}
-                  >
-                    {truncatedTalkTitle}
-                  </div>
-                  <div style={{ color: '#9ca3af', fontSize: 14 }}>
-                    {primaryTalk.speakerName}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right side: Card Image */}
-          <div
-            style={{
-              width: 300,
-              height: 550,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <img
-              src={cardImageUrl}
-              alt={cardData.name}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '100%',
-                borderRadius: 16,
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                objectFit: 'contain',
-              }}
-            />
-          </div>
-        </div>
-      ),
-      { ...size }
-    );
-  }
-
-  if (layout === 'c') {
-    // Option C: Full-Width Footer Banner
-    return new ImageResponse(
-      (
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
-            position: 'relative',
-          }}
-        >
-          {sparkles.map((sparkle, i) => (
-            <Sparkle key={i} {...sparkle} />
-          ))}
-
-          {/* Main content area */}
-          <div
-            style={{
-              flex: 1,
-              display: 'flex',
-              padding: 40,
-              paddingBottom: 20,
-            }}
-          >
-            {/* Left side: Content */}
-            <div
-              style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                paddingRight: 30,
-              }}
-            >
-              {/* Branding */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  fontSize: 24,
-                  marginBottom: 16,
-                }}
-              >
-                <span style={{ color: '#9ca3af', fontWeight: 300 }}>Tarot</span>
-                <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
-              </div>
-
-              {/* Card Name */}
-              <div
-                style={{
-                  color: '#ffffff',
-                  fontSize: 42,
-                  fontWeight: 700,
-                  lineHeight: 1.1,
-                  marginBottom: 12,
-                  textTransform: 'uppercase',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                {cardData.name}
-              </div>
-
-              {/* Summary */}
-              {truncatedSummary && (
-                <div
-                  style={{
-                    color: '#d1d5db',
-                    fontSize: 17,
-                    lineHeight: 1.4,
-                    marginBottom: 14,
-                    maxWidth: 450,
-                  }}
-                >
-                  {truncatedSummary}
-                </div>
-              )}
 
               {/* Keywords */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -533,7 +197,7 @@ export async function GET(request: NextRequest) {
                       color: '#a5b4fc',
                       padding: '6px 14px',
                       borderRadius: 16,
-                      fontSize: 13,
+                      fontSize: 12,
                       border: '1px solid rgba(99, 102, 241, 0.4)',
                     }}
                   >
@@ -543,86 +207,418 @@ export async function GET(request: NextRequest) {
               </div>
             </div>
 
-            {/* Right side: Card Image */}
-            <div
-              style={{
-                width: 280,
-                height: 440,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <img
-                src={cardImageUrl}
-                alt={cardData.name}
+            {/* Bottom: Large Talk Image + Info */}
+            {primaryTalk && (
+              <div
                 style={{
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  borderRadius: 14,
-                  boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                  objectFit: 'contain',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginTop: 'auto',
                 }}
-              />
-            </div>
-          </div>
-
-          {/* Footer Banner */}
-          {primaryTalk && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                background: 'rgba(0, 0, 0, 0.4)',
-                padding: '16px 40px',
-                gap: 20,
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
-            >
-              {talkThumbnailUrl && (
-                <img
-                  src={talkThumbnailUrl}
-                  alt=""
-                  style={{
-                    width: 90,
-                    height: 68,
-                    borderRadius: 8,
-                    objectFit: 'cover',
-                  }}
-                />
-              )}
-              <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+              >
+                {talkThumbnailUrl && (
+                  <img
+                    src={talkThumbnailUrl}
+                    alt=""
+                    style={{
+                      width: 280,
+                      height: 158,
+                      borderRadius: 12,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                    }}
+                  />
+                )}
                 <div
                   style={{
                     color: '#ffffff',
-                    fontSize: 17,
-                    fontWeight: 600,
+                    fontSize: 16,
+                    fontWeight: 700,
                     lineHeight: 1.2,
-                    marginBottom: 4,
+                    marginTop: 10,
+                    maxWidth: 280,
                   }}
                 >
                   {truncatedTalkTitle}
                 </div>
-                <div style={{ color: '#9ca3af', fontSize: 14 }}>
+                <div style={{ color: '#a5b4fc', fontSize: 14, marginTop: 4 }}>
                   {primaryTalk.speakerName}
                 </div>
               </div>
+            )}
+          </div>
+
+          {/* Right side: Card Image */}
+          <div
+            style={{
+              width: 300,
+              height: 550,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src={cardImageUrl}
+              alt={cardData.name}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                borderRadius: 16,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        </div>
+      ),
+      { ...size, ...fontOptions }
+    );
+  }
+
+  if (layout === 'b') {
+    // Option B: Card LEFT, Content RIGHT (FLIPPED LAYOUT)
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+            padding: 40,
+            position: 'relative',
+            fontFamily: 'OpenDyslexic',
+          }}
+        >
+          {sparkles.map((sparkle, i) => (
+            <Sparkle key={i} {...sparkle} />
+          ))}
+
+          {/* Left side: Card Image */}
+          <div
+            style={{
+              width: 300,
+              height: 550,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src={cardImageUrl}
+              alt={cardData.name}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                borderRadius: 16,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+
+          {/* Right side: Content + Talk */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              paddingLeft: 30,
+            }}
+          >
+            {/* Top: Branding + Card Info */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {/* Branding */}
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  color: '#a5b4fc',
-                  fontSize: 13,
-                  fontWeight: 500,
+                  alignItems: 'baseline',
+                  fontSize: 22,
+                  marginBottom: 10,
                 }}
               >
-                Watch on TarotTALKS
+                <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
+                <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
+              </div>
+
+              {/* Card Name */}
+              <div
+                style={{
+                  color: '#ffffff',
+                  fontSize: 38,
+                  fontWeight: 700,
+                  lineHeight: 1.1,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {cardData.name}
+              </div>
+
+              {/* Full Summary */}
+              <div
+                style={{
+                  color: '#d1d5db',
+                  fontSize: 15,
+                  lineHeight: 1.4,
+                  marginBottom: 12,
+                  maxWidth: 500,
+                }}
+              >
+                {fullSummary}
+              </div>
+
+              {/* Keywords */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {displayKeywords.map((keyword, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.3)',
+                      color: '#a5b4fc',
+                      padding: '6px 14px',
+                      borderRadius: 16,
+                      fontSize: 12,
+                      border: '1px solid rgba(99, 102, 241, 0.4)',
+                    }}
+                  >
+                    {keyword}
+                  </span>
+                ))}
               </div>
             </div>
-          )}
+
+            {/* Bottom Right: Large Talk Image + Info */}
+            {primaryTalk && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginTop: 'auto',
+                  alignItems: 'flex-end',
+                }}
+              >
+                {talkThumbnailUrl && (
+                  <img
+                    src={talkThumbnailUrl}
+                    alt=""
+                    style={{
+                      width: 280,
+                      height: 158,
+                      borderRadius: 12,
+                      objectFit: 'cover',
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                    }}
+                  />
+                )}
+                <div
+                  style={{
+                    color: '#ffffff',
+                    fontSize: 16,
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    marginTop: 10,
+                    maxWidth: 280,
+                    textAlign: 'right',
+                  }}
+                >
+                  {truncatedTalkTitle}
+                </div>
+                <div style={{ color: '#a5b4fc', fontSize: 14, marginTop: 4, textAlign: 'right' }}>
+                  {primaryTalk.speakerName}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       ),
-      { ...size }
+      { ...size, ...fontOptions }
+    );
+  }
+
+  if (layout === 'c') {
+    // Option C: Card RIGHT, Content LEFT, Talk image with OVERLAID text
+    return new ImageResponse(
+      (
+        <div
+          style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+            padding: 40,
+            position: 'relative',
+            fontFamily: 'OpenDyslexic',
+          }}
+        >
+          {sparkles.map((sparkle, i) => (
+            <Sparkle key={i} {...sparkle} />
+          ))}
+
+          {/* Left side: Content + Talk */}
+          <div
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              paddingRight: 30,
+            }}
+          >
+            {/* Top: Branding + Card Info */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {/* Branding */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  fontSize: 22,
+                  marginBottom: 10,
+                }}
+              >
+                <span style={{ color: '#9ca3af', fontWeight: 400 }}>Tarot</span>
+                <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
+              </div>
+
+              {/* Card Name */}
+              <div
+                style={{
+                  color: '#ffffff',
+                  fontSize: 38,
+                  fontWeight: 700,
+                  lineHeight: 1.1,
+                  marginBottom: 10,
+                  textTransform: 'uppercase',
+                }}
+              >
+                {cardData.name}
+              </div>
+
+              {/* Full Summary */}
+              <div
+                style={{
+                  color: '#d1d5db',
+                  fontSize: 15,
+                  lineHeight: 1.4,
+                  marginBottom: 12,
+                  maxWidth: 500,
+                }}
+              >
+                {fullSummary}
+              </div>
+
+              {/* Keywords */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                {displayKeywords.map((keyword, index) => (
+                  <span
+                    key={index}
+                    style={{
+                      background: 'rgba(99, 102, 241, 0.3)',
+                      color: '#a5b4fc',
+                      padding: '6px 14px',
+                      borderRadius: 16,
+                      fontSize: 12,
+                      border: '1px solid rgba(99, 102, 241, 0.4)',
+                    }}
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom: Talk Image with Overlaid Text */}
+            {primaryTalk && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  marginTop: 'auto',
+                  position: 'relative',
+                  width: 320,
+                }}
+              >
+                {talkThumbnailUrl && (
+                  <div style={{ position: 'relative', display: 'flex' }}>
+                    <img
+                      src={talkThumbnailUrl}
+                      alt=""
+                      style={{
+                        width: 320,
+                        height: 180,
+                        borderRadius: 12,
+                        objectFit: 'cover',
+                      }}
+                    />
+                    {/* Gradient overlay for text readability */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: 100,
+                        background: 'linear-gradient(transparent, rgba(0,0,0,0.85))',
+                        borderRadius: '0 0 12px 12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
+                        padding: 12,
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: '#ffffff',
+                          fontSize: 14,
+                          fontWeight: 700,
+                          lineHeight: 1.2,
+                          textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {truncatedTalkTitle}
+                      </div>
+                      <div
+                        style={{
+                          color: '#a5b4fc',
+                          fontSize: 12,
+                          marginTop: 4,
+                          textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                        }}
+                      >
+                        {primaryTalk.speakerName}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right side: Card Image */}
+          <div
+            style={{
+              width: 300,
+              height: 550,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src={cardImageUrl}
+              alt={cardData.name}
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                borderRadius: 16,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                objectFit: 'contain',
+              }}
+            />
+          </div>
+        </div>
+      ),
+      { ...size, ...fontOptions }
     );
   }
 
@@ -639,11 +635,12 @@ export async function GET(request: NextRequest) {
           background: '#1e1b4b',
           color: 'white',
           fontSize: 32,
+          fontFamily: 'OpenDyslexic',
         }}
       >
         Unknown layout: {layout}. Use a, b, or c.
       </div>
     ),
-    { ...size }
+    { ...size, ...fontOptions }
   );
 }
