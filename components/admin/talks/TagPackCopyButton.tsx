@@ -69,7 +69,7 @@ export function TagPackCopyButton({
 
     // Card link and rationale
     if (primaryMapping) {
-      const cardUrl = `https://tarottalks.com/cards/${primaryMapping.cardSlug}`;
+      const cardUrl = `https://tarottalks.app/cards/${primaryMapping.cardSlug}`;
       lines.push(`🃏 ${primaryMapping.cardName}: ${cardUrl}`);
       if (primaryMapping.rationaleShort) {
         lines.push(`💡 ${primaryMapping.rationaleShort}`);
