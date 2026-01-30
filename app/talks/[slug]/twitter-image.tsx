@@ -54,18 +54,12 @@ function truncate(text: string | null | undefined, maxLength: number): string {
   return text.length > maxLength ? text.slice(0, maxLength - 3) + '...' : text;
 }
 
-type LayoutType = 'A' | 'B' | 'C';
-
 export default async function Image({
   params,
-  searchParams,
 }: {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ layout?: string }>;
 }) {
   const { slug } = await params;
-  const { layout: layoutParam } = await searchParams;
-  const layout = (['A', 'B', 'C'].includes(layoutParam || '') ? layoutParam : 'A') as LayoutType;
 
   // Load fonts and talk data in parallel
   const [fonts, talkData] = await Promise.all([
@@ -137,53 +131,7 @@ export default async function Image({
     ? `${Math.floor(talkData.durationSeconds / 60)} min`
     : null;
 
-  // Select layout renderer
-  if (layout === 'B') {
-    return renderLayoutB({
-      talkData,
-      thumbnailUrl: fullThumbnailUrl,
-      cardImageUrl,
-      truncatedTitle,
-      rationaleShort,
-      primaryCard,
-      sparkles,
-      fontFamily,
-      fontOptions,
-    });
-  }
-
-  if (layout === 'C') {
-    return renderLayoutC({
-      talkData,
-      thumbnailUrl: fullThumbnailUrl,
-      cardImageUrl,
-      truncatedTitle,
-      rationaleShort,
-      primaryCard,
-      sparkles,
-      fontFamily,
-      fontOptions,
-    });
-  }
-
-  // Default: Layout A (Three-Column)
-  return renderLayoutA({
-    talkData,
-    thumbnailUrl: fullThumbnailUrl,
-    cardImageUrl,
-    truncatedTitle,
-    eventYear,
-    duration,
-    rationaleShort,
-    primaryCard,
-    sparkles,
-    fontFamily,
-    fontOptions,
-  });
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderLayoutA({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, eventYear, duration, rationaleShort, primaryCard, sparkles, fontFamily, fontOptions }: any) {
+  // Layout A: Three-Column
   return new ImageResponse(
     (
       <div
@@ -198,7 +146,7 @@ function renderLayoutA({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, e
         }}
       >
         {/* Sparkles */}
-        {sparkles.map((sp: { x: number; y: number; s: number; o: number }, i: number) => (
+        {sparkles.map((sp, i) => (
           <div
             key={i}
             style={{
@@ -223,9 +171,9 @@ function renderLayoutA({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, e
         <div style={{ display: 'flex', width: '100%', marginTop: 60, gap: 24 }}>
           {/* Left: Talk Thumbnail */}
           <div style={{ display: 'flex', flexDirection: 'column', width: 420 }}>
-            {thumbnailUrl ? (
+            {fullThumbnailUrl ? (
               <img
-                src={thumbnailUrl}
+                src={fullThumbnailUrl}
                 alt=""
                 width={420}
                 height={236}
@@ -335,243 +283,6 @@ function renderLayoutA({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, e
               />
             </div>
           ) : null}
-        </div>
-      </div>
-    ),
-    { ...size, ...fontOptions }
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderLayoutB({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, rationaleShort, primaryCard, sparkles, fontFamily, fontOptions }: any) {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
-          padding: 36,
-          position: 'relative',
-          fontFamily,
-        }}
-      >
-        {/* Sparkles */}
-        {sparkles.map((sp: { x: number; y: number; s: number; o: number }, i: number) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: sp.x,
-              top: sp.y,
-              width: sp.s,
-              height: sp.s,
-              background: `rgba(255, 255, 255, ${sp.o})`,
-              borderRadius: '50%',
-            }}
-          />
-        ))}
-
-        {/* Top Row: Brand + Talk Thumbnail + Card */}
-        <div style={{ display: 'flex', gap: 24 }}>
-          {/* Left side: Brand + Thumbnail */}
-          <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-            {/* Brand */}
-            <div style={{ display: 'flex', fontSize: 32, marginBottom: 16 }}>
-              <span style={{ color: '#9ca3af' }}>Tarot</span>
-              <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
-            </div>
-
-            {/* Talk Thumbnail */}
-            {thumbnailUrl ? (
-              <img
-                src={thumbnailUrl}
-                alt=""
-                width={560}
-                height={315}
-                style={{ borderRadius: 12, objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 560,
-                  height: 315,
-                  borderRadius: 12,
-                  background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#9ca3af',
-                  fontSize: 32,
-                }}
-              >
-                TED Talk
-              </div>
-            )}
-          </div>
-
-          {/* Right side: Card Image */}
-          {cardImageUrl && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
-              <img
-                src={cardImageUrl}
-                alt={primaryCard?.name || 'Card'}
-                width={140}
-                height={276}
-                style={{ borderRadius: 12, objectFit: 'contain' }}
-              />
-              <div style={{ color: '#a5b4fc', fontSize: 14, marginTop: 8, textAlign: 'center' }}>
-                {primaryCard?.name}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Row: Title + Speaker + Rationale */}
-        <div style={{ display: 'flex', flexDirection: 'column', marginTop: 20, flex: 1 }}>
-          <div
-            style={{
-              color: '#ffffff',
-              fontSize: 32,
-              fontWeight: 700,
-              marginBottom: 8,
-            }}
-          >
-            {truncatedTitle}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <span style={{ color: '#a5b4fc', fontSize: 20 }}>by {talkData.speakerName}</span>
-            {rationaleShort && (
-              <>
-                <span style={{ color: '#6b7280' }}>•</span>
-                <span style={{ color: '#d1d5db', fontSize: 16, fontStyle: 'italic' }}>
-                  &ldquo;{rationaleShort}&rdquo;
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    ),
-    { ...size, ...fontOptions }
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderLayoutC({ talkData, thumbnailUrl, cardImageUrl, truncatedTitle, rationaleShort, primaryCard, sparkles, fontFamily, fontOptions }: any) {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
-          padding: 36,
-          position: 'relative',
-          fontFamily,
-        }}
-      >
-        {/* Sparkles */}
-        {sparkles.map((sp: { x: number; y: number; s: number; o: number }, i: number) => (
-          <div
-            key={i}
-            style={{
-              position: 'absolute',
-              left: sp.x,
-              top: sp.y,
-              width: sp.s,
-              height: sp.s,
-              background: `rgba(255, 255, 255, ${sp.o})`,
-              borderRadius: '50%',
-            }}
-          />
-        ))}
-
-        {/* Centered Brand */}
-        <div style={{ display: 'flex', fontSize: 32, justifyContent: 'center', marginBottom: 20 }}>
-          <span style={{ color: '#9ca3af' }}>Tarot</span>
-          <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
-        </div>
-
-        {/* Main Row: Talk + Card side by side */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 60, flex: 1 }}>
-          {/* Talk Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {thumbnailUrl ? (
-              <img
-                src={thumbnailUrl}
-                alt=""
-                width={400}
-                height={225}
-                style={{ borderRadius: 12, objectFit: 'cover' }}
-              />
-            ) : (
-              <div
-                style={{
-                  width: 400,
-                  height: 225,
-                  borderRadius: 12,
-                  background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#9ca3af',
-                  fontSize: 24,
-                }}
-              >
-                TED Talk
-              </div>
-            )}
-            <div
-              style={{
-                color: '#ffffff',
-                fontSize: 24,
-                fontWeight: 700,
-                marginTop: 12,
-                textAlign: 'center',
-                maxWidth: 400,
-              }}
-            >
-              {truncatedTitle}
-            </div>
-            <div style={{ color: '#a5b4fc', fontSize: 18, marginTop: 4 }}>
-              by {talkData.speakerName}
-            </div>
-          </div>
-
-          {/* Card Column */}
-          {cardImageUrl && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <img
-                src={cardImageUrl}
-                alt={primaryCard?.name || 'Card'}
-                width={200}
-                height={395}
-                style={{ borderRadius: 12, objectFit: 'contain' }}
-              />
-              <div style={{ color: '#ffffff', fontSize: 18, fontWeight: 700, marginTop: 8 }}>
-                {primaryCard?.name}
-              </div>
-              {rationaleShort && (
-                <div
-                  style={{
-                    color: '#d1d5db',
-                    fontSize: 14,
-                    fontStyle: 'italic',
-                    marginTop: 4,
-                    maxWidth: 200,
-                    textAlign: 'center',
-                  }}
-                >
-                  &ldquo;{rationaleShort}&rdquo;
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     ),
