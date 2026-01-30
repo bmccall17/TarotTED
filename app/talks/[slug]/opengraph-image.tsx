@@ -149,12 +149,13 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           />
         ))}
 
-        {/* Left Column: Talk Thumbnail */}
+        {/* Left Section: Brand + Large Thumbnail */}
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
-            width: 420,
+            width: 720,
+            position: 'relative',
           }}
         >
           {/* Brand */}
@@ -163,30 +164,30 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             <span style={{ color: '#EB0028', fontWeight: 700 }}>TALKS</span>
           </div>
 
-          {/* Thumbnail */}
+          {/* Large Thumbnail */}
           {fullThumbnailUrl ? (
             <img
               src={fullThumbnailUrl}
               alt=""
-              width={400}
-              height={225}
+              width={700}
+              height={394}
               style={{
-                borderRadius: 12,
+                borderRadius: 16,
                 objectFit: 'cover',
               }}
             />
           ) : (
             <div
               style={{
-                width: 400,
-                height: 225,
-                borderRadius: 12,
+                width: 700,
+                height: 394,
+                borderRadius: 16,
                 background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#9ca3af',
-                fontSize: 24,
+                fontSize: 32,
               }}
             >
               TED Talk
@@ -208,7 +209,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
         </div>
 
-        {/* Center Column: Title, Speaker, Rationale */}
+        {/* Right Section: Title, Speaker, Rationale */}
         <div
           style={{
             flex: 1,
@@ -223,7 +224,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div
             style={{
               color: '#ffffff',
-              fontSize: 32,
+              fontSize: 28,
               fontWeight: 700,
               marginBottom: 8,
               lineHeight: 1.2,
@@ -236,8 +237,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div
             style={{
               color: '#a5b4fc',
-              fontSize: 22,
-              marginBottom: 20,
+              fontSize: 20,
+              marginBottom: 16,
             }}
           >
             {talkData.speakerName}
@@ -248,56 +249,35 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             <div
               style={{
                 color: '#d1d5db',
-                fontSize: 18,
+                fontSize: 16,
                 lineHeight: 1.4,
                 borderLeft: '3px solid #6366f1',
-                paddingLeft: 16,
+                paddingLeft: 14,
               }}
             >
               {truncatedRationale}
             </div>
           )}
-
-          {/* Card name badge */}
-          {primaryCard && (
-            <div
-              style={{
-                display: 'flex',
-                marginTop: 20,
-              }}
-            >
-              <span
-                style={{
-                  background: 'rgba(99, 102, 241, 0.3)',
-                  color: '#a5b4fc',
-                  padding: '8px 16px',
-                  borderRadius: 20,
-                  fontSize: 16,
-                }}
-              >
-                {primaryCard.name}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* Right Column: Card Image */}
+        {/* Card Image - overlays right edge of thumbnail */}
         {cardImageUrl && (
           <div
             style={{
-              width: 180,
+              position: 'absolute',
+              left: 640,
+              top: 110,
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))',
             }}
           >
             <img
               src={cardImageUrl}
               alt={primaryCard?.name || ''}
-              width={160}
-              height={316}
+              width={190}
+              height={375}
               style={{
-                borderRadius: 10,
+                borderRadius: 12,
                 objectFit: 'contain',
               }}
             />
