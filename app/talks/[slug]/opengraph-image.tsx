@@ -101,7 +101,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     rationale.length > 120 ? rationale.slice(0, 117) + '...' : rationale;
 
   // Format duration (seconds to minutes)
-  const durationMin = talkData.duration ? Math.round(talkData.duration / 60) : null;
+  const durationMin = talkData.durationSeconds ? Math.round(talkData.durationSeconds / 60) : null;
 
   // Generate sparkles
   const sparkles: Array<{ x: number; y: number; s: number; o: number }> = [];
