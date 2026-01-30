@@ -207,15 +207,16 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
         </div>
 
-        {/* Right Section: Title, Speaker, Rationale */}
+        {/* Right Section: Title, Speaker at top */}
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
             paddingLeft: 28,
             paddingRight: 20,
+            paddingTop: 44,
           }}
         >
           {/* Title */}
@@ -236,35 +237,19 @@ export default async function Image({ params }: { params: Promise<{ slug: string
             style={{
               color: '#a5b4fc',
               fontSize: 20,
-              marginBottom: 16,
             }}
           >
             {talkData.speakerName}
           </div>
-
-          {/* Rationale */}
-          {rationale && (
-            <div
-              style={{
-                color: '#d1d5db',
-                fontSize: 16,
-                lineHeight: 1.4,
-                borderLeft: '3px solid #6366f1',
-                paddingLeft: 14,
-              }}
-            >
-              {rationale}
-            </div>
-          )}
         </div>
 
-        {/* Card Image - overlays right edge of thumbnail */}
+        {/* Card Image - overlays bottom-right corner of thumbnail */}
         {cardImageUrl && (
           <div
             style={{
               position: 'absolute',
-              left: 700,
-              top: 110,
+              left: 580,
+              top: 220,
               display: 'flex',
               filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))',
             }}
@@ -279,6 +264,26 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 objectFit: 'contain',
               }}
             />
+          </div>
+        )}
+
+        {/* Rationale - positioned to the right of card */}
+        {rationale && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 790,
+              top: 280,
+              right: 36,
+              display: 'flex',
+              color: '#d1d5db',
+              fontSize: 15,
+              lineHeight: 1.4,
+              borderLeft: '3px solid #6366f1',
+              paddingLeft: 14,
+            }}
+          >
+            {rationale}
           </div>
         )}
       </div>
