@@ -99,9 +99,9 @@ export default function TalkSharePreview() {
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
                 }`}
-                title={talk.title}
+                title={`${talk.speakerName}: ${talk.title}`}
               >
-                {talk.title.length > 30 ? talk.title.slice(0, 27) + '...' : talk.title}
+                {talk.speakerName}
               </button>
             ))}
           </div>

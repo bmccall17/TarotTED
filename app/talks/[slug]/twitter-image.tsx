@@ -23,12 +23,12 @@ async function loadFonts() {
       bold: bold.buffer.slice(bold.byteOffset, bold.byteOffset + bold.byteLength),
     };
   } catch (error) {
-    console.error('Failed to load fonts from filesystem:', error);
+    console.error('Failed to load fonts:', error);
     return null;
   }
 }
 
-// Generate sparkles for visual effect
+// Generate sparkles
 function generateSparkles() {
   const sparkles: Array<{ x: number; y: number; s: number; o: number }> = [];
   let seed = Date.now();
@@ -48,20 +48,9 @@ function generateSparkles() {
   return sparkles;
 }
 
-// Helper to truncate text
-function truncate(text: string | null | undefined, maxLength: number): string {
-  if (!text) return '';
-  return text.length > maxLength ? text.slice(0, maxLength - 3) + '...' : text;
-}
-
-export default async function Image({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
-  // Load fonts and talk data in parallel
   const [fonts, talkData] = await Promise.all([
     loadFonts(),
     getTalkWithMappedCards(slug).catch((error) => {
@@ -80,7 +69,6 @@ export default async function Image({
       }
     : {};
 
-  // Fallback for talk not found
   if (!talkData) {
     return new ImageResponse(
       (
@@ -107,7 +95,10 @@ export default async function Image({
   // Get primary mapped card
   const primaryMapping = talkData.mappedCards.find(m => m.mapping.isPrimary) || talkData.mappedCards[0];
   const primaryCard = primaryMapping?.card;
-  const rationaleShort = truncate(primaryMapping?.mapping.rationaleShort, 150);
+  const rationaleShort = primaryMapping?.mapping?.rationaleShort || '';
+  const truncatedRationale = rationaleShort.length > 150
+    ? rationaleShort.slice(0, 147) + '...'
+    : rationaleShort;
 
   // Get thumbnail URL
   const thumbnailUrl = getThumbnailUrl(talkData.thumbnailUrl, talkData.youtubeVideoId);
@@ -125,13 +116,10 @@ export default async function Image({
     : null;
 
   const sparkles = generateSparkles();
-  const truncatedTitle = truncate(talkData.title, 70);
-  const eventYear = [talkData.eventName, talkData.year].filter(Boolean).join(' ');
-  const duration = talkData.durationSeconds
-    ? `${Math.floor(talkData.durationSeconds / 60)} min`
-    : null;
+  const truncatedTitle = talkData.title.length > 70
+    ? talkData.title.slice(0, 67) + '...'
+    : talkData.title;
 
-  // Layout A: Three-Column
   return new ImageResponse(
     (
       <div
@@ -222,58 +210,26 @@ export default async function Image({
             </div>
 
             {/* Speaker */}
-            <div style={{ color: '#a5b4fc', fontSize: 22, marginBottom: 12 }}>
+            <div style={{ color: '#a5b4fc', fontSize: 22, marginBottom: 16 }}>
               by {talkData.speakerName}
             </div>
 
-            {/* Metadata badges */}
-            <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-              {eventYear && (
-                <span
-                  style={{
-                    background: 'rgba(99, 102, 241, 0.3)',
-                    color: '#a5b4fc',
-                    padding: '6px 12px',
-                    borderRadius: 16,
-                    fontSize: 14,
-                  }}
-                >
-                  {eventYear}
-                </span>
-              )}
-              {duration && (
-                <span
-                  style={{
-                    background: 'rgba(99, 102, 241, 0.3)',
-                    color: '#a5b4fc',
-                    padding: '6px 12px',
-                    borderRadius: 16,
-                    fontSize: 14,
-                  }}
-                >
-                  {duration}
-                </span>
-              )}
-            </div>
-
             {/* Rationale */}
-            {rationaleShort && (
-              <div
-                style={{
-                  color: '#d1d5db',
-                  fontSize: 16,
-                  fontStyle: 'italic',
-                  maxWidth: 380,
-                }}
-              >
-                &ldquo;{rationaleShort}&rdquo;
-              </div>
-            )}
+            <div
+              style={{
+                color: '#d1d5db',
+                fontSize: 16,
+                fontStyle: 'italic',
+                maxWidth: 380,
+              }}
+            >
+              {truncatedRationale ? `"${truncatedRationale}"` : ''}
+            </div>
           </div>
 
           {/* Right: Card Image */}
-          {cardImageUrl ? (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            {cardImageUrl ? (
               <img
                 src={cardImageUrl}
                 alt={primaryCard?.name || 'Card'}
@@ -281,8 +237,24 @@ export default async function Image({
                 height={316}
                 style={{ borderRadius: 12, objectFit: 'contain' }}
               />
-            </div>
-          ) : null}
+            ) : (
+              <div
+                style={{
+                  width: 160,
+                  height: 316,
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#9ca3af',
+                  fontSize: 14,
+                }}
+              >
+                No Card
+              </div>
+            )}
+          </div>
         </div>
       </div>
     ),
