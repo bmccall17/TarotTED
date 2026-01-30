@@ -1,7 +1,7 @@
 # Session Log: Talk Share Images (OG/Twitter)
 
 **Date:** 2026-01-30
-**Status:** Phase 3 - COMPLETE (Layout A implemented)
+**Status:** SHIPPED ✓
 
 ---
 
@@ -28,7 +28,7 @@ Error: Expected <div> to have explicit "display: flex" or "display: none"
 
 ---
 
-## Layout A Implementation Details
+## Final Layout Implementation
 
 Both `app/talks/[slug]/opengraph-image.tsx` and `twitter-image.tsx` now include:
 
@@ -38,10 +38,11 @@ Both `app/talks/[slug]/opengraph-image.tsx` and `twitter-image.tsx` now include:
 - Thumbnail URL resolution via `getThumbnailUrl()` utility
 - Sparkle background effects (matching card OG images)
 
-### Three-Column Layout
-- **Left (420px):** Brand + Talk thumbnail (400x225) + metadata (year, duration)
-- **Center (flex):** Title, speaker name, rationale quote, card name badge
-- **Right (180px):** Primary card image (160x316)
+### Final Layout
+- **Left (720px):** Brand + Large talk thumbnail (700x394) + metadata (year, duration)
+- **Top Right:** Title + speaker name (aligned with thumbnail top)
+- **Bottom Right:** Card image (190x375) overlaying bottom-right corner of thumbnail
+- **Right of Card:** Rationale quote (full text, no truncation)
 
 ### Edge Cases Handled
 - Missing thumbnail: Shows gradient placeholder with "TED Talk" text
@@ -59,23 +60,22 @@ Both `app/talks/[slug]/opengraph-image.tsx` and `twitter-image.tsx` now include:
 | 2. User selects layout (Layout A) | COMPLETE |
 | 3. Implement final OG images | COMPLETE |
 | 4. Admin dashboard talks tab | COMPLETE |
+| 5. Layout refinements | COMPLETE |
 
 ---
 
 ## Files Modified This Session
 
-- `app/talks/[slug]/opengraph-image.tsx` - Full Layout A implementation
-- `app/talks/[slug]/twitter-image.tsx` - Full Layout A implementation
+- `app/talks/[slug]/opengraph-image.tsx` - Final layout with card overlay
+- `app/talks/[slug]/twitter-image.tsx` - Final layout with card overlay
 
 ---
 
-## Testing
+## Sprint Complete
 
-Visit `/preview/talk-share` to test various talks, or directly access:
-- `/talks/{slug}/opengraph-image` for any talk slug
-
----
-
-## Plan File Reference
-
-Full implementation plan: `~/.claude/plans/polished-toasting-pudding.md`
+Talk share images are now generating with:
+- Large prominent thumbnail
+- Card overlaying bottom-right corner (with drop shadow)
+- Title/speaker at top right
+- Full rationale text positioned right of card
+- Consistent branding and sparkle effects

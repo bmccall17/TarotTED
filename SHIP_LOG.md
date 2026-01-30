@@ -10,6 +10,15 @@ A chronological record of major releases and feature deployments for TarotTALKS.
 
 Features and changes staged for the next version:
 
+- **Talk Social Share Images (v1.3.5)**: Dynamic OG images for talk pages
+  - Large talk thumbnail (700x394) spanning left side
+  - Card image overlaying bottom-right corner with drop shadow
+  - Title and speaker aligned at top right
+  - Full rationale text positioned right of card
+  - OpenDyslexic fonts + sparkle background effects
+  - Preview page at `/preview/talk-share`
+  - Files: `app/talks/[slug]/opengraph-image.tsx`, `app/talks/[slug]/twitter-image.tsx`
+
 - **Enhanced Card Social Share Images (v1.3.4)**: Major upgrade to card OG images
   - Layout A3: Brand top-left, talk thumbnail bottom-left, card info right-justified
   - Primary talk integration: Shows mapped TED talk thumbnail, title, and speaker
