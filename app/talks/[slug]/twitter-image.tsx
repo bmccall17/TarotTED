@@ -132,7 +132,7 @@ export default async function Image({
 
   const sparkles = generateSparkles();
   const truncatedTitle = truncate(talkData.title, 70);
-  const eventYear = [talkData.event, talkData.year].filter(Boolean).join(' ');
+  const eventYear = [talkData.eventName, talkData.year].filter(Boolean).join(' ');
   const duration = talkData.durationSeconds
     ? `${Math.floor(talkData.durationSeconds / 60)} min`
     : null;
