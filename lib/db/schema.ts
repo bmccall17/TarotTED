@@ -4,6 +4,8 @@ import { pgTable, text, integer, boolean, timestamp, uuid, varchar, pgEnum, bigi
 export const arcanaTypeEnum = pgEnum('arcana_type', ['major', 'minor']);
 export const suitEnum = pgEnum('suit', ['wands', 'cups', 'swords', 'pentacles']);
 export const themeCategoryEnum = pgEnum('theme_category', ['emotion', 'life_phase', 'role', 'other']);
+export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'other']);
+export const shareStatusEnum = pgEnum('share_status', ['draft', 'posted', 'verified']);
 
 // Cards table
 export const cards = pgTable('cards', {
@@ -101,4 +103,35 @@ export const behaviorEvents = pgTable('behavior_events', {
   idxEventsSession: index('idx_events_session').on(table.sessionId),
   idxEventsNameTime: index('idx_events_name_time').on(table.eventName, table.timestamp),
   idxEventsCreated: index('idx_events_created').on(table.createdAt),
+}));
+
+// Social Shares table (Signal Deck - manual share tracking)
+export const socialShares = pgTable('social_shares', {
+  id: uuid('id').defaultRandom().primaryKey(),
+
+  // Core fields
+  platform: platformEnum('platform').notNull(),
+  postUrl: varchar('post_url', { length: 500 }),
+  status: shareStatusEnum('status').default('posted').notNull(),
+  postedAt: timestamp('posted_at').defaultNow().notNull(),
+
+  // What was shared (optional FK refs)
+  cardId: uuid('card_id').references(() => cards.id, { onDelete: 'set null' }),
+  talkId: uuid('talk_id').references(() => talks.id, { onDelete: 'set null' }),
+  sharedUrl: varchar('shared_url', { length: 500 }), // the TarotTALKS URL shared
+
+  // Speaker tracking (Phase 3 prep)
+  speakerHandle: varchar('speaker_handle', { length: 100 }),
+  speakerName: varchar('speaker_name', { length: 200 }),
+
+  // Notes
+  notes: text('notes'),
+
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  idxPostedAt: index('idx_social_shares_posted_at').on(table.postedAt),
+  idxPlatform: index('idx_social_shares_platform').on(table.platform),
+  idxStatus: index('idx_social_shares_status').on(table.status),
 }));

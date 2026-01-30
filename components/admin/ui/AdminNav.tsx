@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft, Sparkles, BarChart3, Share2 } from 'lucide-react';
+import { Home, Video, Link as LinkIcon, AlertTriangle, ArrowLeft, Sparkles, BarChart3, Share2, Radio } from 'lucide-react';
 // import { Palette } from 'lucide-react'; // TODO: Uncomment when Theme management is implemented
 
 export function AdminNav() {
@@ -99,6 +99,10 @@ export function AdminNav() {
             <Link href="/admin/share-images" className={navLinkClass('/admin/share-images')}>
               <Share2 className="w-4 h-4" />
               <span>Share Images</span>
+            </Link>
+            <Link href="/admin/signal-deck" className={navLinkClass('/admin/signal-deck')}>
+              <Radio className="w-4 h-4" />
+              <span>Signal Deck</span>
             </Link>
           </div>
         </div>

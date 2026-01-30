@@ -1,0 +1,276 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { Plus, Radio } from 'lucide-react';
+import { ShareRow } from './ShareRow';
+import { ShareFilters } from './ShareFilters';
+import { NewShareForm } from './NewShareForm';
+import { Toast } from '../ui/Toast';
+
+type Share = {
+  id: string;
+  platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  postUrl: string | null;
+  status: 'draft' | 'posted' | 'verified';
+  postedAt: string;
+  sharedUrl: string | null;
+  speakerHandle: string | null;
+  speakerName: string | null;
+  notes: string | null;
+  card?: { id: string; name: string; slug: string } | null;
+  talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+};
+
+type Stats = {
+  today: number;
+  thisWeek: number;
+  total: number;
+};
+
+function groupSharesByDate(shares: Share[]): Record<string, Share[]> {
+  const groups: Record<string, Share[]> = {};
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterdayStart = new Date(todayStart);
+  yesterdayStart.setDate(yesterdayStart.getDate() - 1);
+  const weekStart = new Date(todayStart);
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  shares.forEach((share) => {
+    const postedAt = new Date(share.postedAt);
+    let groupKey: string;
+
+    if (postedAt >= todayStart) {
+      groupKey = 'Today';
+    } else if (postedAt >= yesterdayStart) {
+      groupKey = 'Yesterday';
+    } else if (postedAt >= weekStart) {
+      groupKey = 'This Week';
+    } else {
+      groupKey = 'Earlier';
+    }
+
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+    groups[groupKey].push(share);
+  });
+
+  return groups;
+}
+
+export function SharesList() {
+  const [shares, setShares] = useState<Share[]>([]);
+  const [stats, setStats] = useState<Stats>({ today: 0, thisWeek: 0, total: 0 });
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Form modal state
+  const [showForm, setShowForm] = useState(false);
+  const [editingShare, setEditingShare] = useState<Share | null>(null);
+
+  // Filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [platform, setPlatform] = useState('');
+  const [status, setStatus] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  const hasActiveFilters = !!(searchQuery || platform || status || dateFrom || dateTo);
+
+  const fetchShares = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('search', searchQuery);
+      if (platform) params.set('platform', platform);
+      if (status) params.set('status', status);
+      if (dateFrom) params.set('dateFrom', new Date(dateFrom).toISOString());
+      if (dateTo) {
+        const endDate = new Date(dateTo);
+        endDate.setHours(23, 59, 59, 999);
+        params.set('dateTo', endDate.toISOString());
+      }
+
+      const response = await fetch(`/api/admin/social-shares?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch shares');
+
+      const data = await response.json();
+      setShares(data.shares);
+      setStats(data.stats);
+    } catch (error) {
+      console.error('Error fetching shares:', error);
+      showToast('Failed to load shares', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [searchQuery, platform, status, dateFrom, dateTo]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(fetchShares, 300);
+    return () => clearTimeout(timeoutId);
+  }, [fetchShares]);
+
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type });
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery('');
+    setPlatform('');
+    setStatus('');
+    setDateFrom('');
+    setDateTo('');
+  };
+
+  const handleNewShare = () => {
+    setEditingShare(null);
+    setShowForm(true);
+  };
+
+  const handleEditShare = (share: Share) => {
+    setEditingShare(share);
+    setShowForm(true);
+  };
+
+  const handleFormSave = () => {
+    setShowForm(false);
+    setEditingShare(null);
+    showToast(editingShare ? 'Share updated' : 'Share logged', 'success');
+    fetchShares();
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingShare(null);
+  };
+
+  const handleShareDeleted = () => {
+    showToast('Share deleted', 'success');
+    fetchShares();
+  };
+
+  const groupedShares = groupSharesByDate(shares);
+  const groupOrder = ['Today', 'Yesterday', 'This Week', 'Earlier'];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-indigo-600/20 rounded-lg">
+            <Radio className="w-5 h-5 text-indigo-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-100">Signal Deck</h1>
+            <p className="text-sm text-gray-400">Track your social media shares</p>
+          </div>
+        </div>
+
+        <button
+          onClick={handleNewShare}
+          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
+        >
+          <Plus className="w-4 h-4" />
+          <span>New Share</span>
+        </button>
+      </div>
+
+      {/* Stats Bar */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+          <div className="text-2xl font-bold text-gray-100">{stats.today}</div>
+          <div className="text-xs text-gray-400">Today</div>
+        </div>
+        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+          <div className="text-2xl font-bold text-gray-100">{stats.thisWeek}</div>
+          <div className="text-xs text-gray-400">This Week</div>
+        </div>
+        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+          <div className="text-2xl font-bold text-gray-100">{stats.total}</div>
+          <div className="text-xs text-gray-400">Total</div>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <ShareFilters
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        platform={platform}
+        onPlatformChange={setPlatform}
+        status={status}
+        onStatusChange={setStatus}
+        dateFrom={dateFrom}
+        onDateFromChange={setDateFrom}
+        dateTo={dateTo}
+        onDateToChange={setDateTo}
+        onClearFilters={handleClearFilters}
+        hasActiveFilters={hasActiveFilters}
+      />
+
+      {/* Shares List */}
+      <div className="space-y-6">
+        {loading ? (
+          <div className="text-center py-12 text-gray-400">Loading shares...</div>
+        ) : shares.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              {hasActiveFilters
+                ? 'No shares match your filters'
+                : 'No shares logged yet'}
+            </div>
+            {!hasActiveFilters && (
+              <button
+                onClick={handleNewShare}
+                className="text-indigo-400 hover:text-indigo-300 text-sm"
+              >
+                Log your first share
+              </button>
+            )}
+          </div>
+        ) : (
+          groupOrder.map((group) => {
+            const groupShares = groupedShares[group];
+            if (!groupShares || groupShares.length === 0) return null;
+
+            return (
+              <div key={group}>
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+                  {group}
+                </h3>
+                <div className="space-y-3">
+                  {groupShares.map((share) => (
+                    <ShareRow
+                      key={share.id}
+                      share={share}
+                      onEdit={handleEditShare}
+                      onDeleted={handleShareDeleted}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* New/Edit Form Modal */}
+      {showForm && (
+        <NewShareForm
+          share={editingShare}
+          onSave={handleFormSave}
+          onClose={handleFormClose}
+        />
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  );
+}
