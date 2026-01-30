@@ -6,12 +6,15 @@ import path from 'path';
 /**
  * POST /api/admin/share-images/save
  * Saves a generated share image to the public folder as a fallback
- * Body: { slug: string, type: 'opengraph' | 'twitter', imageData: string (base64) }
+ * Body: { slug: string, type: 'opengraph' | 'twitter', imageData: string (base64), category?: 'cards' | 'talks' }
+ *
+ * For cards (default): /public/images/share/[type]/[slug].png
+ * For talks: /public/images/share/[type]/talks/[slug].png
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { slug, type, imageData } = body;
+    const { slug, type, imageData, category = 'cards' } = body;
 
     if (!slug || !type || !imageData) {
       return NextResponse.json(
@@ -20,8 +23,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create directory if it doesn't exist
-    const dir = path.join(process.cwd(), 'public', 'images', 'share', type);
+    // Create directory path based on category
+    const dir = category === 'talks'
+      ? path.join(process.cwd(), 'public', 'images', 'share', type, 'talks')
+      : path.join(process.cwd(), 'public', 'images', 'share', type);
+
     if (!existsSync(dir)) {
       await mkdir(dir, { recursive: true });
     }
@@ -31,9 +37,11 @@ export async function POST(request: NextRequest) {
     const filePath = path.join(dir, `${slug}.png`);
     await writeFile(filePath, buffer);
 
-    const publicPath = `/images/share/${type}/${slug}.png`;
+    const publicPath = category === 'talks'
+      ? `/images/share/${type}/talks/${slug}.png`
+      : `/images/share/${type}/${slug}.png`;
 
-    console.log(`[SHARE-IMAGE] Saved ${type} image for ${slug} to ${publicPath}`);
+    console.log(`[SHARE-IMAGE] Saved ${type} image for ${category}/${slug} to ${publicPath}`);
 
     return NextResponse.json({
       success: true,
@@ -51,10 +59,15 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/admin/share-images/save
  * Returns list of existing saved share images
+ * Query params:
+ *   - category: 'cards' | 'talks' (default: 'cards')
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const { readdir } = await import('fs/promises');
+    const searchParams = request.nextUrl.searchParams;
+    const category = searchParams.get('category') || 'cards';
+
     const baseDir = path.join(process.cwd(), 'public', 'images', 'share');
 
     const result: { opengraph: string[]; twitter: string[] } = {
@@ -63,11 +76,15 @@ export async function GET() {
     };
 
     for (const type of ['opengraph', 'twitter'] as const) {
-      const dir = path.join(baseDir, type);
+      // For talks, look in the talks subdirectory
+      const dir = category === 'talks'
+        ? path.join(baseDir, type, 'talks')
+        : path.join(baseDir, type);
+
       if (existsSync(dir)) {
         const files = await readdir(dir);
         result[type] = files
-          .filter((f) => f.endsWith('.png'))
+          .filter((f) => f.endsWith('.png') && f !== 'talks') // Exclude 'talks' directory entry
           .map((f) => f.replace('.png', ''));
       }
     }

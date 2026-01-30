@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Download, RefreshCw, Check, Image, AlertCircle, Save, FolderOpen } from 'lucide-react';
+import { Download, RefreshCw, Check, AlertCircle, Save, FolderOpen } from 'lucide-react';
 
 type Card = {
   id: string;
@@ -10,27 +10,48 @@ type Card = {
   imageUrl: string;
 };
 
+type Talk = {
+  id: string;
+  slug: string;
+  title: string;
+  speakerName: string;
+  thumbnailUrl: string | null;
+};
+
 type SavedImages = {
   opengraph: string[];
   twitter: string[];
 };
 
+type TabType = 'cards' | 'talks';
+
 export default function ShareImagesPage() {
+  const [activeTab, setActiveTab] = useState<TabType>('cards');
   const [cards, setCards] = useState<Card[]>([]);
+  const [talks, setTalks] = useState<Talk[]>([]);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [progress, setProgress] = useState({ current: 0, total: 0, currentCard: '' });
-  const [generatedCards, setGeneratedCards] = useState<Set<string>>(new Set());
+  const [progress, setProgress] = useState({ current: 0, total: 0, currentItem: '' });
+  const [generatedItems, setGeneratedItems] = useState<Set<string>>(new Set());
   const [savedImages, setSavedImages] = useState<SavedImages>({ opengraph: [], twitter: [] });
   const [errors, setErrors] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(Date.now());
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    fetchCards();
-    fetchSavedImages();
-  }, []);
+    fetchData();
+  }, [activeTab]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    if (activeTab === 'cards') {
+      await Promise.all([fetchCards(), fetchSavedImages('cards')]);
+    } else {
+      await Promise.all([fetchTalks(), fetchSavedImages('talks')]);
+    }
+    setLoading(false);
+  };
 
   const fetchCards = async () => {
     try {
@@ -39,14 +60,22 @@ export default function ShareImagesPage() {
       setCards(data.cards || []);
     } catch (error) {
       console.error('Error fetching cards:', error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const fetchSavedImages = async () => {
+  const fetchTalks = async () => {
     try {
-      const response = await fetch('/api/admin/share-images/save');
+      const response = await fetch('/api/admin/talks');
+      const data = await response.json();
+      setTalks(data.talks || []);
+    } catch (error) {
+      console.error('Error fetching talks:', error);
+    }
+  };
+
+  const fetchSavedImages = async (category: TabType) => {
+    try {
+      const response = await fetch(`/api/admin/share-images/save?category=${category}`);
       const data = await response.json();
       setSavedImages(data);
     } catch (error) {
@@ -74,16 +103,21 @@ export default function ShareImagesPage() {
     }
   };
 
-  const saveImageToPublic = async (slug: string, type: 'opengraph' | 'twitter'): Promise<boolean> => {
+  const saveImageToPublic = async (
+    slug: string,
+    type: 'opengraph' | 'twitter',
+    category: TabType
+  ): Promise<boolean> => {
     try {
-      const imageUrl = `/cards/${slug}/${type}-image?t=${Date.now()}`;
+      const basePath = category === 'cards' ? '/cards' : '/talks';
+      const imageUrl = `${basePath}/${slug}/${type}-image?t=${Date.now()}`;
       const base64 = await fetchImageAsBase64(imageUrl);
       if (!base64) return false;
 
       const response = await fetch('/api/admin/share-images/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slug, type, imageData: base64 }),
+        body: JSON.stringify({ slug, type, imageData: base64, category }),
       });
 
       return response.ok;
@@ -95,47 +129,51 @@ export default function ShareImagesPage() {
 
   const saveAllToPublic = async () => {
     setSaving(true);
-    setProgress({ current: 0, total: cards.length * 2, currentCard: '' });
-    setGeneratedCards(new Set());
+    const items = activeTab === 'cards' ? cards : talks;
+    const itemName = activeTab === 'cards' ? 'card' : 'talk';
+    setProgress({ current: 0, total: items.length * 2, currentItem: '' });
+    setGeneratedItems(new Set());
     setErrors([]);
 
     const newErrors: string[] = [];
 
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      setProgress({ current: i * 2, total: cards.length * 2, currentCard: `Saving ${card.name}...` });
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const name = activeTab === 'cards' ? (item as Card).name : (item as Talk).title;
+      setProgress({ current: i * 2, total: items.length * 2, currentItem: `Saving ${name}...` });
 
       // Save OpenGraph image
-      const ogSuccess = await saveImageToPublic(card.slug, 'opengraph');
+      const ogSuccess = await saveImageToPublic(item.slug, 'opengraph', activeTab);
       if (!ogSuccess) {
-        newErrors.push(`${card.name}: OpenGraph save failed`);
+        newErrors.push(`${name}: OpenGraph save failed`);
       }
 
-      setProgress({ current: i * 2 + 1, total: cards.length * 2, currentCard: `Saving ${card.name}...` });
+      setProgress({ current: i * 2 + 1, total: items.length * 2, currentItem: `Saving ${name}...` });
 
       // Save Twitter image
-      const twitterSuccess = await saveImageToPublic(card.slug, 'twitter');
+      const twitterSuccess = await saveImageToPublic(item.slug, 'twitter', activeTab);
       if (!twitterSuccess) {
-        newErrors.push(`${card.name}: Twitter save failed`);
+        newErrors.push(`${name}: Twitter save failed`);
       }
 
       if (ogSuccess && twitterSuccess) {
-        setGeneratedCards((prev) => new Set([...prev, card.slug]));
+        setGeneratedItems((prev) => new Set([...prev, item.slug]));
       }
 
       // Small delay to prevent overwhelming the server
       await new Promise((r) => setTimeout(r, 150));
     }
 
-    setProgress({ current: cards.length * 2, total: cards.length * 2, currentCard: 'Complete!' });
+    setProgress({ current: items.length * 2, total: items.length * 2, currentItem: 'Complete!' });
     setErrors(newErrors);
     setSaving(false);
-    await fetchSavedImages();
+    await fetchSavedImages(activeTab);
   };
 
   const downloadImage = async (slug: string, type: 'opengraph' | 'twitter') => {
     try {
-      const response = await fetch(`/cards/${slug}/${type}-image`);
+      const basePath = activeTab === 'cards' ? '/cards' : '/talks';
+      const response = await fetch(`${basePath}/${slug}/${type}-image`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -152,22 +190,24 @@ export default function ShareImagesPage() {
 
   const downloadAllImages = async () => {
     setGenerating(true);
-    setProgress({ current: 0, total: cards.length * 2, currentCard: '' });
+    const items = activeTab === 'cards' ? cards : talks;
+    setProgress({ current: 0, total: items.length * 2, currentItem: '' });
 
-    for (let i = 0; i < cards.length; i++) {
-      const card = cards[i];
-      setProgress({ current: i * 2, total: cards.length * 2, currentCard: `Downloading ${card.name}...` });
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const name = activeTab === 'cards' ? (item as Card).name : (item as Talk).title;
+      setProgress({ current: i * 2, total: items.length * 2, currentItem: `Downloading ${name}...` });
 
-      await downloadImage(card.slug, 'opengraph');
+      await downloadImage(item.slug, 'opengraph');
       await new Promise((r) => setTimeout(r, 200));
 
-      setProgress({ current: i * 2 + 1, total: cards.length * 2, currentCard: `Downloading ${card.name}...` });
+      setProgress({ current: i * 2 + 1, total: items.length * 2, currentItem: `Downloading ${name}...` });
 
-      await downloadImage(card.slug, 'twitter');
+      await downloadImage(item.slug, 'twitter');
       await new Promise((r) => setTimeout(r, 200));
     }
 
-    setProgress({ current: cards.length * 2, total: cards.length * 2, currentCard: 'Complete!' });
+    setProgress({ current: items.length * 2, total: items.length * 2, currentItem: 'Complete!' });
     setGenerating(false);
   };
 
@@ -179,6 +219,9 @@ export default function ShareImagesPage() {
     opengraph: savedImages.opengraph.length,
     twitter: savedImages.twitter.length,
   };
+
+  const currentItems = activeTab === 'cards' ? cards : talks;
+  const totalItems = currentItems.length;
 
   if (loading) {
     return (
@@ -194,30 +237,57 @@ export default function ShareImagesPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-100">Share Images</h1>
         <p className="text-gray-400 mt-1">
-          Generate and save OpenGraph/Twitter share images for all {cards.length} cards as static fallbacks
+          Generate and save OpenGraph/Twitter share images as static fallbacks
         </p>
+      </div>
+
+      {/* Tab Selector */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab('cards')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'cards'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Cards ({cards.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('talks')}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            activeTab === 'talks'
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+          }`}
+        >
+          Talks ({talks.length})
+        </button>
       </div>
 
       {/* Saved Images Status */}
       <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-xl">
         <div className="flex items-center gap-2 text-green-400 mb-2">
           <FolderOpen className="w-4 h-4" />
-          <span className="font-medium">Saved Fallback Images</span>
+          <span className="font-medium">Saved Fallback Images ({activeTab})</span>
         </div>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-gray-400">OpenGraph:</span>{' '}
-            <span className="text-green-300 font-medium">{savedCount.opengraph} / {cards.length}</span>
-            {savedCount.opengraph === cards.length && <Check className="w-4 h-4 inline ml-1 text-green-400" />}
+            <span className="text-green-300 font-medium">{savedCount.opengraph} / {totalItems}</span>
+            {savedCount.opengraph === totalItems && <Check className="w-4 h-4 inline ml-1 text-green-400" />}
           </div>
           <div>
             <span className="text-gray-400">Twitter:</span>{' '}
-            <span className="text-green-300 font-medium">{savedCount.twitter} / {cards.length}</span>
-            {savedCount.twitter === cards.length && <Check className="w-4 h-4 inline ml-1 text-green-400" />}
+            <span className="text-green-300 font-medium">{savedCount.twitter} / {totalItems}</span>
+            {savedCount.twitter === totalItems && <Check className="w-4 h-4 inline ml-1 text-green-400" />}
           </div>
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          Saved to: <code className="bg-gray-800 px-1 rounded">/public/images/share/[opengraph|twitter]/[slug].png</code>
+          Saved to:{' '}
+          <code className="bg-gray-800 px-1 rounded">
+            /public/images/share/[opengraph|twitter]/{activeTab === 'talks' ? 'talks/' : ''}[slug].png
+          </code>
         </p>
       </div>
 
@@ -253,7 +323,7 @@ export default function ShareImagesPage() {
         <button
           onClick={() => {
             setRefreshKey(Date.now());
-            fetchSavedImages();
+            fetchSavedImages(activeTab);
           }}
           disabled={saving || generating}
           className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 text-white rounded-lg transition-colors"
@@ -282,7 +352,7 @@ export default function ShareImagesPage() {
       {(saving || generating) && (
         <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-xl">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-gray-300">{progress.currentCard}</span>
+            <span className="text-sm text-gray-300">{progress.currentItem}</span>
             <span className="text-sm text-gray-400">
               {progress.current} / {progress.total}
             </span>
@@ -311,177 +381,347 @@ export default function ShareImagesPage() {
         </div>
       )}
 
-      {/* Cards Grid/List */}
-      {viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {cards.map((card) => {
-            const ogSaved = isImageSaved(card.slug, 'opengraph');
-            const twitterSaved = isImageSaved(card.slug, 'twitter');
-            const bothSaved = ogSaved && twitterSaved;
+      {/* Items Grid/List */}
+      {activeTab === 'cards' ? (
+        // Cards View
+        viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {cards.map((card) => {
+              const ogSaved = isImageSaved(card.slug, 'opengraph');
+              const twitterSaved = isImageSaved(card.slug, 'twitter');
+              const bothSaved = ogSaved && twitterSaved;
 
-            return (
-              <div
-                key={card.id}
-                className={`bg-gray-800/50 border rounded-xl p-4 transition-all ${
-                  bothSaved ? 'border-green-500/50' : 'border-gray-700'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-medium text-gray-100 truncate">{card.name}</h3>
-                  <div className="flex items-center gap-1">
-                    {ogSaved && (
-                      <span className="text-xs px-1.5 py-0.5 bg-green-900/50 text-green-400 rounded" title="OpenGraph saved">
-                        OG
-                      </span>
-                    )}
-                    {twitterSaved && (
-                      <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-400 rounded" title="Twitter saved">
-                        TW
-                      </span>
-                    )}
+              return (
+                <div
+                  key={card.id}
+                  className={`bg-gray-800/50 border rounded-xl p-4 transition-all ${
+                    bothSaved ? 'border-green-500/50' : 'border-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium text-gray-100 truncate">{card.name}</h3>
+                    <div className="flex items-center gap-1">
+                      {ogSaved && (
+                        <span className="text-xs px-1.5 py-0.5 bg-green-900/50 text-green-400 rounded" title="OpenGraph saved">
+                          OG
+                        </span>
+                      )}
+                      {twitterSaved && (
+                        <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-400 rounded" title="Twitter saved">
+                          TW
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
 
-                {/* OpenGraph Preview */}
-                <div className="space-y-2">
-                  <p className="text-xs text-gray-500">OpenGraph:</p>
-                  <div className="border border-gray-700 rounded overflow-hidden">
-                    <img
-                      src={`/cards/${card.slug}/opengraph-image?t=${refreshKey}`}
-                      alt={`OG: ${card.name}`}
-                      className="w-full h-auto"
-                      loading="lazy"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => downloadImage(card.slug, 'opengraph')}
-                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-                    >
-                      <Download className="w-3 h-3" />
-                      OG
-                    </button>
-                    <button
-                      onClick={() => downloadImage(card.slug, 'twitter')}
-                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
-                    >
-                      <Download className="w-3 h-3" />
-                      Twitter
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-900/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Card</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">OpenGraph</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Twitter</th>
-                <th className="px-4 py-3 text-center text-sm font-medium text-gray-400">Saved</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {cards.map((card) => {
-                const ogSaved = isImageSaved(card.slug, 'opengraph');
-                const twitterSaved = isImageSaved(card.slug, 'twitter');
-
-                return (
-                  <tr key={card.id} className="hover:bg-gray-800/50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={card.imageUrl}
-                          alt={card.name}
-                          className="w-8 h-12 object-cover rounded"
-                        />
-                        <div>
-                          <p className="font-medium text-gray-100">{card.name}</p>
-                          <p className="text-xs text-gray-500">{card.slug}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
+                  {/* OpenGraph Preview */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">OpenGraph:</p>
+                    <div className="border border-gray-700 rounded overflow-hidden">
                       <img
                         src={`/cards/${card.slug}/opengraph-image?t=${refreshKey}`}
                         alt={`OG: ${card.name}`}
-                        className="w-32 h-auto rounded border border-gray-700"
+                        className="w-full h-auto"
                         loading="lazy"
                       />
-                    </td>
-                    <td className="px-4 py-3">
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => downloadImage(card.slug, 'opengraph')}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        OG
+                      </button>
+                      <button
+                        onClick={() => downloadImage(card.slug, 'twitter')}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        Twitter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-900/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Card</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">OpenGraph</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Twitter</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-gray-400">Saved</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {cards.map((card) => {
+                  const ogSaved = isImageSaved(card.slug, 'opengraph');
+                  const twitterSaved = isImageSaved(card.slug, 'twitter');
+
+                  return (
+                    <tr key={card.id} className="hover:bg-gray-800/50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={card.imageUrl}
+                            alt={card.name}
+                            className="w-8 h-12 object-cover rounded"
+                          />
+                          <div>
+                            <p className="font-medium text-gray-100">{card.name}</p>
+                            <p className="text-xs text-gray-500">{card.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <img
+                          src={`/cards/${card.slug}/opengraph-image?t=${refreshKey}`}
+                          alt={`OG: ${card.name}`}
+                          className="w-32 h-auto rounded border border-gray-700"
+                          loading="lazy"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <img
+                          src={`/cards/${card.slug}/twitter-image?t=${refreshKey}`}
+                          alt={`Twitter: ${card.name}`}
+                          className="w-32 h-auto rounded border border-gray-700"
+                          loading="lazy"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {ogSaved ? (
+                            <span title="OpenGraph saved">
+                              <Check className="w-4 h-4 text-green-400" />
+                            </span>
+                          ) : (
+                            <span className="w-4 h-4 text-gray-600">-</span>
+                          )}
+                          {twitterSaved ? (
+                            <span title="Twitter saved">
+                              <Check className="w-4 h-4 text-blue-400" />
+                            </span>
+                          ) : (
+                            <span className="w-4 h-4 text-gray-600">-</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => downloadImage(card.slug, 'opengraph')}
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+                            title="Download OpenGraph"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <a
+                            href={`/cards/${card.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                          >
+                            View
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      ) : (
+        // Talks View
+        viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {talks.map((talk) => {
+              const ogSaved = isImageSaved(talk.slug, 'opengraph');
+              const twitterSaved = isImageSaved(talk.slug, 'twitter');
+              const bothSaved = ogSaved && twitterSaved;
+
+              return (
+                <div
+                  key={talk.id}
+                  className={`bg-gray-800/50 border rounded-xl p-4 transition-all ${
+                    bothSaved ? 'border-green-500/50' : 'border-gray-700'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-medium text-gray-100 truncate" title={talk.title}>
+                      {talk.title.length > 40 ? talk.title.slice(0, 37) + '...' : talk.title}
+                    </h3>
+                    <div className="flex items-center gap-1">
+                      {ogSaved && (
+                        <span className="text-xs px-1.5 py-0.5 bg-green-900/50 text-green-400 rounded" title="OpenGraph saved">
+                          OG
+                        </span>
+                      )}
+                      {twitterSaved && (
+                        <span className="text-xs px-1.5 py-0.5 bg-blue-900/50 text-blue-400 rounded" title="Twitter saved">
+                          TW
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-400 mb-3">by {talk.speakerName}</p>
+
+                  {/* OpenGraph Preview */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-gray-500">OpenGraph:</p>
+                    <div className="border border-gray-700 rounded overflow-hidden">
                       <img
-                        src={`/cards/${card.slug}/twitter-image?t=${refreshKey}`}
-                        alt={`Twitter: ${card.name}`}
-                        className="w-32 h-auto rounded border border-gray-700"
+                        src={`/talks/${talk.slug}/opengraph-image?t=${refreshKey}`}
+                        alt={`OG: ${talk.title}`}
+                        className="w-full h-auto"
                         loading="lazy"
                       />
-                    </td>
-                    <td className="px-4 py-3 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        {ogSaved ? (
-                          <span title="OpenGraph saved">
-                            <Check className="w-4 h-4 text-green-400" />
-                          </span>
-                        ) : (
-                          <span className="w-4 h-4 text-gray-600">-</span>
-                        )}
-                        {twitterSaved ? (
-                          <span title="Twitter saved">
-                            <Check className="w-4 h-4 text-blue-400" />
-                          </span>
-                        ) : (
-                          <span className="w-4 h-4 text-gray-600">-</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => downloadImage(card.slug, 'opengraph')}
-                          className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
-                          title="Download OpenGraph"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-                        <a
-                          href={`/cards/${card.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-indigo-400 hover:text-indigo-300"
-                        >
-                          View
-                        </a>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => downloadImage(talk.slug, 'opengraph')}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        OG
+                      </button>
+                      <button
+                        onClick={() => downloadImage(talk.slug, 'twitter')}
+                        className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded transition-colors"
+                      >
+                        <Download className="w-3 h-3" />
+                        Twitter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-gray-900/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Talk</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">OpenGraph</th>
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-400">Twitter</th>
+                  <th className="px-4 py-3 text-center text-sm font-medium text-gray-400">Saved</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {talks.map((talk) => {
+                  const ogSaved = isImageSaved(talk.slug, 'opengraph');
+                  const twitterSaved = isImageSaved(talk.slug, 'twitter');
+
+                  return (
+                    <tr key={talk.id} className="hover:bg-gray-800/50">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          {talk.thumbnailUrl ? (
+                            <img
+                              src={talk.thumbnailUrl}
+                              alt={talk.title}
+                              className="w-16 h-9 object-cover rounded"
+                            />
+                          ) : (
+                            <div className="w-16 h-9 bg-gray-700 rounded flex items-center justify-center text-xs text-gray-500">
+                              No img
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-medium text-gray-100" title={talk.title}>
+                              {talk.title.length > 50 ? talk.title.slice(0, 47) + '...' : talk.title}
+                            </p>
+                            <p className="text-xs text-gray-500">{talk.speakerName}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <img
+                          src={`/talks/${talk.slug}/opengraph-image?t=${refreshKey}`}
+                          alt={`OG: ${talk.title}`}
+                          className="w-32 h-auto rounded border border-gray-700"
+                          loading="lazy"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <img
+                          src={`/talks/${talk.slug}/twitter-image?t=${refreshKey}`}
+                          alt={`Twitter: ${talk.title}`}
+                          className="w-32 h-auto rounded border border-gray-700"
+                          loading="lazy"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          {ogSaved ? (
+                            <span title="OpenGraph saved">
+                              <Check className="w-4 h-4 text-green-400" />
+                            </span>
+                          ) : (
+                            <span className="w-4 h-4 text-gray-600">-</span>
+                          )}
+                          {twitterSaved ? (
+                            <span title="Twitter saved">
+                              <Check className="w-4 h-4 text-blue-400" />
+                            </span>
+                          ) : (
+                            <span className="w-4 h-4 text-gray-600">-</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => downloadImage(talk.slug, 'opengraph')}
+                            className="p-1.5 text-gray-400 hover:text-white hover:bg-gray-700 rounded transition-colors"
+                            title="Download OpenGraph"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <a
+                            href={`/talks/${talk.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-indigo-400 hover:text-indigo-300"
+                          >
+                            View
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
       )}
 
       {/* Stats */}
       <div className="p-4 bg-gray-800/50 border border-gray-700 rounded-xl">
-        <h3 className="font-medium text-gray-100 mb-2">Summary</h3>
+        <h3 className="font-medium text-gray-100 mb-2">Summary ({activeTab})</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
           <div>
-            <p className="text-gray-500">Total Cards</p>
-            <p className="text-2xl font-bold text-gray-100">{cards.length}</p>
+            <p className="text-gray-500">Total {activeTab === 'cards' ? 'Cards' : 'Talks'}</p>
+            <p className="text-2xl font-bold text-gray-100">{totalItems}</p>
           </div>
           <div>
-            <p className="text-gray-500">Images Per Card</p>
+            <p className="text-gray-500">Images Per Item</p>
             <p className="text-2xl font-bold text-gray-100">2</p>
           </div>
           <div>
             <p className="text-gray-500">Total Images</p>
-            <p className="text-2xl font-bold text-gray-100">{cards.length * 2}</p>
+            <p className="text-2xl font-bold text-gray-100">{totalItems * 2}</p>
           </div>
           <div>
             <p className="text-gray-500">OG Saved</p>
