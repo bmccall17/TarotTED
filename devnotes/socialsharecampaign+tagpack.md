@@ -15,35 +15,32 @@ This fits TarotTALKS’ core premise (Tarot archetype ↔ TED/TEDx talk) and mak
 
 2. **A platform-native share image that “sells the click”**
 
-* When someone shares a TarotTALKS link on X or Bluesky, the preview image should show:
+* When someone shares a TarotTALKS link on X or Bluesky, the preview image already shows:
 
   * **The Tarot card as the hero**
+  * Tarot card title, summary, and keywords
+  * Talk image
   * **Talk title**
   * **Speaker name(s)**
   * A clean “TarotTALKS” mark + “TED/TEDx pairing”
 * So even if your post text is tiny, the *preview* carries the story.
-
-You already have momentum in this direction (you’ve shipped “Social Sharing” and “Dynamic OG Images” before), so this is an evolution, not a rewrite. 
 
 ---
 
 ## Speaker tagging strategy (simple + respectful)
 
 ### The “Tag Pack” idea
-
-For each talk, you maintain a small set of social tags:
+For each talk, you maintain a small set of social tags (we might need a tool to add these to our database):
 
 * **Speaker(s):**
-
   * X handle(s) (if they have them)
   * Bluesky handle(s) (if they have them)
-* **Org handles (optional):**
 
+* **Org handles (optional):**
   * TED / TEDx accounts (platform-dependent)
   * The specific TEDx event account (if relevant)
 
 ### Rules of thumb (so it stays classy)
-
 * **Tag speakers only when the post genuinely highlights *their idea*** (which yours does).
 * If a speaker doesn’t have an account, **don’t force it**—use the plain name.
 * If multiple speakers, tag **1–2 max** in the main post; put the rest in a reply (or skip).

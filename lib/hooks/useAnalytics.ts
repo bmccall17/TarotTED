@@ -157,6 +157,7 @@ export function useAnalytics() {
     track('session_start', {
       device_class: getDeviceClass(),
       referrer: typeof document !== 'undefined' ? document.referrer : '',
+      landing_page: typeof window !== 'undefined' ? window.location.pathname : '',
       is_restored_session: isRestoredSession,
     }, { once: true });
 

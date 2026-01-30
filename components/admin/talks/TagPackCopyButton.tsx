@@ -135,7 +135,7 @@ export function TagPackCopyButton({
               <span className="text-amber-400">🃏</span>
               <span className="text-amber-300">{primaryMapping.cardName}:</span>
               <code className="text-purple-300 bg-purple-900/20 px-2 py-0.5 rounded text-xs">
-                tarottalks.com/cards/{primaryMapping.cardSlug}
+                tarottalks.app/cards/{primaryMapping.cardSlug}
               </code>
             </div>
             {primaryMapping.rationaleShort && (

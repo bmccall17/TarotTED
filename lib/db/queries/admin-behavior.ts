@@ -67,9 +67,13 @@ export type FlipDistribution = {
 export async function getFlipDistribution(days: number = DEFAULT_DAYS): Promise<FlipDistribution[]> {
   const cutoff = getDateCutoff(days);
 
-  // Get all sessions that started in the time range
+  // Get all sessions that started on the home page in the time range
+  // We only count home page sessions because only they have the card flip ritual
   const allSessionsResult = await db
-    .select({ sessionId: behaviorEvents.sessionId })
+    .select({
+      sessionId: behaviorEvents.sessionId,
+      properties: behaviorEvents.properties,
+    })
     .from(behaviorEvents)
     .where(
       and(
@@ -77,9 +81,21 @@ export async function getFlipDistribution(days: number = DEFAULT_DAYS): Promise<
         gte(behaviorEvents.createdAt, cutoff)
       )
     )
-    .groupBy(behaviorEvents.sessionId);
+    .groupBy(behaviorEvents.sessionId, behaviorEvents.properties);
 
-  const totalSessions = allSessionsResult.length;
+  // Filter to only home page landings
+  const homePageSessions = allSessionsResult.filter(row => {
+    try {
+      const props = JSON.parse(row.properties ?? '{}');
+      // Home page is "/" - exclude direct landings on /cards/*, /talks/*, etc.
+      return props.landing_page === '/' || props.landing_page === undefined;
+    } catch {
+      // Include sessions without valid JSON (legacy data before landing_page was added)
+      return true;
+    }
+  });
+
+  const totalSessions = homePageSessions.length;
 
   if (totalSessions === 0) {
     return [
@@ -112,10 +128,10 @@ export async function getFlipDistribution(days: number = DEFAULT_DAYS): Promise<
     sessionFlips.set(row.sessionId, Math.min(row.flipCount, 3));
   }
 
-  // Count sessions by flip count
+  // Count sessions by flip count (only home page sessions)
   const distribution = [0, 0, 0, 0]; // indices 0, 1, 2, 3
 
-  for (const session of allSessionsResult) {
+  for (const session of homePageSessions) {
     const flips = sessionFlips.get(session.sessionId) ?? 0;
     distribution[flips]++;
   }

@@ -166,10 +166,11 @@ export default function BehaviorPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Flip Distribution */}
         <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-gray-100 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-gray-100 mb-1 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-indigo-400" />
             Flip Distribution
           </h2>
+          <p className="text-xs text-gray-500 mb-4">Home page sessions only</p>
           <div className="space-y-3">
             {stats.flipDistribution.map((item) => (
               <div key={item.flipCount} className="space-y-1">
