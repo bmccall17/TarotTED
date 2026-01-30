@@ -92,6 +92,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Convert postedAt string to Date object
+    if (body.postedAt && typeof body.postedAt === 'string') {
+      body.postedAt = new Date(body.postedAt);
+    }
+
     const share = await createShare(body);
 
     return NextResponse.json({ share }, { status: 201 });

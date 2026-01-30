@@ -57,6 +57,11 @@ export async function PUT(
       }
     }
 
+    // Convert postedAt string to Date object
+    if (body.postedAt && typeof body.postedAt === 'string') {
+      body.postedAt = new Date(body.postedAt);
+    }
+
     const share = await updateShare(id, body);
 
     if (!share) {

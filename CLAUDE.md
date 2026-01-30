@@ -79,3 +79,8 @@ When beginning development, suggested order:
 ⚠️ **GIT RESTRICTION:** Claude must not run, simulate, or suggest any Git commands. All Git-related tasks (init, commit, push, pull, branch, merge, clone, etc.) are strictly handled by the human.
 
 ⚠️ **DOMAIN:** The correct domain is **tarottalks.app** (NOT .com, .net, .org, or .io). Always use `https://tarottalks.app` for all URLs referencing the live application.
+
+⚠️ **LIVE TESTING ONLY:** All testing happens on the **live production deployment**. Do NOT suggest or request local testing (no `npm run dev`, no localhost). Instead:
+- For database migrations: Provide SQL ready to paste into **Supabase SQL Editor**
+- For code changes: After implementation, instruct to deploy and test on live site
+- Test URLs should point to `https://tarottalks.app/...`
