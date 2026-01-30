@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, X, Edit2, Star, Link2 } from 'lucide-react';
+import { Save, X, Edit2, Star, Link2, Share2, RefreshCw, Check, Download } from 'lucide-react';
 import Image from 'next/image';
 import { Toast } from '../ui/Toast';
 
@@ -60,6 +60,8 @@ export function CardForm({ initialData }: Props) {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [regeneratingImages, setRegeneratingImages] = useState(false);
+  const [imageRefreshKey, setImageRefreshKey] = useState(Date.now());
 
   const [formData, setFormData] = useState<CardFormData>({
     name: initialData.name,
@@ -144,6 +146,51 @@ export function CardForm({ initialData }: Props) {
     : initialData.suit
       ? initialData.suit.charAt(0).toUpperCase() + initialData.suit.slice(1)
       : 'Minor Arcana';
+
+  const regenerateShareImages = async () => {
+    setRegeneratingImages(true);
+    try {
+      // Fetch and save OpenGraph image
+      const ogResponse = await fetch(`/cards/${initialData.slug}/opengraph-image?t=${Date.now()}`);
+      if (ogResponse.ok) {
+        const ogBlob = await ogResponse.blob();
+        const ogBase64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+          reader.readAsDataURL(ogBlob);
+        });
+        await fetch('/api/admin/share-images/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: initialData.slug, type: 'opengraph', imageData: ogBase64 }),
+        });
+      }
+
+      // Fetch and save Twitter image
+      const twResponse = await fetch(`/cards/${initialData.slug}/twitter-image?t=${Date.now()}`);
+      if (twResponse.ok) {
+        const twBlob = await twResponse.blob();
+        const twBase64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve((reader.result as string).split(',')[1]);
+          reader.readAsDataURL(twBlob);
+        });
+        await fetch('/api/admin/share-images/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug: initialData.slug, type: 'twitter', imageData: twBase64 }),
+        });
+      }
+
+      setImageRefreshKey(Date.now());
+      setToast({ message: 'Share images regenerated and saved!', type: 'success' });
+    } catch (error) {
+      console.error('Error regenerating share images:', error);
+      setToast({ message: 'Failed to regenerate share images', type: 'error' });
+    } finally {
+      setRegeneratingImages(false);
+    }
+  };
 
   const primaryMapping = initialData.mappings.find(m => m.isPrimary);
   const otherMappings = initialData.mappings.filter(m => !m.isPrimary);
@@ -425,6 +472,68 @@ export function CardForm({ initialData }: Props) {
           </div>
         )}
       </div>
+
+            {/* Share Images Section */}
+            <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-6 mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-100 flex items-center gap-2">
+                  <Share2 className="w-5 h-5" />
+                  Share Images
+                </h3>
+                <button
+                  type="button"
+                  onClick={regenerateShareImages}
+                  disabled={regeneratingImages}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg text-sm transition-colors"
+                >
+                  {regeneratingImages ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-4 h-4" />
+                      Regenerate & Save
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <p className="text-sm text-gray-400 mb-4">
+                Preview and regenerate OpenGraph/Twitter share images for this card.
+              </p>
+
+              <div className="space-y-4">
+                {/* OpenGraph Preview */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">OpenGraph (1200x630)</p>
+                  <div className="border border-gray-700 rounded-lg overflow-hidden">
+                    <img
+                      src={`/cards/${initialData.slug}/opengraph-image?t=${imageRefreshKey}`}
+                      alt="OpenGraph preview"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+
+                {/* Twitter Preview */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Twitter (1200x630)</p>
+                  <div className="border border-gray-700 rounded-lg overflow-hidden">
+                    <img
+                      src={`/cards/${initialData.slug}/twitter-image?t=${imageRefreshKey}`}
+                      alt="Twitter preview"
+                      className="w-full h-auto"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500">
+                  Saved to: <code className="bg-gray-900 px-1 rounded">/public/images/share/</code>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
