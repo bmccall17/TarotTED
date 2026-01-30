@@ -1,28 +1,28 @@
 import { ImageResponse } from 'next/og';
 import { getCardWithMappings } from '@/lib/db/queries/cards';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 
 export const runtime = 'nodejs';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'TarotTALKS Card';
 
-// Load OpenDyslexic font
+// Load OpenDyslexic font from local filesystem (more reliable than fetching from URL)
 async function loadFonts() {
   try {
-    const [regularRes, boldRes] = await Promise.all([
-      fetch('https://tarottalks.app/fonts/OpenDyslexic-Regular.woff'),
-      fetch('https://tarottalks.app/fonts/OpenDyslexic-Bold.woff'),
+    const fontsDir = join(process.cwd(), 'public', 'fonts');
+    const [regular, bold] = await Promise.all([
+      readFile(join(fontsDir, 'OpenDyslexic-Regular.woff')),
+      readFile(join(fontsDir, 'OpenDyslexic-Bold.woff')),
     ]);
 
-    if (!regularRes.ok || !boldRes.ok) {
-      return null;
-    }
-
     return {
-      regular: await regularRes.arrayBuffer(),
-      bold: await boldRes.arrayBuffer(),
+      regular: regular.buffer.slice(regular.byteOffset, regular.byteOffset + regular.byteLength),
+      bold: bold.buffer.slice(bold.byteOffset, bold.byteOffset + bold.byteLength),
     };
-  } catch {
+  } catch (error) {
+    console.error('Failed to load fonts from filesystem:', error);
     return null;
   }
 }
@@ -158,18 +158,36 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
 
           {/* Talk */}
-          {primaryTalk && talkThumbnailUrl && (
+          {primaryTalk && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <img
-                src={talkThumbnailUrl}
-                alt=""
-                width={300}
-                height={150}
-                style={{
-                  borderRadius: 12,
-                  objectFit: 'cover',
-                }}
-              />
+              {talkThumbnailUrl ? (
+                <img
+                  src={talkThumbnailUrl}
+                  alt=""
+                  width={300}
+                  height={150}
+                  style={{
+                    borderRadius: 12,
+                    objectFit: 'cover',
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: 300,
+                    height: 150,
+                    borderRadius: 12,
+                    background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#9ca3af',
+                    fontSize: 14,
+                  }}
+                >
+                  TED Talk
+                </div>
+              )}
               <div
                 style={{
                   color: '#ffffff',
