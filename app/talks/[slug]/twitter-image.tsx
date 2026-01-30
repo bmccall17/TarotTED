@@ -95,10 +95,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const truncatedTitle =
     talkData.title.length > 70 ? talkData.title.slice(0, 67) + '...' : talkData.title;
 
-  // Get rationale (short version preferred)
+  // Get rationale (short version preferred) - no truncation
   const rationale = primaryMapping?.mapping?.rationaleShort || '';
-  const truncatedRationale =
-    rationale.length > 120 ? rationale.slice(0, 117) + '...' : rationale;
 
   // Format duration (seconds to minutes)
   const durationMin = talkData.durationSeconds ? Math.round(talkData.durationSeconds / 60) : null;
@@ -245,7 +243,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           </div>
 
           {/* Rationale */}
-          {truncatedRationale && (
+          {rationale && (
             <div
               style={{
                 color: '#d1d5db',
@@ -255,7 +253,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 paddingLeft: 14,
               }}
             >
-              {truncatedRationale}
+              {rationale}
             </div>
           )}
         </div>
@@ -265,7 +263,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           <div
             style={{
               position: 'absolute',
-              left: 640,
+              left: 700,
               top: 110,
               display: 'flex',
               filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.4))',

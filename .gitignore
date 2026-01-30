@@ -69,3 +69,6 @@ docs/
 *.bak
 *.backup
 deploymenterror.txt
+
+# manually added cause NTFS attaches this sometimes when copying to WSL
+*:Zone.Identifier
