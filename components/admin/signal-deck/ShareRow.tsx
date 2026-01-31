@@ -1,14 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye, Radar } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { MetricsDisplay } from './MetricsDisplay';
+import { RelationshipBadge } from './RelationshipBadge';
 
 type Share = {
   id: string;
   platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
   postUrl: string | null;
-  status: 'draft' | 'posted' | 'verified';
+  status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
   sharedUrl: string | null;
   speakerHandle: string | null;
@@ -16,6 +18,14 @@ type Share = {
   notes: string | null;
   card?: { id: string; name: string; slug: string } | null;
   talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+  // Phase 2-4 fields
+  likeCount?: number | null;
+  repostCount?: number | null;
+  replyCount?: number | null;
+  metricsUpdatedAt?: string | null;
+  followingSpeaker?: boolean | null;
+  authorHandle?: string | null;
+  authorDisplayName?: string | null;
 };
 
 type Props = {
@@ -44,12 +54,16 @@ const statusIcons: Record<string, React.ReactNode> = {
   draft: <FileText className="w-3.5 h-3.5" />,
   posted: <Clock className="w-3.5 h-3.5" />,
   verified: <Check className="w-3.5 h-3.5" />,
+  discovered: <Radar className="w-3.5 h-3.5" />,
+  acknowledged: <Eye className="w-3.5 h-3.5" />,
 };
 
 const statusColors: Record<string, string> = {
   draft: 'bg-gray-700 text-gray-300',
   posted: 'bg-amber-900/50 text-amber-300 border border-amber-700/50',
   verified: 'bg-green-900/50 text-green-300 border border-green-700/50',
+  discovered: 'bg-purple-900/50 text-purple-300 border border-purple-700/50',
+  acknowledged: 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
 };
 
 function formatRelativeTime(dateStr: string): string {
@@ -77,6 +91,14 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Local state for metrics (to update UI without full refresh)
+  const [metrics, setMetrics] = useState({
+    likeCount: share.likeCount ?? 0,
+    repostCount: share.repostCount ?? 0,
+    replyCount: share.replyCount ?? 0,
+  });
+  const [followingSpeaker, setFollowingSpeaker] = useState(share.followingSpeaker ?? null);
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -95,6 +117,7 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
 
   const sharedContent = share.card?.name || share.talk?.title || null;
   const sharedSpeaker = share.talk?.speakerName || share.speakerName || null;
+  const isDiscoveredMention = share.status === 'discovered' || share.status === 'acknowledged';
 
   return (
     <>
@@ -143,13 +166,39 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
             </div>
           )}
 
-          {/* Speaker handle if present */}
-          {share.speakerHandle && (
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <MessageSquare className="w-3 h-3" />
-              <span>@{share.speakerHandle.replace('@', '')}</span>
+          {/* Speaker handle if present (or author for mentions) */}
+          {(share.speakerHandle || (isDiscoveredMention && share.authorHandle)) && (
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <div className="flex items-center gap-1">
+                <MessageSquare className="w-3 h-3" />
+                <span>
+                  {isDiscoveredMention && share.authorDisplayName
+                    ? `${share.authorDisplayName} (@${share.authorHandle})`
+                    : `@${(share.speakerHandle || share.authorHandle || '').replace('@', '')}`
+                  }
+                </span>
+              </div>
+              <RelationshipBadge
+                shareId={share.id}
+                platform={share.platform}
+                speakerHandle={share.speakerHandle}
+                authorHandle={share.authorHandle ?? null}
+                followingSpeaker={followingSpeaker}
+                onRelationshipUpdate={setFollowingSpeaker}
+              />
             </div>
           )}
+
+          {/* Metrics Display */}
+          <MetricsDisplay
+            shareId={share.id}
+            platform={share.platform}
+            likeCount={metrics.likeCount}
+            repostCount={metrics.repostCount}
+            replyCount={metrics.replyCount}
+            metricsUpdatedAt={share.metricsUpdatedAt ?? null}
+            onMetricsUpdate={(newMetrics) => setMetrics(newMetrics)}
+          />
 
           {/* Notes preview */}
           {share.notes && (

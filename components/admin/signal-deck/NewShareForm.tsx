@@ -7,7 +7,7 @@ type Share = {
   id?: string;
   platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
   postUrl: string | null;
-  status: 'draft' | 'posted' | 'verified';
+  status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
   sharedUrl: string | null;
   speakerHandle: string | null;
@@ -15,6 +15,11 @@ type Share = {
   notes: string | null;
   cardId?: string | null;
   talkId?: string | null;
+  // Phase 2-4 fields
+  likeCount?: number | null;
+  repostCount?: number | null;
+  replyCount?: number | null;
+  followingSpeaker?: boolean | null;
 };
 
 type Props = {
@@ -67,6 +72,10 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
     notes: string;
     cardId: string | null;
     talkId: string | null;
+    likeCount: number;
+    repostCount: number;
+    replyCount: number;
+    followingSpeaker: boolean | null;
   }>({
     platform: share?.platform || 'x',
     postUrl: share?.postUrl || '',
@@ -80,6 +89,10 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
     notes: share?.notes || '',
     cardId: share?.cardId || null,
     talkId: share?.talkId || null,
+    likeCount: share?.likeCount ?? 0,
+    repostCount: share?.repostCount ?? 0,
+    replyCount: share?.replyCount ?? 0,
+    followingSpeaker: share?.followingSpeaker ?? null,
   });
 
   const [saving, setSaving] = useState(false);
@@ -153,6 +166,17 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
         speakerName: formData.speakerName || null,
         notes: formData.notes || null,
         postedAt: new Date(formData.postedAt).toISOString(),
+        // Include metrics for non-Bluesky platforms
+        likeCount: formData.platform !== 'bluesky' ? formData.likeCount : undefined,
+        repostCount: formData.platform !== 'bluesky' ? formData.repostCount : undefined,
+        replyCount: formData.platform !== 'bluesky' ? formData.replyCount : undefined,
+        metricsUpdatedAt: formData.platform !== 'bluesky' && (formData.likeCount || formData.repostCount || formData.replyCount)
+          ? new Date().toISOString()
+          : undefined,
+        followingSpeaker: formData.platform !== 'bluesky' ? formData.followingSpeaker : undefined,
+        relationshipUpdatedAt: formData.platform !== 'bluesky' && formData.followingSpeaker !== null
+          ? new Date().toISOString()
+          : undefined,
       };
 
       const url = isEditing
@@ -316,8 +340,84 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                 />
               </div>
+              {/* Following checkbox (manual for non-Bluesky) */}
+              {formData.platform !== 'bluesky' && formData.speakerHandle && (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="followingSpeaker"
+                    checked={formData.followingSpeaker === true}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        followingSpeaker: e.target.checked,
+                      }))
+                    }
+                    className="w-4 h-4 bg-gray-900 border-gray-600 rounded focus:ring-indigo-500"
+                  />
+                  <label htmlFor="followingSpeaker" className="text-xs text-gray-400">
+                    Following this speaker
+                  </label>
+                </div>
+              )}
             </div>
           </details>
+
+          {/* Metrics (for non-Bluesky manual entry) */}
+          {formData.platform !== 'bluesky' && (
+            <details className="group">
+              <summary className="flex items-center gap-2 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-300">
+                Engagement Metrics (optional)
+              </summary>
+              <div className="mt-3 grid grid-cols-3 gap-3 pl-6">
+                <div className="space-y-1">
+                  <label className="block text-xs text-gray-400">Likes</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.likeCount}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        likeCount: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs text-gray-400">Reposts</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.repostCount}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        repostCount: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-xs text-gray-400">Replies</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.replyCount}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        replyCount: parseInt(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+            </details>
+          )}
 
           {/* Notes */}
           <div className="space-y-2">

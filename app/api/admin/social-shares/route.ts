@@ -28,8 +28,13 @@ export async function GET(request: NextRequest) {
     }
 
     const status = searchParams.get('status');
-    if (status && ['draft', 'posted', 'verified'].includes(status)) {
+    if (status && ['draft', 'posted', 'verified', 'discovered', 'acknowledged'].includes(status)) {
       filters.status = status as ShareFilters['status'];
+    }
+
+    const sortBy = searchParams.get('sortBy');
+    if (sortBy && ['postedAt', 'engagement'].includes(sortBy)) {
+      filters.sortBy = sortBy as ShareFilters['sortBy'];
     }
 
     const search = searchParams.get('search');
@@ -92,9 +97,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Convert postedAt string to Date object
+    // Convert date strings to Date objects
     if (body.postedAt && typeof body.postedAt === 'string') {
       body.postedAt = new Date(body.postedAt);
+    }
+    if (body.metricsUpdatedAt && typeof body.metricsUpdatedAt === 'string') {
+      body.metricsUpdatedAt = new Date(body.metricsUpdatedAt);
+    }
+    if (body.relationshipUpdatedAt && typeof body.relationshipUpdatedAt === 'string') {
+      body.relationshipUpdatedAt = new Date(body.relationshipUpdatedAt);
     }
 
     const share = await createShare(body);

@@ -5,7 +5,7 @@ export const arcanaTypeEnum = pgEnum('arcana_type', ['major', 'minor']);
 export const suitEnum = pgEnum('suit', ['wands', 'cups', 'swords', 'pentacles']);
 export const themeCategoryEnum = pgEnum('theme_category', ['emotion', 'life_phase', 'role', 'other']);
 export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'other']);
-export const shareStatusEnum = pgEnum('share_status', ['draft', 'posted', 'verified']);
+export const shareStatusEnum = pgEnum('share_status', ['draft', 'posted', 'verified', 'discovered', 'acknowledged']);
 
 // Cards table
 export const cards = pgTable('cards', {
@@ -120,12 +120,29 @@ export const socialShares = pgTable('social_shares', {
   talkId: uuid('talk_id').references(() => talks.id, { onDelete: 'set null' }),
   sharedUrl: varchar('shared_url', { length: 500 }), // the TarotTALKS URL shared
 
-  // Speaker tracking (Phase 3 prep)
+  // Speaker tracking
   speakerHandle: varchar('speaker_handle', { length: 100 }),
   speakerName: varchar('speaker_name', { length: 200 }),
 
   // Notes
   notes: text('notes'),
+
+  // Phase 2: Metrics
+  likeCount: integer('like_count').default(0),
+  repostCount: integer('repost_count').default(0),
+  replyCount: integer('reply_count').default(0),
+  metricsUpdatedAt: timestamp('metrics_updated_at'),
+
+  // Phase 3: Relationship tracking
+  followingSpeaker: boolean('following_speaker'),
+  relationshipUpdatedAt: timestamp('relationship_updated_at'),
+
+  // Phase 4: Mention discovery
+  discoveredAt: timestamp('discovered_at'),
+  atUri: varchar('at_uri', { length: 500 }),
+  authorDid: varchar('author_did', { length: 100 }),
+  authorHandle: varchar('author_handle', { length: 100 }),
+  authorDisplayName: varchar('author_display_name', { length: 200 }),
 
   // Timestamps
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -134,4 +151,5 @@ export const socialShares = pgTable('social_shares', {
   idxPostedAt: index('idx_social_shares_posted_at').on(table.postedAt),
   idxPlatform: index('idx_social_shares_platform').on(table.platform),
   idxStatus: index('idx_social_shares_status').on(table.status),
+  idxAtUri: index('idx_social_shares_at_uri').on(table.atUri),
 }));

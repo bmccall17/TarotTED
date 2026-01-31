@@ -31,6 +31,8 @@ const statuses = [
   { value: 'draft', label: 'Draft' },
   { value: 'posted', label: 'Posted' },
   { value: 'verified', label: 'Verified' },
+  { value: 'discovered', label: 'Discovered' },
+  { value: 'acknowledged', label: 'Acknowledged' },
 ];
 
 export function ShareFilters({

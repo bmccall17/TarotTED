@@ -8,11 +8,13 @@ export type Share = typeof socialShares.$inferSelect;
 
 export type ShareFilters = {
   platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
-  status?: 'draft' | 'posted' | 'verified';
+  status?: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   search?: string;
   dateFrom?: Date;
   dateTo?: Date;
   limit?: number;
+  sortBy?: 'postedAt' | 'engagement';
+  excludeDiscovered?: boolean;
 };
 
 export type ShareWithRelations = Share & {
@@ -34,6 +36,11 @@ export async function getAllSharesForAdmin(filters?: ShareFilters): Promise<Shar
     conditions.push(eq(socialShares.status, filters.status));
   }
 
+  // By default, exclude discovered and acknowledged (mentions) from the main list
+  if (filters?.excludeDiscovered !== false && !filters?.status) {
+    conditions.push(sql`${socialShares.status} NOT IN ('discovered', 'acknowledged')`);
+  }
+
   if (filters?.dateFrom) {
     conditions.push(gte(socialShares.postedAt, filters.dateFrom));
   }
@@ -48,7 +55,9 @@ export async function getAllSharesForAdmin(filters?: ShareFilters): Promise<Shar
       or(
         ilike(socialShares.notes, searchPattern),
         ilike(socialShares.speakerName, searchPattern),
-        ilike(socialShares.speakerHandle, searchPattern)
+        ilike(socialShares.speakerHandle, searchPattern),
+        ilike(socialShares.authorHandle, searchPattern),
+        ilike(socialShares.authorDisplayName, searchPattern)
       )
     );
   }
@@ -56,11 +65,16 @@ export async function getAllSharesForAdmin(filters?: ShareFilters): Promise<Shar
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
   const limit = filters?.limit || 50;
 
+  // Determine sort order
+  const orderBy = filters?.sortBy === 'engagement'
+    ? desc(sql`COALESCE(${socialShares.likeCount}, 0) + COALESCE(${socialShares.repostCount}, 0) + COALESCE(${socialShares.replyCount}, 0)`)
+    : desc(socialShares.postedAt);
+
   const shares = await db
     .select()
     .from(socialShares)
     .where(whereClause)
-    .orderBy(desc(socialShares.postedAt))
+    .orderBy(orderBy)
     .limit(limit);
 
   // Get related cards and talks
@@ -232,4 +246,205 @@ export async function resolveSharedUrl(url: string): Promise<{
   }
 
   return { type: null };
+}
+
+// ==========================================
+// Phase 2-4: Metrics, Relationships, Mentions
+// ==========================================
+
+export type MetricsUpdate = {
+  likeCount: number;
+  repostCount: number;
+  replyCount: number;
+};
+
+/**
+ * Update metrics for a share
+ */
+export async function updateMetrics(id: string, metrics: MetricsUpdate): Promise<Share | null> {
+  const [result] = await db
+    .update(socialShares)
+    .set({
+      likeCount: metrics.likeCount,
+      repostCount: metrics.repostCount,
+      replyCount: metrics.replyCount,
+      metricsUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(socialShares.id, id))
+    .returning();
+
+  return result || null;
+}
+
+/**
+ * Update relationship status for a share
+ */
+export async function updateRelationship(id: string, following: boolean | null): Promise<Share | null> {
+  const [result] = await db
+    .update(socialShares)
+    .set({
+      followingSpeaker: following,
+      relationshipUpdatedAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .where(eq(socialShares.id, id))
+    .returning();
+
+  return result || null;
+}
+
+/**
+ * Get top shares sorted by total engagement (likes + reposts + replies)
+ */
+export async function getTopShares(limit: number = 5): Promise<ShareWithRelations[]> {
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - 7);
+
+  const shares = await db
+    .select()
+    .from(socialShares)
+    .where(
+      and(
+        gte(socialShares.postedAt, weekStart),
+        sql`${socialShares.status} NOT IN ('discovered', 'acknowledged')`
+      )
+    )
+    .orderBy(
+      desc(sql`COALESCE(${socialShares.likeCount}, 0) + COALESCE(${socialShares.repostCount}, 0) + COALESCE(${socialShares.replyCount}, 0)`)
+    )
+    .limit(limit);
+
+  // Get related cards and talks
+  const cardIds = shares.filter(s => s.cardId).map(s => s.cardId as string);
+  const talkIds = shares.filter(s => s.talkId).map(s => s.talkId as string);
+
+  let cardsMap: Record<string, { id: string; name: string; slug: string }> = {};
+  let talksMap: Record<string, { id: string; title: string; slug: string; speakerName: string }> = {};
+
+  if (cardIds.length > 0) {
+    const cardResults = await db
+      .select({ id: cards.id, name: cards.name, slug: cards.slug })
+      .from(cards)
+      .where(sql`${cards.id} IN (${sql.join(cardIds.map(id => sql`${id}::uuid`), sql`, `)})`);
+    cardsMap = Object.fromEntries(cardResults.map(c => [c.id, c]));
+  }
+
+  if (talkIds.length > 0) {
+    const talkResults = await db
+      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName })
+      .from(talks)
+      .where(sql`${talks.id} IN (${sql.join(talkIds.map(id => sql`${id}::uuid`), sql`, `)})`);
+    talksMap = Object.fromEntries(talkResults.map(t => [t.id, t]));
+  }
+
+  return shares.map(share => ({
+    ...share,
+    card: share.cardId ? cardsMap[share.cardId] || null : null,
+    talk: share.talkId ? talksMap[share.talkId] || null : null,
+  }));
+}
+
+/**
+ * Get discovered mentions (status = 'discovered')
+ */
+export async function getDiscoveredMentions(limit: number = 50): Promise<Share[]> {
+  return db
+    .select()
+    .from(socialShares)
+    .where(eq(socialShares.status, 'discovered'))
+    .orderBy(desc(socialShares.discoveredAt))
+    .limit(limit);
+}
+
+export type MentionData = {
+  platform: 'bluesky';
+  postUrl: string;
+  atUri: string;
+  authorDid: string;
+  authorHandle: string;
+  authorDisplayName: string;
+  sharedUrl?: string;
+  cardId?: string;
+  talkId?: string;
+  likeCount?: number;
+  repostCount?: number;
+  replyCount?: number;
+  discoveredAt: Date;
+};
+
+/**
+ * Create a share from a discovered mention
+ */
+export async function createFromMention(data: MentionData): Promise<Share> {
+  const [result] = await db
+    .insert(socialShares)
+    .values({
+      platform: data.platform,
+      postUrl: data.postUrl,
+      status: 'discovered',
+      postedAt: data.discoveredAt,
+      atUri: data.atUri,
+      authorDid: data.authorDid,
+      authorHandle: data.authorHandle,
+      authorDisplayName: data.authorDisplayName,
+      sharedUrl: data.sharedUrl,
+      cardId: data.cardId,
+      talkId: data.talkId,
+      likeCount: data.likeCount ?? 0,
+      repostCount: data.repostCount ?? 0,
+      replyCount: data.replyCount ?? 0,
+      metricsUpdatedAt: new Date(),
+      discoveredAt: data.discoveredAt,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+    .returning();
+
+  return result;
+}
+
+/**
+ * Check if a mention already exists by AT URI
+ */
+export async function mentionExistsByAtUri(atUri: string): Promise<boolean> {
+  const [result] = await db
+    .select({ id: socialShares.id })
+    .from(socialShares)
+    .where(eq(socialShares.atUri, atUri))
+    .limit(1);
+
+  return !!result;
+}
+
+/**
+ * Acknowledge a discovered mention
+ */
+export async function acknowledgeMention(id: string): Promise<Share | null> {
+  const [result] = await db
+    .update(socialShares)
+    .set({
+      status: 'acknowledged',
+      updatedAt: new Date(),
+    })
+    .where(eq(socialShares.id, id))
+    .returning();
+
+  return result || null;
+}
+
+/**
+ * Convert a discovered mention to a tracked share
+ */
+export async function convertMentionToShare(id: string): Promise<Share | null> {
+  const [result] = await db
+    .update(socialShares)
+    .set({
+      status: 'posted',
+      updatedAt: new Date(),
+    })
+    .where(eq(socialShares.id, id))
+    .returning();
+
+  return result || null;
 }

@@ -5,13 +5,15 @@ import { Plus, Radio } from 'lucide-react';
 import { ShareRow } from './ShareRow';
 import { ShareFilters } from './ShareFilters';
 import { NewShareForm } from './NewShareForm';
+import { TopSharesWidget } from './TopSharesWidget';
+import { MentionsInbox } from './MentionsInbox';
 import { Toast } from '../ui/Toast';
 
 type Share = {
   id: string;
   platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
   postUrl: string | null;
-  status: 'draft' | 'posted' | 'verified';
+  status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
   sharedUrl: string | null;
   speakerHandle: string | null;
@@ -19,6 +21,14 @@ type Share = {
   notes: string | null;
   card?: { id: string; name: string; slug: string } | null;
   talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+  // Phase 2-4 fields
+  likeCount?: number | null;
+  repostCount?: number | null;
+  replyCount?: number | null;
+  metricsUpdatedAt?: string | null;
+  followingSpeaker?: boolean | null;
+  authorHandle?: string | null;
+  authorDisplayName?: string | null;
 };
 
 type Stats = {
@@ -176,21 +186,27 @@ export function SharesList() {
         </button>
       </div>
 
-      {/* Stats Bar */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-          <div className="text-2xl font-bold text-gray-100">{stats.today}</div>
-          <div className="text-xs text-gray-400">Today</div>
+      {/* Stats Bar + Top Shares */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <div className="text-2xl font-bold text-gray-100">{stats.today}</div>
+            <div className="text-xs text-gray-400">Today</div>
+          </div>
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <div className="text-2xl font-bold text-gray-100">{stats.thisWeek}</div>
+            <div className="text-xs text-gray-400">This Week</div>
+          </div>
+          <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+            <div className="text-2xl font-bold text-gray-100">{stats.total}</div>
+            <div className="text-xs text-gray-400">Total</div>
+          </div>
         </div>
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-          <div className="text-2xl font-bold text-gray-100">{stats.thisWeek}</div>
-          <div className="text-xs text-gray-400">This Week</div>
-        </div>
-        <div className="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
-          <div className="text-2xl font-bold text-gray-100">{stats.total}</div>
-          <div className="text-xs text-gray-400">Total</div>
-        </div>
+        <TopSharesWidget />
       </div>
+
+      {/* Mentions Inbox */}
+      <MentionsInbox />
 
       {/* Filters */}
       <ShareFilters
