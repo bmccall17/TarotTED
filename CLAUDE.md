@@ -84,3 +84,9 @@ When beginning development, suggested order:
 - For database migrations: Provide SQL ready to paste into **Supabase SQL Editor**
 - For code changes: After implementation, instruct to deploy and test on live site
 - Test URLs should point to `https://tarottalks.app/...`
+
+## Useful External Tools
+
+- **X/Twitter Card Validator:** https://www.xcardvalidator.com/
+- **Facebook Sharing Debugger:** https://developers.facebook.com/tools/debug/
+- **LinkedIn Post Inspector:** https://www.linkedin.com/post-inspector/

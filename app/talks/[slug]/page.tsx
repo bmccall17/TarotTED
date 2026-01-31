@@ -28,14 +28,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const description = talk.description || `A TED talk by ${talk.speakerName}`;
-  const thumbnailUrl = getThumbnailUrl(talk.thumbnailUrl, talk.youtubeVideoId);
 
-  // Use a high-quality YouTube thumbnail if available, fallback to site OG image (with absolute URL)
-  const ogImageUrl = thumbnailUrl || 'https://tarottalks.app/opengraph-image.png';
+  // Debug: Log what thumbnail data we have
+  console.log('[Talk OG Meta]', {
+    slug,
+    title: talk.title,
+    thumbnailUrl: talk.thumbnailUrl,
+    youtubeVideoId: talk.youtubeVideoId,
+  });
 
-  // Determine image dimensions based on source
-  const imageWidth = thumbnailUrl ? 1280 : 1200;
-  const imageHeight = thumbnailUrl ? 720 : 630;
+  // Use the dynamically generated OG image (opengraph-image.tsx)
+  // This creates a branded image with the talk thumbnail, card overlay, and TarotTALKS styling
+  const ogImageUrl = `https://tarottalks.app/talks/${slug}/opengraph-image`;
 
   return {
     title: `${talk.title} - TarotTALKS`,
@@ -48,8 +52,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       images: [
         {
           url: ogImageUrl,
-          width: imageWidth,
-          height: imageHeight,
+          width: 1200,
+          height: 630,
           alt: `${talk.title} by ${talk.speakerName}`,
         },
       ],

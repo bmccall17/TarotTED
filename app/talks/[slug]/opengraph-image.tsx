@@ -5,6 +5,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 export const runtime = 'nodejs';
+export const revalidate = 0; // Always fetch fresh data
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = 'TarotTALKS Talk';
@@ -76,13 +77,24 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const primaryMapping = talkData.mappedCards[0];
   const primaryCard = primaryMapping?.card;
 
-  // Get thumbnail URL
+  // Get thumbnail URL - with detailed logging
+  console.log('[Talk OG Image] Raw data:', {
+    slug,
+    title: talkData.title,
+    thumbnailUrl: talkData.thumbnailUrl,
+    youtubeVideoId: talkData.youtubeVideoId,
+  });
+
   const thumbnailUrl = getThumbnailUrl(talkData.thumbnailUrl, talkData.youtubeVideoId);
+  console.log('[Talk OG Image] After getThumbnailUrl:', thumbnailUrl);
+
   const fullThumbnailUrl = thumbnailUrl?.startsWith('http')
     ? thumbnailUrl
     : thumbnailUrl
     ? `https://tarottalks.app${thumbnailUrl}`
     : null;
+
+  console.log('[Talk OG Image] Final thumbnail URL:', fullThumbnailUrl);
 
   // Get card image URL
   const cardImageUrl = primaryCard?.imageUrl?.startsWith('http')
