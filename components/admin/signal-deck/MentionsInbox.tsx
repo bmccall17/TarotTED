@@ -52,12 +52,24 @@ export function MentionsInbox() {
         body: JSON.stringify({ limit: 100 }),
       });
 
-      if (!response.ok) throw new Error('Failed to scan');
-
       const data = await response.json();
+
+      if (response.status === 503) {
+        // Credentials not configured
+        setToast({
+          message: 'Bluesky credentials not configured. Check environment variables.',
+          type: 'error',
+        });
+        return;
+      }
+
+      if (!response.ok) throw new Error(data.error || 'Failed to scan');
+
       setToast({
-        message: `Found ${data.newMentions} new mentions`,
-        type: 'success',
+        message: data.newMentions > 0
+          ? `Found ${data.newMentions} new mentions`
+          : 'No new mentions found',
+        type: data.newMentions > 0 ? 'success' : 'success',
       });
 
       if (data.newMentions > 0) {

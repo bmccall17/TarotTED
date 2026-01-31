@@ -1,16 +1,62 @@
 /**
  * Bluesky AT Protocol API Service
  *
- * Handles all interactions with Bluesky's public API for:
+ * Handles all interactions with Bluesky's API for:
  * - Fetching post metrics (likes, reposts, replies)
  * - Checking follow relationships
- * - Searching for domain mentions
+ * - Searching for domain mentions (requires authentication)
  *
- * No authentication required for public data.
+ * Public endpoints work without auth. Search requires BLUESKY_IDENTIFIER
+ * and BLUESKY_APP_PASSWORD environment variables.
  */
+
+import { BskyAgent } from '@atproto/api';
 
 const BSKY_PUBLIC_API = 'https://public.api.bsky.app';
 const TAROTTALKS_HANDLE = 'tarottalks.bsky.social';
+
+// Cached authenticated agent for search operations
+let authenticatedAgent: BskyAgent | null = null;
+let authenticationAttempted = false;
+
+/**
+ * Get an authenticated Bluesky agent for search operations
+ * Caches the agent to avoid re-authenticating on every request
+ */
+async function getAuthenticatedAgent(): Promise<BskyAgent | null> {
+  // Return cached agent if available
+  if (authenticatedAgent) {
+    return authenticatedAgent;
+  }
+
+  // Don't retry if we already failed
+  if (authenticationAttempted) {
+    return null;
+  }
+
+  authenticationAttempted = true;
+
+  const identifier = process.env.BLUESKY_IDENTIFIER;
+  const password = process.env.BLUESKY_APP_PASSWORD;
+
+  if (!identifier || !password) {
+    console.warn(
+      'Bluesky credentials not configured. Set BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD for mention search.'
+    );
+    return null;
+  }
+
+  try {
+    const agent = new BskyAgent({ service: 'https://bsky.social' });
+    await agent.login({ identifier, password });
+    authenticatedAgent = agent;
+    console.log('Bluesky authentication successful');
+    return agent;
+  } catch (error) {
+    console.error('Failed to authenticate with Bluesky:', error);
+    return null;
+  }
+}
 
 export type PostMetrics = {
   likeCount: number;
@@ -136,31 +182,40 @@ export async function checkFollowStatus(speakerHandle: string): Promise<boolean 
 
 /**
  * Search for posts mentioning tarottalks.app domain
+ * Requires authentication - uses BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD
  * Returns array of discovered mentions
  */
 export async function searchMentions(limit: number = 100): Promise<MentionPost[]> {
   try {
-    const res = await fetch(
-      `${BSKY_PUBLIC_API}/xrpc/app.bsky.feed.searchPosts?q=tarottalks.app&sort=latest&limit=${limit}`
-    );
-    if (!res.ok) return [];
+    const agent = await getAuthenticatedAgent();
 
-    const data = await res.json();
-    const posts = data.posts || [];
+    if (!agent) {
+      console.error('Cannot search mentions: Bluesky authentication failed or not configured');
+      return [];
+    }
 
-    return posts.map((post: any) => ({
+    const response = await agent.app.bsky.feed.searchPosts({
+      q: 'tarottalks.app',
+      sort: 'latest',
+      limit,
+    });
+
+    const posts = response.data.posts || [];
+
+    return posts.map((post) => ({
       uri: post.uri,
       postUrl: `https://bsky.app/profile/${post.author.handle}/post/${post.uri.split('/').pop()}`,
       authorDid: post.author.did,
       authorHandle: post.author.handle,
       authorDisplayName: post.author.displayName || post.author.handle,
-      text: post.record?.text || '',
-      createdAt: post.record?.createdAt || post.indexedAt,
+      text: (post.record as { text?: string })?.text || '',
+      createdAt: (post.record as { createdAt?: string })?.createdAt || post.indexedAt,
       likeCount: post.likeCount ?? 0,
       repostCount: post.repostCount ?? 0,
       replyCount: post.replyCount ?? 0,
     }));
-  } catch {
+  } catch (error) {
+    console.error('Error searching Bluesky mentions:', error);
     return [];
   }
 }

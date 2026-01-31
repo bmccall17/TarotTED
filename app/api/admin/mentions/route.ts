@@ -29,6 +29,18 @@ export async function GET() {
  */
 export async function POST(request: Request) {
   try {
+    // Check if Bluesky credentials are configured
+    if (!process.env.BLUESKY_IDENTIFIER || !process.env.BLUESKY_APP_PASSWORD) {
+      return NextResponse.json(
+        {
+          error: 'Bluesky credentials not configured',
+          message: 'Set BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD environment variables to enable mention scanning.',
+          newMentions: 0,
+        },
+        { status: 503 }
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const limit = body.limit || 100;
 
@@ -37,7 +49,7 @@ export async function POST(request: Request) {
 
     if (mentions.length === 0) {
       return NextResponse.json({
-        message: 'No mentions found',
+        message: 'No mentions found. This could mean no posts contain "tarottalks.app" or there was an authentication issue.',
         newMentions: 0,
         skipped: 0,
       });
