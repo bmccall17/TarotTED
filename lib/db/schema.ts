@@ -4,9 +4,7 @@ import { pgTable, text, integer, boolean, timestamp, uuid, varchar, pgEnum, bigi
 export const arcanaTypeEnum = pgEnum('arcana_type', ['major', 'minor']);
 export const suitEnum = pgEnum('suit', ['wands', 'cups', 'swords', 'pentacles']);
 export const themeCategoryEnum = pgEnum('theme_category', ['emotion', 'life_phase', 'role', 'other']);
-// NOTE: To add 'instagram', run migration 0007_multi_platform_signal_deck.sql first
-// Then update to: pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'instagram', 'other'])
-export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'other']);
+export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'instagram', 'other']);
 export const shareStatusEnum = pgEnum('share_status', ['draft', 'posted', 'verified', 'discovered', 'acknowledged']);
 
 // Cards table

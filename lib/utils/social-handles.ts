@@ -106,8 +106,7 @@ export function formatAllTagPacks(
 }
 
 // Platform types for Signal Deck
-// NOTE: Add 'instagram' after running migration 0007_multi_platform_signal_deck.sql
-export type Platform = 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+export type Platform = 'x' | 'bluesky' | 'threads' | 'linkedin' | 'instagram' | 'other';
 
 /**
  * Detect platform from a post URL
@@ -137,10 +136,9 @@ export function detectPlatformFromUrl(url: string): Platform | null {
     return 'linkedin';
   }
 
-  // Instagram - maps to 'other' until migration adds 'instagram' enum value
-  // After migration, change this to return 'instagram'
+  // Instagram
   if (lowerUrl.includes('instagram.com/')) {
-    return 'other';
+    return 'instagram';
   }
 
   return null;
@@ -190,18 +188,19 @@ export function isValidPostUrl(url: string, platform: Platform): boolean {
       return /(?:twitter|x)\.com\/\w+\/status\/\d+/.test(url);
     case 'bluesky':
       return /bsky\.app\/profile\/[^\/]+\/post\/[a-z0-9]+/.test(url);
+    case 'instagram':
+      return /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
     case 'linkedin':
       return /linkedin\.com\/(?:posts|feed\/update)\//.test(url);
     case 'threads':
       return /threads\.net\/[^\/]+\/post\//.test(url);
     default:
-      return true; // Accept any URL for 'other' (includes Instagram until migration)
+      return true; // Accept any URL for 'other'
   }
 }
 
 /**
  * Get platform-specific metric labels
- * NOTE: Instagram labels will be added after migration 0007
  */
 export function getPlatformMetricLabels(platform: Platform): {
   likes: string;
@@ -211,6 +210,8 @@ export function getPlatformMetricLabels(platform: Platform): {
   switch (platform) {
     case 'x':
       return { likes: 'Likes', reposts: 'Retweets', replies: 'Replies' };
+    case 'instagram':
+      return { likes: 'Likes', reposts: null, replies: 'Comments' };
     case 'linkedin':
       return { likes: 'Reactions', reposts: 'Reposts', replies: 'Comments' };
     case 'bluesky':

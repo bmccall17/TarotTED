@@ -6,9 +6,8 @@ import { eq, desc, ilike, or, and, sql, count, gte, lte } from 'drizzle-orm';
 export type InsertShare = typeof socialShares.$inferInsert;
 export type Share = typeof socialShares.$inferSelect;
 
-// NOTE: Add 'instagram' after running migration 0007_multi_platform_signal_deck.sql
 export type ShareFilters = {
-  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'instagram' | 'other';
   status?: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   search?: string;
   dateFrom?: Date;

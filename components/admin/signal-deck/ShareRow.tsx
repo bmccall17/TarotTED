@@ -40,6 +40,7 @@ type Props = {
 const platformIcons: Record<string, string> = {
   x: '𝕏',
   bluesky: '🦋',
+  instagram: '📷',
   threads: '🧵',
   linkedin: '💼',
   other: '🔗',
@@ -48,6 +49,7 @@ const platformIcons: Record<string, string> = {
 const platformColors: Record<string, string> = {
   x: 'bg-gray-800 text-white',
   bluesky: 'bg-blue-600 text-white',
+  instagram: 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white',
   threads: 'bg-gradient-to-r from-purple-600 to-pink-500 text-white',
   linkedin: 'bg-blue-700 text-white',
   other: 'bg-gray-600 text-white',

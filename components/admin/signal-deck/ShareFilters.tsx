@@ -17,11 +17,11 @@ type Props = {
   hasActiveFilters: boolean;
 };
 
-// NOTE: Add Instagram after running migration 0007_multi_platform_signal_deck.sql
 const platforms = [
   { value: '', label: 'All Platforms' },
   { value: 'x', label: 'X (Twitter)' },
   { value: 'bluesky', label: 'Bluesky' },
+  { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
   { value: 'threads', label: 'Threads' },
   { value: 'other', label: 'Other' },
