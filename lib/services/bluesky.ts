@@ -17,43 +17,43 @@ const TAROTTALKS_HANDLE = 'tarottalks.bsky.social';
 
 // Cached authenticated agent for search operations
 let authenticatedAgent: BskyAgent | null = null;
-let authenticationAttempted = false;
 
 /**
  * Get an authenticated Bluesky agent for search operations
  * Caches the agent to avoid re-authenticating on every request
  */
 async function getAuthenticatedAgent(): Promise<BskyAgent | null> {
-  // Return cached agent if available
-  if (authenticatedAgent) {
+  // Return cached agent if available and session is valid
+  if (authenticatedAgent?.session) {
     return authenticatedAgent;
   }
-
-  // Don't retry if we already failed
-  if (authenticationAttempted) {
-    return null;
-  }
-
-  authenticationAttempted = true;
 
   const identifier = process.env.BLUESKY_IDENTIFIER;
   const password = process.env.BLUESKY_APP_PASSWORD;
 
+  console.log('[Bluesky Auth] Checking credentials...');
+  console.log('[Bluesky Auth] BLUESKY_IDENTIFIER:', identifier ? `${identifier.substring(0, 10)}...` : 'NOT SET');
+  console.log('[Bluesky Auth] BLUESKY_APP_PASSWORD:', password ? `${password.substring(0, 4)}...` : 'NOT SET');
+
   if (!identifier || !password) {
-    console.warn(
-      'Bluesky credentials not configured. Set BLUESKY_IDENTIFIER and BLUESKY_APP_PASSWORD for mention search.'
-    );
+    console.error('[Bluesky Auth] Missing credentials - cannot authenticate');
     return null;
   }
 
   try {
+    console.log('[Bluesky Auth] Attempting login...');
     const agent = new BskyAgent({ service: 'https://bsky.social' });
     await agent.login({ identifier, password });
     authenticatedAgent = agent;
-    console.log('Bluesky authentication successful');
+    console.log('[Bluesky Auth] Login successful for:', agent.session?.handle);
     return agent;
-  } catch (error) {
-    console.error('Failed to authenticate with Bluesky:', error);
+  } catch (error: unknown) {
+    const err = error as Error & { status?: number; message?: string };
+    console.error('[Bluesky Auth] Login failed:', {
+      message: err.message,
+      status: err.status,
+      name: err.name,
+    });
     return null;
   }
 }
