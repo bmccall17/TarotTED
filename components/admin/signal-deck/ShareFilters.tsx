@@ -28,11 +28,11 @@ const platforms = [
 
 const statuses = [
   { value: '', label: 'All Status' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'posted', label: 'Posted' },
-  { value: 'verified', label: 'Verified' },
-  { value: 'discovered', label: 'Discovered' },
-  { value: 'acknowledged', label: 'Acknowledged' },
+  { value: 'draft', label: 'Draft (planned)' },
+  { value: 'posted', label: 'Posted (logged)' },
+  { value: 'verified', label: 'Verified (confirmed live)' },
+  { value: 'discovered', label: 'Discovered (auto-found)' },
+  { value: 'acknowledged', label: 'Acknowledged (dismissed)' },
 ];
 
 export function ShareFilters({

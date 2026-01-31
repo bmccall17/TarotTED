@@ -261,6 +261,7 @@ export function SharesList() {
                       share={share}
                       onEdit={handleEditShare}
                       onDeleted={handleShareDeleted}
+                      onStatusChanged={fetchShares}
                     />
                   ))}
                 </div>

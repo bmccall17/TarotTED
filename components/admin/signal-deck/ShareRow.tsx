@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye, Radar } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye, Radar, Loader2 } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { MetricsDisplay } from './MetricsDisplay';
 import { RelationshipBadge } from './RelationshipBadge';
@@ -32,6 +32,7 @@ type Props = {
   share: Share;
   onEdit: (share: Share) => void;
   onDeleted: () => void;
+  onStatusChanged?: () => void;
 };
 
 const platformIcons: Record<string, string> = {
@@ -66,6 +67,14 @@ const statusColors: Record<string, string> = {
   acknowledged: 'bg-blue-900/50 text-blue-300 border border-blue-700/50',
 };
 
+const statusTooltips: Record<string, string> = {
+  draft: 'Planned but not yet posted',
+  posted: 'Logged as posted - click to mark as verified',
+  verified: 'Confirmed live and working',
+  discovered: 'Auto-found via Bluesky mention scan',
+  acknowledged: 'Discovered mention, dismissed from inbox',
+};
+
 function formatRelativeTime(dateStr: string): string {
   const date = new Date(dateStr);
   const now = new Date();
@@ -87,9 +96,11 @@ function truncateUrl(url: string, maxLength: number = 40): string {
   return url.slice(0, maxLength) + '...';
 }
 
-export function ShareRow({ share, onEdit, onDeleted }: Props) {
+export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [currentStatus, setCurrentStatus] = useState(share.status);
 
   // Local state for metrics (to update UI without full refresh)
   const [metrics, setMetrics] = useState({
@@ -98,6 +109,25 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
     replyCount: share.replyCount ?? 0,
   });
   const [followingSpeaker, setFollowingSpeaker] = useState(share.followingSpeaker ?? null);
+
+  const handleVerify = async () => {
+    if (currentStatus !== 'posted') return;
+    setVerifying(true);
+    try {
+      const response = await fetch(`/api/admin/social-shares/${share.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'verified' }),
+      });
+      if (!response.ok) throw new Error('Failed to verify');
+      setCurrentStatus('verified');
+      onStatusChanged?.();
+    } catch (error) {
+      console.error('Error verifying share:', error);
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -117,7 +147,7 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
 
   const sharedContent = share.card?.name || share.talk?.title || null;
   const sharedSpeaker = share.talk?.speakerName || share.speakerName || null;
-  const isDiscoveredMention = share.status === 'discovered' || share.status === 'acknowledged';
+  const isDiscoveredMention = currentStatus === 'discovered' || currentStatus === 'acknowledged';
 
   return (
     <>
@@ -208,13 +238,30 @@ export function ShareRow({ share, onEdit, onDeleted }: Props) {
 
         {/* Meta info */}
         <div className="flex flex-col items-end gap-2">
-          {/* Status badge */}
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${statusColors[share.status]}`}
-          >
-            {statusIcons[share.status]}
-            {share.status}
-          </span>
+          {/* Status badge - clickable when "posted" to convert to "verified" */}
+          {currentStatus === 'posted' ? (
+            <button
+              onClick={handleVerify}
+              disabled={verifying}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium cursor-pointer hover:bg-amber-800/70 transition-colors ${statusColors[currentStatus]}`}
+              title={statusTooltips[currentStatus]}
+            >
+              {verifying ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                statusIcons[currentStatus]
+              )}
+              {currentStatus}
+            </button>
+          ) : (
+            <span
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${statusColors[currentStatus]}`}
+              title={statusTooltips[currentStatus]}
+            >
+              {statusIcons[currentStatus]}
+              {currentStatus}
+            </span>
+          )}
 
           {/* Posted time */}
           <span className="text-xs text-gray-500">{formatRelativeTime(share.postedAt)}</span>

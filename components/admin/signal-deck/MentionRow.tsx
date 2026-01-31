@@ -137,7 +137,7 @@ export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
           onClick={handleAcknowledge}
           disabled={loading !== null}
           className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded disabled:opacity-50"
-          title="Acknowledge"
+          title="Acknowledge: Dismiss from inbox (I've seen this, don't need to track it)"
         >
           {loading === 'acknowledge' ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -149,7 +149,7 @@ export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
           onClick={handleConvert}
           disabled={loading !== null}
           className="p-1.5 text-gray-400 hover:text-green-400 hover:bg-gray-700 rounded disabled:opacity-50"
-          title="Convert to tracked share"
+          title="Convert to Tracked Share: Move to Shares list and track engagement over time"
         >
           {loading === 'convert' ? (
             <Loader2 className="w-4 h-4 animate-spin" />
