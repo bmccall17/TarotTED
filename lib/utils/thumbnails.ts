@@ -5,8 +5,9 @@ import { isSupabaseStorageUrl } from '@/lib/supabase';
  *
  * Priority order:
  * 1. Supabase Storage URLs (our controlled, reliable storage)
- * 2. YouTube thumbnails (reliable fallback)
- * 3. Any other stored URL (external URLs that haven't been migrated)
+ * 2. Any other stored full URL (http/https - external URLs or legacy)
+ * 3. YouTube thumbnails (reliable fallback when no URL is set)
+ * 4. Local paths (legacy, may not work)
  */
 export function getThumbnailUrl(
   thumbnailUrl: string | null,
@@ -17,11 +18,16 @@ export function getThumbnailUrl(
     return thumbnailUrl;
   }
 
-  // 2. YouTube thumbnail as reliable fallback
+  // 2. Use any stored full URL (external URLs that haven't been migrated)
+  if (thumbnailUrl && thumbnailUrl.startsWith('http')) {
+    return thumbnailUrl;
+  }
+
+  // 3. YouTube thumbnail as fallback when no URL is explicitly set
   if (youtubeVideoId) {
     return `https://i.ytimg.com/vi/${youtubeVideoId}/hqdefault.jpg`;
   }
 
-  // 3. Fall back to whatever URL is stored
+  // 4. Fall back to local paths (legacy, may need migration)
   return thumbnailUrl;
 }
