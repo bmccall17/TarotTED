@@ -181,14 +181,35 @@ An **Engagement Inbox**:
 
 ---
 
-## A simple “ladder” to build it without overwhelm
+## A simple "ladder" to build it without overwhelm
 
-* **Phase 1:** Manual tracker (posted? link? notes?) — frictionless logging
-* **Phase 2:** Metrics pulse — performance snapshots + “top this week”
-* **Phase 3:** Speaker relationship badges — follow hygiene + handle capture
-* **Phase 4:** Mention radar — discover organic sharing and replies
+* **Phase 1:** Manual tracker (posted? link? notes?) — frictionless logging ✅ *Shipped v1.3.6*
+* **Phase 2:** Metrics pulse — performance snapshots + "top this week" ✅ *Shipped v1.3.6*
+* **Phase 3:** Speaker relationship badges — follow hygiene + handle capture ✅ *Shipped v1.3.6*
+* **Phase 4:** Mention radar — discover organic sharing and replies ✅ *Shipped v1.3.6*
+
+**Enhancements (v1.3.7):**
+* Per-share rescan button for Bluesky (refreshes metrics, text, dates)
+* Platform auto-detection from URLs with mismatch warnings
+* Card/Talk images displayed in share rows
+* Status tooltips and one-click posted→verified conversion
+* Post text automatically saved as Notes during mention scan
 
 ---
 
 If you want a punchy name for it inside TarotTALKS admin:
-**“Signal Deck”** (your shares are cards; your mentions are draws; your engagement is the reading).
+**"Signal Deck"** (your shares are cards; your mentions are draws; your engagement is the reading).
+
+---
+
+## Implementation Status
+
+**Complete as of v1.3.7 (Jan 31, 2026)**
+
+All four phases are now live in the admin portal at `/admin/signal-deck`. Key capabilities:
+- Manual share logging with platform auto-detection
+- Bluesky mention scanning via AT Protocol API
+- Real-time metrics fetching (likes, reposts, replies)
+- Speaker relationship badges (following status via Bluesky API)
+- Mentions inbox with acknowledge/convert workflow
+- Per-share rescan for data refresh

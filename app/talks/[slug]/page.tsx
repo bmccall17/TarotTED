@@ -29,14 +29,6 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const description = talk.description || `A TED talk by ${talk.speakerName}`;
 
-  // Debug: Log what thumbnail data we have
-  console.log('[Talk OG Meta]', {
-    slug,
-    title: talk.title,
-    thumbnailUrl: talk.thumbnailUrl,
-    youtubeVideoId: talk.youtubeVideoId,
-  });
-
   // Use the dynamically generated OG image (opengraph-image.tsx)
   // This creates a branded image with the talk thumbnail, card overlay, and TarotTALKS styling
   const ogImageUrl = `https://tarottalks.app/talks/${slug}/opengraph-image`;

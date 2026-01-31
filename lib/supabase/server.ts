@@ -54,13 +54,7 @@ export function getPublicStorageUrl(filename: string, bucket?: string): string {
 export function isSupabaseStorageUrl(url: string | null): boolean {
   if (!url) return false;
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const isSupabase = supabaseUrl ? url.startsWith(`${supabaseUrl}/storage/`) : false;
-  console.log('[isSupabaseStorageUrl]', {
-    url: url?.substring(0, 60) + '...',
-    supabaseUrl: supabaseUrl ? supabaseUrl.substring(0, 30) + '...' : 'NOT SET',
-    isSupabase,
-  });
-  return isSupabase;
+  return supabaseUrl ? url.startsWith(`${supabaseUrl}/storage/`) : false;
 }
 
 /**
