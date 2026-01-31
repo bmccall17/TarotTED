@@ -19,8 +19,8 @@ type Share = {
   speakerHandle: string | null;
   speakerName: string | null;
   notes: string | null;
-  card?: { id: string; name: string; slug: string } | null;
-  talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+  card?: { id: string; name: string; slug: string; imageUrl: string } | null;
+  talk?: { id: string; title: string; slug: string; speakerName: string; thumbnailUrl: string | null } | null;
   // Phase 2-4 fields
   likeCount?: number | null;
   repostCount?: number | null;

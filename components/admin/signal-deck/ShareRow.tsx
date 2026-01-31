@@ -16,8 +16,8 @@ type Share = {
   speakerHandle: string | null;
   speakerName: string | null;
   notes: string | null;
-  card?: { id: string; name: string; slug: string } | null;
-  talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+  card?: { id: string; name: string; slug: string; imageUrl: string } | null;
+  talk?: { id: string; title: string; slug: string; speakerName: string; thumbnailUrl: string | null } | null;
   // Phase 2-4 fields
   likeCount?: number | null;
   repostCount?: number | null;
@@ -149,15 +149,35 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
   const sharedSpeaker = share.talk?.speakerName || share.speakerName || null;
   const isDiscoveredMention = currentStatus === 'discovered' || currentStatus === 'acknowledged';
 
+  // Get the image URL for the shared content
+  const sharedImageUrl = share.card?.imageUrl || share.talk?.thumbnailUrl || null;
+
   return (
     <>
       <div className="flex items-start gap-4 p-4 bg-gray-800/30 border border-gray-700/50 rounded-lg hover:bg-gray-800/50 transition-colors">
-        {/* Platform Icon */}
-        <div
-          className={`flex items-center justify-center w-10 h-10 rounded-lg text-sm font-bold ${platformColors[share.platform]}`}
-        >
-          {platformIcons[share.platform]}
-        </div>
+        {/* Shared Content Image or Platform Icon */}
+        {sharedImageUrl ? (
+          <div className="relative flex-shrink-0">
+            <img
+              src={sharedImageUrl}
+              alt={sharedContent || 'Shared content'}
+              className="w-14 h-14 object-cover rounded-lg border border-gray-600"
+            />
+            {/* Platform badge overlay */}
+            <div
+              className={`absolute -bottom-1 -right-1 w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center ${platformColors[share.platform]}`}
+              title={share.platform}
+            >
+              {platformIcons[share.platform]}
+            </div>
+          </div>
+        ) : (
+          <div
+            className={`flex items-center justify-center w-14 h-14 rounded-lg text-sm font-bold ${platformColors[share.platform]}`}
+          >
+            {platformIcons[share.platform]}
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 min-w-0 space-y-2">

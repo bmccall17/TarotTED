@@ -18,8 +18,8 @@ export type ShareFilters = {
 };
 
 export type ShareWithRelations = Share & {
-  card?: { id: string; name: string; slug: string } | null;
-  talk?: { id: string; title: string; slug: string; speakerName: string } | null;
+  card?: { id: string; name: string; slug: string; imageUrl: string } | null;
+  talk?: { id: string; title: string; slug: string; speakerName: string; thumbnailUrl: string | null } | null;
 };
 
 /**
@@ -81,12 +81,12 @@ export async function getAllSharesForAdmin(filters?: ShareFilters): Promise<Shar
   const cardIds = shares.filter(s => s.cardId).map(s => s.cardId as string);
   const talkIds = shares.filter(s => s.talkId).map(s => s.talkId as string);
 
-  let cardsMap: Record<string, { id: string; name: string; slug: string }> = {};
-  let talksMap: Record<string, { id: string; title: string; slug: string; speakerName: string }> = {};
+  let cardsMap: Record<string, { id: string; name: string; slug: string; imageUrl: string }> = {};
+  let talksMap: Record<string, { id: string; title: string; slug: string; speakerName: string; thumbnailUrl: string | null }> = {};
 
   if (cardIds.length > 0) {
     const cardResults = await db
-      .select({ id: cards.id, name: cards.name, slug: cards.slug })
+      .select({ id: cards.id, name: cards.name, slug: cards.slug, imageUrl: cards.imageUrl })
       .from(cards)
       .where(sql`${cards.id} IN (${sql.join(cardIds.map(id => sql`${id}::uuid`), sql`, `)})`);
     cardsMap = Object.fromEntries(cardResults.map(c => [c.id, c]));
@@ -94,7 +94,7 @@ export async function getAllSharesForAdmin(filters?: ShareFilters): Promise<Shar
 
   if (talkIds.length > 0) {
     const talkResults = await db
-      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName })
+      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName, thumbnailUrl: talks.thumbnailUrl })
       .from(talks)
       .where(sql`${talks.id} IN (${sql.join(talkIds.map(id => sql`${id}::uuid`), sql`, `)})`);
     talksMap = Object.fromEntries(talkResults.map(t => [t.id, t]));
@@ -124,7 +124,7 @@ export async function getShareById(id: string): Promise<ShareWithRelations | nul
 
   if (share.cardId) {
     const [cardResult] = await db
-      .select({ id: cards.id, name: cards.name, slug: cards.slug })
+      .select({ id: cards.id, name: cards.name, slug: cards.slug, imageUrl: cards.imageUrl })
       .from(cards)
       .where(eq(cards.id, share.cardId))
       .limit(1);
@@ -133,7 +133,7 @@ export async function getShareById(id: string): Promise<ShareWithRelations | nul
 
   if (share.talkId) {
     const [talkResult] = await db
-      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName })
+      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName, thumbnailUrl: talks.thumbnailUrl })
       .from(talks)
       .where(eq(talks.id, share.talkId))
       .limit(1);
@@ -319,12 +319,12 @@ export async function getTopShares(limit: number = 5): Promise<ShareWithRelation
   const cardIds = shares.filter(s => s.cardId).map(s => s.cardId as string);
   const talkIds = shares.filter(s => s.talkId).map(s => s.talkId as string);
 
-  let cardsMap: Record<string, { id: string; name: string; slug: string }> = {};
-  let talksMap: Record<string, { id: string; title: string; slug: string; speakerName: string }> = {};
+  let cardsMap: Record<string, { id: string; name: string; slug: string; imageUrl: string }> = {};
+  let talksMap: Record<string, { id: string; title: string; slug: string; speakerName: string; thumbnailUrl: string | null }> = {};
 
   if (cardIds.length > 0) {
     const cardResults = await db
-      .select({ id: cards.id, name: cards.name, slug: cards.slug })
+      .select({ id: cards.id, name: cards.name, slug: cards.slug, imageUrl: cards.imageUrl })
       .from(cards)
       .where(sql`${cards.id} IN (${sql.join(cardIds.map(id => sql`${id}::uuid`), sql`, `)})`);
     cardsMap = Object.fromEntries(cardResults.map(c => [c.id, c]));
@@ -332,7 +332,7 @@ export async function getTopShares(limit: number = 5): Promise<ShareWithRelation
 
   if (talkIds.length > 0) {
     const talkResults = await db
-      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName })
+      .select({ id: talks.id, title: talks.title, slug: talks.slug, speakerName: talks.speakerName, thumbnailUrl: talks.thumbnailUrl })
       .from(talks)
       .where(sql`${talks.id} IN (${sql.join(talkIds.map(id => sql`${id}::uuid`), sql`, `)})`);
     talksMap = Object.fromEntries(talkResults.map(t => [t.id, t]));

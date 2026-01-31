@@ -1,7 +1,39 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2, Link as LinkIcon, Check, AlertCircle } from 'lucide-react';
+import { X, Loader2, Link as LinkIcon, Check, AlertCircle, AlertTriangle } from 'lucide-react';
+
+type Platform = 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+
+/**
+ * Detect platform from a post URL
+ */
+function detectPlatformFromUrl(url: string): Platform | null {
+  if (!url) return null;
+  const lowerUrl = url.toLowerCase();
+
+  // X (Twitter)
+  if (lowerUrl.includes('x.com/') || lowerUrl.includes('twitter.com/')) {
+    return 'x';
+  }
+
+  // Bluesky
+  if (lowerUrl.includes('bsky.app/') || lowerUrl.includes('bsky.social/')) {
+    return 'bluesky';
+  }
+
+  // Threads
+  if (lowerUrl.includes('threads.net/')) {
+    return 'threads';
+  }
+
+  // LinkedIn
+  if (lowerUrl.includes('linkedin.com/')) {
+    return 'linkedin';
+  }
+
+  return null;
+}
 
 type Share = {
   id?: string;
@@ -102,6 +134,20 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
     name?: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [detectedPlatform, setDetectedPlatform] = useState<Platform | null>(null);
+
+  // Auto-detect platform from post URL
+  useEffect(() => {
+    const detected = detectPlatformFromUrl(formData.postUrl);
+    setDetectedPlatform(detected);
+
+    // Auto-select platform if we detect one and user hasn't manually changed it yet
+    if (detected && !share?.postUrl) {
+      setFormData((prev) => ({ ...prev, platform: detected }));
+    }
+  }, [formData.postUrl, share?.postUrl]);
+
+  const platformMismatch = detectedPlatform && detectedPlatform !== formData.platform;
 
   // Auto-detect TarotTALKS URL from post URL
   useEffect(() => {
@@ -240,18 +286,42 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
                 </button>
               ))}
             </div>
+            {platformMismatch && (
+              <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-900/30 border border-amber-700/50 px-3 py-2 rounded-lg">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                <span>
+                  URL looks like a <strong>{platforms.find(p => p.value === detectedPlatform)?.label}</strong> post, but you selected{' '}
+                  <strong>{platforms.find(p => p.value === formData.platform)?.label}</strong>.{' '}
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, platform: detectedPlatform! }))}
+                    className="underline hover:text-amber-300"
+                  >
+                    Fix it
+                  </button>
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Post URL */}
           <div className="space-y-2">
             <label className="block text-sm font-medium text-gray-300">Post URL</label>
-            <input
-              type="url"
-              value={formData.postUrl}
-              onChange={(e) => setFormData((prev) => ({ ...prev, postUrl: e.target.value }))}
-              placeholder="https://x.com/tarottalks/status/..."
-              className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
+            <div className="relative">
+              <input
+                type="url"
+                value={formData.postUrl}
+                onChange={(e) => setFormData((prev) => ({ ...prev, postUrl: e.target.value }))}
+                placeholder="Paste post URL (platform auto-detected)"
+                className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+              {detectedPlatform && !platformMismatch && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-xs text-green-400">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{platforms.find(p => p.value === detectedPlatform)?.shortLabel}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* TarotTALKS URL */}
