@@ -183,8 +183,14 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
   const sharedSpeaker = share.talk?.speakerName || share.speakerName || null;
   const isDiscoveredMention = currentStatus === 'discovered' || currentStatus === 'acknowledged';
 
-  // Get the image URL for the shared content
+  // Get the image URL and admin link for the shared content
   const sharedImageUrl = share.card?.imageUrl || share.talk?.thumbnailUrl || null;
+  const adminLink = share.card
+    ? `/admin/cards/${share.card.id}/edit`
+    : share.talk
+    ? `/admin/talks/${share.talk.id}/edit`
+    : null;
+  const isCard = !!share.card;
 
   return (
     <>
@@ -192,11 +198,29 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
         {/* Shared Content Image or Platform Icon */}
         {sharedImageUrl ? (
           <div className="relative flex-shrink-0">
-            <img
-              src={sharedImageUrl}
-              alt={sharedContent || 'Shared content'}
-              className="w-14 h-14 object-cover rounded-lg border border-gray-600"
-            />
+            {adminLink ? (
+              <a href={adminLink} title={`Edit ${isCard ? 'card' : 'talk'}`}>
+                <img
+                  src={sharedImageUrl}
+                  alt={sharedContent || 'Shared content'}
+                  className={`rounded-lg border border-gray-600 hover:border-indigo-500 transition-colors cursor-pointer ${
+                    isCard
+                      ? 'w-10 h-auto max-h-20' // Card: fixed width, auto height (vertical)
+                      : 'w-20 h-auto max-h-14' // Talk: wider, auto height (horizontal thumbnail)
+                  }`}
+                />
+              </a>
+            ) : (
+              <img
+                src={sharedImageUrl}
+                alt={sharedContent || 'Shared content'}
+                className={`rounded-lg border border-gray-600 ${
+                  isCard
+                    ? 'w-10 h-auto max-h-20'
+                    : 'w-20 h-auto max-h-14'
+                }`}
+              />
+            )}
             {/* Platform badge overlay */}
             <div
               className={`absolute -bottom-1 -right-1 w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center ${platformColors[share.platform]}`}
