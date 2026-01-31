@@ -93,6 +93,8 @@ export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
         repostCount: data.metrics.repostCount,
         replyCount: data.metrics.replyCount,
       });
+      // Rescan sets status to verified, so trigger conversion callback to refresh the list
+      onConverted();
     } catch (error) {
       console.error('Error rescanning mention:', error);
     } finally {

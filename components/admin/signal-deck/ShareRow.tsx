@@ -164,6 +164,10 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
         repostCount: data.metrics.repostCount,
         replyCount: data.metrics.replyCount,
       });
+      // Update status to verified
+      setCurrentStatus('verified');
+      // Trigger full refresh to get updated card/talk images
+      onStatusChanged?.();
     } catch (error) {
       console.error('Error rescanning share:', error);
     } finally {

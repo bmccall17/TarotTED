@@ -151,6 +151,72 @@ export async function getPostMetrics(atUri: string): Promise<PostMetrics | null>
   }
 }
 
+export type FullPostData = {
+  uri: string;
+  text: string;
+  createdAt: string;
+  authorDid: string;
+  authorHandle: string;
+  authorDisplayName: string;
+  likeCount: number;
+  repostCount: number;
+  replyCount: number;
+};
+
+/**
+ * Get full post data including text, author info, and metrics
+ */
+export async function getFullPostData(atUri: string): Promise<FullPostData | null> {
+  try {
+    console.log('[Bluesky] Fetching post thread for:', atUri);
+    const res = await fetch(
+      `${BSKY_PUBLIC_API}/xrpc/app.bsky.feed.getPostThread?uri=${encodeURIComponent(atUri)}&depth=0`
+    );
+    if (!res.ok) {
+      console.error('[Bluesky] API returned error:', res.status, res.statusText);
+      return null;
+    }
+
+    const data = await res.json();
+    const post = data.thread?.post;
+    if (!post) {
+      console.error('[Bluesky] No post found in response');
+      return null;
+    }
+
+    console.log('[Bluesky] Got post from API, text length:', (post.record as { text?: string })?.text?.length);
+
+    return {
+      uri: post.uri,
+      text: (post.record as { text?: string })?.text || '',
+      createdAt: (post.record as { createdAt?: string })?.createdAt || post.indexedAt,
+      authorDid: post.author.did,
+      authorHandle: post.author.handle,
+      authorDisplayName: post.author.displayName || post.author.handle,
+      likeCount: post.likeCount ?? 0,
+      repostCount: post.repostCount ?? 0,
+      replyCount: post.replyCount ?? 0,
+    };
+  } catch (error) {
+    console.error('[Bluesky] Error fetching post:', error);
+    return null;
+  }
+}
+
+/**
+ * Get full post data from a bsky.app URL
+ */
+export async function getFullPostDataFromUrl(postUrl: string): Promise<FullPostData | null> {
+  console.log('[Bluesky] Extracting AT URI from:', postUrl);
+  const atUri = await extractAtUriFromPostUrl(postUrl);
+  if (!atUri) {
+    console.error('[Bluesky] Failed to extract AT URI');
+    return null;
+  }
+  console.log('[Bluesky] Got AT URI:', atUri);
+  return getFullPostData(atUri);
+}
+
 /**
  * Check if @tarottalks.bsky.social follows a given handle
  * Returns: true (following), false (not following), null (error/unknown)
