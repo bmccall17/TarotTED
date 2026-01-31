@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye, Radar, Loader2 } from 'lucide-react';
+import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye, Radar, Loader2, RefreshCw } from 'lucide-react';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { MetricsDisplay } from './MetricsDisplay';
 import { RelationshipBadge } from './RelationshipBadge';
@@ -100,6 +100,7 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [rescanning, setRescanning] = useState(false);
   const [currentStatus, setCurrentStatus] = useState(share.status);
 
   // Local state for metrics (to update UI without full refresh)
@@ -142,6 +143,31 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
     } finally {
       setDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleRescan = async () => {
+    if (share.platform !== 'bluesky' || !share.postUrl) return;
+    setRescanning(true);
+    try {
+      const response = await fetch(`/api/admin/social-shares/${share.id}/rescan`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to rescan');
+      }
+      const data = await response.json();
+      // Update local metrics state
+      setMetrics({
+        likeCount: data.metrics.likeCount,
+        repostCount: data.metrics.repostCount,
+        replyCount: data.metrics.replyCount,
+      });
+    } catch (error) {
+      console.error('Error rescanning share:', error);
+    } finally {
+      setRescanning(false);
     }
   };
 
@@ -289,6 +315,21 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
+          {/* Rescan button - only for Bluesky shares with post URL */}
+          {share.platform === 'bluesky' && share.postUrl && (
+            <button
+              onClick={handleRescan}
+              disabled={rescanning}
+              className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50"
+              title="Rescan: Refresh metrics from Bluesky"
+            >
+              {rescanning ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+            </button>
+          )}
           <button
             onClick={() => onEdit(share)}
             className="p-2 text-gray-400 hover:text-indigo-400 hover:bg-gray-700 rounded-lg transition-colors"

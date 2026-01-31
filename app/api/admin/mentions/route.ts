@@ -93,6 +93,7 @@ export async function POST(request: Request) {
         sharedUrl,
         cardId,
         talkId,
+        notes: mention.text, // Save the actual post text
         likeCount: mention.likeCount,
         repostCount: mention.repostCount,
         replyCount: mention.replyCount,

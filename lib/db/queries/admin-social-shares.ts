@@ -370,6 +370,7 @@ export type MentionData = {
   likeCount?: number;
   repostCount?: number;
   replyCount?: number;
+  notes?: string; // The actual post text
   discoveredAt: Date;
 };
 
@@ -391,6 +392,7 @@ export async function createFromMention(data: MentionData): Promise<Share> {
       sharedUrl: data.sharedUrl,
       cardId: data.cardId,
       talkId: data.talkId,
+      notes: data.notes,
       likeCount: data.likeCount ?? 0,
       repostCount: data.repostCount ?? 0,
       replyCount: data.replyCount ?? 0,

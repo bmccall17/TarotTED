@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ExternalLink, Check, Eye, Loader2 } from 'lucide-react';
+import { ExternalLink, Check, Eye, Loader2, RefreshCw } from 'lucide-react';
 
 type Mention = {
   id: string;
@@ -40,7 +40,12 @@ function formatRelativeTime(dateStr: string | null): string {
 }
 
 export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
-  const [loading, setLoading] = useState<'acknowledge' | 'convert' | null>(null);
+  const [loading, setLoading] = useState<'acknowledge' | 'convert' | 'rescan' | null>(null);
+  const [localMetrics, setLocalMetrics] = useState({
+    likeCount: mention.likeCount ?? 0,
+    repostCount: mention.repostCount ?? 0,
+    replyCount: mention.replyCount ?? 0,
+  });
 
   const handleAcknowledge = async () => {
     setLoading('acknowledge');
@@ -74,8 +79,29 @@ export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
     }
   };
 
+  const handleRescan = async () => {
+    if (!mention.postUrl) return;
+    setLoading('rescan');
+    try {
+      const response = await fetch(`/api/admin/social-shares/${mention.id}/rescan`, {
+        method: 'POST',
+      });
+      if (!response.ok) throw new Error('Failed to rescan');
+      const data = await response.json();
+      setLocalMetrics({
+        likeCount: data.metrics.likeCount,
+        repostCount: data.metrics.repostCount,
+        replyCount: data.metrics.replyCount,
+      });
+    } catch (error) {
+      console.error('Error rescanning mention:', error);
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const totalEngagement =
-    (mention.likeCount ?? 0) + (mention.repostCount ?? 0) + (mention.replyCount ?? 0);
+    localMetrics.likeCount + localMetrics.repostCount + localMetrics.replyCount;
 
   return (
     <div className="flex items-start gap-3 p-3 bg-gray-800/30 border border-purple-700/30 rounded-lg">
@@ -123,15 +149,29 @@ export function MentionRow({ mention, onAcknowledged, onConverted }: Props) {
       {/* Actions */}
       <div className="flex items-center gap-2">
         {mention.postUrl && (
-          <a
-            href={mention.postUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700 rounded"
-            title="Open post"
-          >
-            <ExternalLink className="w-4 h-4" />
-          </a>
+          <>
+            <a
+              href={mention.postUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-700 rounded"
+              title="Open post"
+            >
+              <ExternalLink className="w-4 h-4" />
+            </a>
+            <button
+              onClick={handleRescan}
+              disabled={loading !== null}
+              className="p-1.5 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded disabled:opacity-50"
+              title="Rescan: Refresh metrics from Bluesky"
+            >
+              {loading === 'rescan' ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4" />
+              )}
+            </button>
+          </>
         )}
         <button
           onClick={handleAcknowledge}
