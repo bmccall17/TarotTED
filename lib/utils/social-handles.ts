@@ -104,3 +104,134 @@ export function formatAllTagPacks(
     bluesky: formatTagPack('bluesky', blueskyHandle, includeOrg),
   };
 }
+
+// Platform types for Signal Deck
+export type Platform = 'x' | 'bluesky' | 'threads' | 'linkedin' | 'instagram' | 'other';
+
+/**
+ * Detect platform from a post URL
+ */
+export function detectPlatformFromUrl(url: string): Platform | null {
+  if (!url) return null;
+  const lowerUrl = url.toLowerCase();
+
+  // X (Twitter)
+  if (lowerUrl.includes('x.com/') || lowerUrl.includes('twitter.com/')) {
+    return 'x';
+  }
+
+  // Bluesky
+  if (lowerUrl.includes('bsky.app/') || lowerUrl.includes('bsky.social/')) {
+    return 'bluesky';
+  }
+
+  // Threads
+  if (lowerUrl.includes('threads.net/')) {
+    return 'threads';
+  }
+
+  // LinkedIn
+  if (lowerUrl.includes('linkedin.com/')) {
+    return 'linkedin';
+  }
+
+  // Instagram
+  if (lowerUrl.includes('instagram.com/')) {
+    return 'instagram';
+  }
+
+  return null;
+}
+
+/**
+ * Extract Twitter/X post ID from URL
+ * Matches: twitter.com/user/status/123 or x.com/user/status/123
+ */
+export function extractTwitterPostId(url: string): string | null {
+  const match = url.match(/(?:twitter|x)\.com\/\w+\/status\/(\d+)/);
+  return match?.[1] || null;
+}
+
+/**
+ * Extract Instagram shortcode from URL
+ * Matches: instagram.com/p/ABC123 or instagram.com/reel/ABC123
+ */
+export function extractInstagramShortcode(url: string): string | null {
+  const match = url.match(/instagram\.com\/(?:p|reel)\/([A-Za-z0-9_-]+)/);
+  return match?.[1] || null;
+}
+
+/**
+ * Extract LinkedIn post identifier from URL
+ * LinkedIn URLs vary, return the full URL as identifier
+ */
+export function extractLinkedInPostUrn(url: string): string | null {
+  const match = url.match(/linkedin\.com\/(?:posts|feed\/update)\/[^\/\s]+/);
+  return match ? url : null;
+}
+
+/**
+ * Validate a social media post URL format
+ */
+export function isValidPostUrl(url: string, platform: Platform): boolean {
+  if (!url) return true; // Empty is valid (optional)
+
+  try {
+    new URL(url); // Basic URL validation
+  } catch {
+    return false;
+  }
+
+  switch (platform) {
+    case 'x':
+      return /(?:twitter|x)\.com\/\w+\/status\/\d+/.test(url);
+    case 'bluesky':
+      return /bsky\.app\/profile\/[^\/]+\/post\/[a-z0-9]+/.test(url);
+    case 'instagram':
+      return /instagram\.com\/(?:p|reel)\/[A-Za-z0-9_-]+/.test(url);
+    case 'linkedin':
+      return /linkedin\.com\/(?:posts|feed\/update)\//.test(url);
+    case 'threads':
+      return /threads\.net\/[^\/]+\/post\//.test(url);
+    default:
+      return true; // Accept any URL for 'other'
+  }
+}
+
+/**
+ * Get platform-specific metric labels
+ */
+export function getPlatformMetricLabels(platform: Platform): {
+  likes: string;
+  reposts: string | null;
+  replies: string;
+} {
+  switch (platform) {
+    case 'x':
+      return { likes: 'Likes', reposts: 'Retweets', replies: 'Replies' };
+    case 'instagram':
+      return { likes: 'Likes', reposts: null, replies: 'Comments' };
+    case 'linkedin':
+      return { likes: 'Reactions', reposts: 'Reposts', replies: 'Comments' };
+    case 'bluesky':
+    case 'threads':
+    default:
+      return { likes: 'Likes', reposts: 'Reposts', replies: 'Replies' };
+  }
+}
+
+/**
+ * Check if a platform supports automatic metrics fetching
+ * Currently only Bluesky has free API access
+ */
+export function platformSupportsAutoMetrics(platform: Platform): boolean {
+  return platform === 'bluesky';
+}
+
+/**
+ * Check if a platform supports automatic follow-status checking
+ * Currently only Bluesky has free API access
+ */
+export function platformSupportsAutoFollowCheck(platform: Platform): boolean {
+  return platform === 'bluesky';
+}

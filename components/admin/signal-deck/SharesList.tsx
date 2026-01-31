@@ -8,10 +8,11 @@ import { NewShareForm } from './NewShareForm';
 import { TopSharesWidget } from './TopSharesWidget';
 import { MentionsInbox } from './MentionsInbox';
 import { Toast } from '../ui/Toast';
+import { type Platform } from '@/lib/utils/social-handles';
 
 type Share = {
   id: string;
-  platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  platform: Platform;
   postUrl: string | null;
   status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
@@ -26,6 +27,7 @@ type Share = {
   repostCount?: number | null;
   replyCount?: number | null;
   metricsUpdatedAt?: string | null;
+  metricsSource?: 'auto' | 'manual' | null;
   followingSpeaker?: boolean | null;
   authorHandle?: string | null;
   authorDisplayName?: string | null;

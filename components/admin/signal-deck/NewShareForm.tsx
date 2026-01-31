@@ -1,43 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Loader2, Link as LinkIcon, Check, AlertCircle, AlertTriangle } from 'lucide-react';
-
-type Platform = 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
-
-/**
- * Detect platform from a post URL
- */
-function detectPlatformFromUrl(url: string): Platform | null {
-  if (!url) return null;
-  const lowerUrl = url.toLowerCase();
-
-  // X (Twitter)
-  if (lowerUrl.includes('x.com/') || lowerUrl.includes('twitter.com/')) {
-    return 'x';
-  }
-
-  // Bluesky
-  if (lowerUrl.includes('bsky.app/') || lowerUrl.includes('bsky.social/')) {
-    return 'bluesky';
-  }
-
-  // Threads
-  if (lowerUrl.includes('threads.net/')) {
-    return 'threads';
-  }
-
-  // LinkedIn
-  if (lowerUrl.includes('linkedin.com/')) {
-    return 'linkedin';
-  }
-
-  return null;
-}
+import { X, Loader2, Link as LinkIcon, Check, AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import {
+  detectPlatformFromUrl,
+  getPlatformMetricLabels,
+  platformSupportsAutoMetrics,
+  type Platform,
+} from '@/lib/utils/social-handles';
 
 type Share = {
   id?: string;
-  platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  platform: Platform;
   postUrl: string | null;
   status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
@@ -52,6 +26,7 @@ type Share = {
   repostCount?: number | null;
   replyCount?: number | null;
   followingSpeaker?: boolean | null;
+  metricsSource?: 'auto' | 'manual' | null;
 };
 
 type Props = {
@@ -60,12 +35,13 @@ type Props = {
   onClose: () => void;
 };
 
-const platforms: Array<{ value: Share['platform']; label: string; shortLabel: string }> = [
-  { value: 'x', label: 'X (Twitter)', shortLabel: 'X' },
-  { value: 'bluesky', label: 'Bluesky', shortLabel: 'BS' },
-  { value: 'threads', label: 'Threads', shortLabel: 'TH' },
-  { value: 'linkedin', label: 'LinkedIn', shortLabel: 'LI' },
-  { value: 'other', label: 'Other', shortLabel: '...' },
+const platforms: Array<{ value: Platform; label: string; shortLabel: string; icon: string }> = [
+  { value: 'x', label: 'X (Twitter)', shortLabel: 'X', icon: '𝕏' },
+  { value: 'bluesky', label: 'Bluesky', shortLabel: 'BS', icon: '🦋' },
+  { value: 'instagram', label: 'Instagram', shortLabel: 'IG', icon: '📷' },
+  { value: 'linkedin', label: 'LinkedIn', shortLabel: 'LI', icon: '💼' },
+  { value: 'threads', label: 'Threads', shortLabel: 'TH', icon: '🧵' },
+  { value: 'other', label: 'Other', shortLabel: '...', icon: '🔗' },
 ];
 
 const statuses: Array<{ value: Share['status']; label: string }> = [
@@ -77,6 +53,7 @@ const statuses: Array<{ value: Share['status']; label: string }> = [
 const platformColors: Record<string, string> = {
   x: 'bg-gray-800 border-gray-600 text-white hover:bg-gray-700',
   bluesky: 'bg-blue-600 border-blue-500 text-white hover:bg-blue-500',
+  instagram: 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 border-pink-500 text-white hover:from-purple-500 hover:via-pink-400 hover:to-orange-300',
   threads: 'bg-gradient-to-r from-purple-600 to-pink-500 border-purple-500 text-white hover:from-purple-500 hover:to-pink-400',
   linkedin: 'bg-blue-700 border-blue-600 text-white hover:bg-blue-600',
   other: 'bg-gray-600 border-gray-500 text-white hover:bg-gray-500',
@@ -85,6 +62,7 @@ const platformColors: Record<string, string> = {
 const platformColorsSelected: Record<string, string> = {
   x: 'bg-gray-800 border-white text-white ring-2 ring-white',
   bluesky: 'bg-blue-600 border-white text-white ring-2 ring-blue-300',
+  instagram: 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 border-white text-white ring-2 ring-pink-300',
   threads: 'bg-gradient-to-r from-purple-600 to-pink-500 border-white text-white ring-2 ring-purple-300',
   linkedin: 'bg-blue-700 border-white text-white ring-2 ring-blue-300',
   other: 'bg-gray-600 border-white text-white ring-2 ring-gray-300',
@@ -94,7 +72,7 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
   const isEditing = !!share?.id;
 
   const [formData, setFormData] = useState<{
-    platform: Share['platform'];
+    platform: Platform;
     postUrl: string;
     status: Share['status'];
     postedAt: string;
@@ -204,6 +182,9 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
     setSaving(true);
 
     try {
+      const isManualMetrics = !platformSupportsAutoMetrics(formData.platform);
+      const hasMetrics = formData.likeCount > 0 || formData.repostCount > 0 || formData.replyCount > 0;
+
       const payload = {
         ...formData,
         postUrl: formData.postUrl || null,
@@ -213,14 +194,15 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
         notes: formData.notes || null,
         postedAt: new Date(formData.postedAt).toISOString(),
         // Include metrics for non-Bluesky platforms
-        likeCount: formData.platform !== 'bluesky' ? formData.likeCount : undefined,
-        repostCount: formData.platform !== 'bluesky' ? formData.repostCount : undefined,
-        replyCount: formData.platform !== 'bluesky' ? formData.replyCount : undefined,
-        metricsUpdatedAt: formData.platform !== 'bluesky' && (formData.likeCount || formData.repostCount || formData.replyCount)
+        likeCount: isManualMetrics ? formData.likeCount : undefined,
+        repostCount: isManualMetrics ? formData.repostCount : undefined,
+        replyCount: isManualMetrics ? formData.replyCount : undefined,
+        metricsSource: isManualMetrics && hasMetrics ? 'manual' : undefined,
+        metricsUpdatedAt: isManualMetrics && hasMetrics
           ? new Date().toISOString()
           : undefined,
-        followingSpeaker: formData.platform !== 'bluesky' ? formData.followingSpeaker : undefined,
-        relationshipUpdatedAt: formData.platform !== 'bluesky' && formData.followingSpeaker !== null
+        followingSpeaker: isManualMetrics ? formData.followingSpeaker : undefined,
+        relationshipUpdatedAt: isManualMetrics && formData.followingSpeaker !== null
           ? new Date().toISOString()
           : undefined,
       };
@@ -410,8 +392,8 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
                 />
               </div>
-              {/* Following checkbox (manual for non-Bluesky) */}
-              {formData.platform !== 'bluesky' && formData.speakerHandle && (
+              {/* Following checkbox (manual for non-Bluesky platforms) */}
+              {!platformSupportsAutoMetrics(formData.platform) && formData.speakerHandle && (
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
@@ -434,56 +416,75 @@ export function NewShareForm({ share, onSave, onClose }: Props) {
           </details>
 
           {/* Metrics (for non-Bluesky manual entry) */}
-          {formData.platform !== 'bluesky' && (
+          {!platformSupportsAutoMetrics(formData.platform) && (
             <details className="group">
               <summary className="flex items-center gap-2 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-300">
-                Engagement Metrics (optional)
+                <Info className="w-4 h-4" />
+                Engagement Metrics (manual entry)
               </summary>
-              <div className="mt-3 grid grid-cols-3 gap-3 pl-6">
-                <div className="space-y-1">
-                  <label className="block text-xs text-gray-400">Likes</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.likeCount}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        likeCount: parseInt(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-xs text-gray-400">Reposts</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.repostCount}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        repostCount: parseInt(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="block text-xs text-gray-400">Replies</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={formData.replyCount}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        replyCount: parseInt(e.target.value) || 0,
-                      }))
-                    }
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-                  />
+              <div className="mt-3 space-y-3 pl-6">
+                <p className="text-xs text-gray-500">
+                  {formData.platform === 'x' && 'Twitter/X API requires paid tier ($100/mo) for metrics.'}
+                  {formData.platform === 'instagram' && 'Instagram API only supports your own posts.'}
+                  {formData.platform === 'linkedin' && 'LinkedIn API only supports your own posts.'}
+                  {formData.platform === 'threads' && 'Threads has no public API.'}
+                  {formData.platform === 'other' && 'Enter metrics manually.'}
+                  {' '}Enter values manually below.
+                </p>
+                <div className={`grid gap-3 ${getPlatformMetricLabels(formData.platform).reposts ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  <div className="space-y-1">
+                    <label className="block text-xs text-gray-400">
+                      {getPlatformMetricLabels(formData.platform).likes}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.likeCount}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          likeCount: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    />
+                  </div>
+                  {getPlatformMetricLabels(formData.platform).reposts && (
+                    <div className="space-y-1">
+                      <label className="block text-xs text-gray-400">
+                        {getPlatformMetricLabels(formData.platform).reposts}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.repostCount}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            repostCount: parseInt(e.target.value) || 0,
+                          }))
+                        }
+                        className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <label className="block text-xs text-gray-400">
+                      {getPlatformMetricLabels(formData.platform).replies}
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={formData.replyCount}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          replyCount: parseInt(e.target.value) || 0,
+                        }))
+                      }
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-lg text-gray-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             </details>

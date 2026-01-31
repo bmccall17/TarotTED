@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, Repeat2, MessageCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, RefreshCw, Loader2, PenSquare } from 'lucide-react';
+import { platformSupportsAutoMetrics, getPlatformMetricLabels, type Platform } from '@/lib/utils/social-handles';
 
 type Props = {
   shareId: string;
-  platform: string;
+  platform: Platform;
   likeCount: number | null;
   repostCount: number | null;
   replyCount: number | null;
   metricsUpdatedAt: Date | string | null;
+  metricsSource?: 'auto' | 'manual' | null;
   onMetricsUpdate?: (metrics: { likeCount: number; repostCount: number; replyCount: number }) => void;
 };
 
@@ -36,6 +38,7 @@ export function MetricsDisplay({
   repostCount,
   replyCount,
   metricsUpdatedAt,
+  metricsSource,
   onMetricsUpdate,
 }: Props) {
   const [loading, setLoading] = useState(false);
@@ -47,7 +50,8 @@ export function MetricsDisplay({
   const [editReposts, setEditReposts] = useState(repostCount ?? 0);
   const [editReplies, setEditReplies] = useState(replyCount ?? 0);
 
-  const isBluesky = platform === 'bluesky';
+  const supportsAutoMetrics = platformSupportsAutoMetrics(platform);
+  const labels = getPlatformMetricLabels(platform);
   const totalEngagement = (likeCount ?? 0) + (repostCount ?? 0) + (replyCount ?? 0);
 
   const handleRefresh = async () => {
@@ -117,11 +121,11 @@ export function MetricsDisplay({
   };
 
   // Manual editing mode for non-Bluesky
-  if (!isBluesky && editing) {
+  if (!supportsAutoMetrics && editing) {
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1" title={labels.likes}>
             <Heart className="w-3 h-3 text-pink-400" />
             <input
               type="number"
@@ -131,17 +135,19 @@ export function MetricsDisplay({
               className="w-14 px-1 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded"
             />
           </div>
-          <div className="flex items-center gap-1">
-            <Repeat2 className="w-3 h-3 text-green-400" />
-            <input
-              type="number"
-              min="0"
-              value={editReposts}
-              onChange={(e) => setEditReposts(parseInt(e.target.value) || 0)}
-              className="w-14 px-1 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded"
-            />
-          </div>
-          <div className="flex items-center gap-1">
+          {labels.reposts && (
+            <div className="flex items-center gap-1" title={labels.reposts}>
+              <Repeat2 className="w-3 h-3 text-green-400" />
+              <input
+                type="number"
+                min="0"
+                value={editReposts}
+                onChange={(e) => setEditReposts(parseInt(e.target.value) || 0)}
+                className="w-14 px-1 py-0.5 text-xs bg-gray-700 border border-gray-600 rounded"
+              />
+            </div>
+          )}
+          <div className="flex items-center gap-1" title={labels.replies}>
             <MessageCircle className="w-3 h-3 text-blue-400" />
             <input
               type="number"
@@ -176,22 +182,31 @@ export function MetricsDisplay({
     <div className="flex items-center gap-3">
       {/* Metrics display */}
       <div className="flex items-center gap-3 text-xs text-gray-400">
-        <span className="flex items-center gap-1" title="Likes">
+        <span className="flex items-center gap-1" title={labels.likes}>
           <Heart className="w-3 h-3 text-pink-400" />
           {likeCount ?? 0}
         </span>
-        <span className="flex items-center gap-1" title="Reposts">
-          <Repeat2 className="w-3 h-3 text-green-400" />
-          {repostCount ?? 0}
-        </span>
-        <span className="flex items-center gap-1" title="Replies">
+        {labels.reposts && (
+          <span className="flex items-center gap-1" title={labels.reposts}>
+            <Repeat2 className="w-3 h-3 text-green-400" />
+            {repostCount ?? 0}
+          </span>
+        )}
+        <span className="flex items-center gap-1" title={labels.replies}>
           <MessageCircle className="w-3 h-3 text-blue-400" />
           {replyCount ?? 0}
         </span>
       </div>
 
+      {/* Manual badge for non-auto platforms */}
+      {!supportsAutoMetrics && metricsSource === 'manual' && totalEngagement > 0 && (
+        <span className="px-1.5 py-0.5 text-[10px] bg-gray-700 text-gray-400 rounded" title="Manually entered metrics">
+          Manual
+        </span>
+      )}
+
       {/* Action button */}
-      {isBluesky ? (
+      {supportsAutoMetrics ? (
         <button
           onClick={handleRefresh}
           disabled={loading}
@@ -212,9 +227,10 @@ export function MetricsDisplay({
             setEditReplies(replyCount ?? 0);
             setEditing(true);
           }}
-          className="text-xs text-gray-500 hover:text-gray-300"
+          className="p-1 text-gray-500 hover:text-gray-300"
+          title="Edit metrics manually"
         >
-          Edit
+          <PenSquare className="w-3.5 h-3.5" />
         </button>
       )}
 

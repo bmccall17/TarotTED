@@ -25,12 +25,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Share not found' }, { status: 404 });
     }
 
-    // If manual metrics provided, use them
+    // If manual metrics provided, use them (for non-Bluesky platforms)
     if (metrics) {
       const updated = await updateMetrics(shareId, {
         likeCount: metrics.likeCount ?? 0,
         repostCount: metrics.repostCount ?? 0,
         replyCount: metrics.replyCount ?? 0,
+        source: 'manual',
       });
       return NextResponse.json({ share: updated });
     }
@@ -46,7 +47,10 @@ export async function POST(request: Request) {
         );
       }
 
-      const updated = await updateMetrics(shareId, fetchedMetrics);
+      const updated = await updateMetrics(shareId, {
+        ...fetchedMetrics,
+        source: 'auto',
+      });
       return NextResponse.json({ share: updated });
     }
 

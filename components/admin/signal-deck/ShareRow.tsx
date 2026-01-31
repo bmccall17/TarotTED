@@ -5,10 +5,11 @@ import { ExternalLink, Edit2, Trash2, Check, Clock, FileText, MessageSquare, Eye
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { MetricsDisplay } from './MetricsDisplay';
 import { RelationshipBadge } from './RelationshipBadge';
+import { platformSupportsAutoMetrics, type Platform } from '@/lib/utils/social-handles';
 
 type Share = {
   id: string;
-  platform: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  platform: Platform;
   postUrl: string | null;
   status: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   postedAt: string;
@@ -23,6 +24,7 @@ type Share = {
   repostCount?: number | null;
   replyCount?: number | null;
   metricsUpdatedAt?: string | null;
+  metricsSource?: 'auto' | 'manual' | null;
   followingSpeaker?: boolean | null;
   authorHandle?: string | null;
   authorDisplayName?: string | null;
@@ -36,16 +38,18 @@ type Props = {
 };
 
 const platformIcons: Record<string, string> = {
-  x: 'X',
-  bluesky: 'BS',
-  threads: 'TH',
-  linkedin: 'LI',
-  other: '...',
+  x: '𝕏',
+  bluesky: '🦋',
+  instagram: '📷',
+  threads: '🧵',
+  linkedin: '💼',
+  other: '🔗',
 };
 
 const platformColors: Record<string, string> = {
   x: 'bg-gray-800 text-white',
   bluesky: 'bg-blue-600 text-white',
+  instagram: 'bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white',
   threads: 'bg-gradient-to-r from-purple-600 to-pink-500 text-white',
   linkedin: 'bg-blue-700 text-white',
   other: 'bg-gray-600 text-white',
@@ -147,7 +151,7 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
   };
 
   const handleRescan = async () => {
-    if (share.platform !== 'bluesky' || !share.postUrl) return;
+    if (!platformSupportsAutoMetrics(share.platform) || !share.postUrl) return;
     setRescanning(true);
     try {
       const response = await fetch(`/api/admin/social-shares/${share.id}/rescan`, {
@@ -277,6 +281,7 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
             repostCount={metrics.repostCount}
             replyCount={metrics.replyCount}
             metricsUpdatedAt={share.metricsUpdatedAt ?? null}
+            metricsSource={share.metricsSource}
             onMetricsUpdate={(newMetrics) => setMetrics(newMetrics)}
           />
 
@@ -319,8 +324,8 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          {/* Rescan button - only for Bluesky shares with post URL */}
-          {share.platform === 'bluesky' && share.postUrl && (
+          {/* Rescan button - only for platforms with auto-metrics support (Bluesky) */}
+          {platformSupportsAutoMetrics(share.platform) && share.postUrl && (
             <button
               onClick={handleRescan}
               disabled={rescanning}

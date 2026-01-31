@@ -21,8 +21,9 @@ const platforms = [
   { value: '', label: 'All Platforms' },
   { value: 'x', label: 'X (Twitter)' },
   { value: 'bluesky', label: 'Bluesky' },
-  { value: 'threads', label: 'Threads' },
+  { value: 'instagram', label: 'Instagram' },
   { value: 'linkedin', label: 'LinkedIn' },
+  { value: 'threads', label: 'Threads' },
   { value: 'other', label: 'Other' },
 ];
 

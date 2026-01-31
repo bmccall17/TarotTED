@@ -7,7 +7,7 @@ export type InsertShare = typeof socialShares.$inferInsert;
 export type Share = typeof socialShares.$inferSelect;
 
 export type ShareFilters = {
-  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
+  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'instagram' | 'other';
   status?: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   search?: string;
   dateFrom?: Date;
@@ -256,6 +256,7 @@ export type MetricsUpdate = {
   likeCount: number;
   repostCount: number;
   replyCount: number;
+  source?: 'auto' | 'manual';
 };
 
 /**
@@ -268,6 +269,7 @@ export async function updateMetrics(id: string, metrics: MetricsUpdate): Promise
       likeCount: metrics.likeCount,
       repostCount: metrics.repostCount,
       replyCount: metrics.replyCount,
+      metricsSource: metrics.source || 'auto',
       metricsUpdatedAt: new Date(),
       updatedAt: new Date(),
     })
