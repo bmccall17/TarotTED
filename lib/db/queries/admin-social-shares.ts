@@ -6,8 +6,9 @@ import { eq, desc, ilike, or, and, sql, count, gte, lte } from 'drizzle-orm';
 export type InsertShare = typeof socialShares.$inferInsert;
 export type Share = typeof socialShares.$inferSelect;
 
+// NOTE: Add 'instagram' after running migration 0007_multi_platform_signal_deck.sql
 export type ShareFilters = {
-  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'instagram' | 'other';
+  platform?: 'x' | 'bluesky' | 'threads' | 'linkedin' | 'other';
   status?: 'draft' | 'posted' | 'verified' | 'discovered' | 'acknowledged';
   search?: string;
   dateFrom?: Date;
@@ -261,6 +262,7 @@ export type MetricsUpdate = {
 
 /**
  * Update metrics for a share
+ * NOTE: metricsSource tracking requires migration 0007_multi_platform_signal_deck.sql
  */
 export async function updateMetrics(id: string, metrics: MetricsUpdate): Promise<Share | null> {
   const [result] = await db
@@ -269,7 +271,8 @@ export async function updateMetrics(id: string, metrics: MetricsUpdate): Promise
       likeCount: metrics.likeCount,
       repostCount: metrics.repostCount,
       replyCount: metrics.replyCount,
-      metricsSource: metrics.source || 'auto',
+      // NOTE: metricsSource requires migration - uncomment after running:
+      // metricsSource: metrics.source || 'auto',
       metricsUpdatedAt: new Date(),
       updatedAt: new Date(),
     })

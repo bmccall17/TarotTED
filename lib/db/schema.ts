@@ -4,7 +4,9 @@ import { pgTable, text, integer, boolean, timestamp, uuid, varchar, pgEnum, bigi
 export const arcanaTypeEnum = pgEnum('arcana_type', ['major', 'minor']);
 export const suitEnum = pgEnum('suit', ['wands', 'cups', 'swords', 'pentacles']);
 export const themeCategoryEnum = pgEnum('theme_category', ['emotion', 'life_phase', 'role', 'other']);
-export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'instagram', 'other']);
+// NOTE: To add 'instagram', run migration 0007_multi_platform_signal_deck.sql first
+// Then update to: pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'instagram', 'other'])
+export const platformEnum = pgEnum('platform', ['x', 'bluesky', 'threads', 'linkedin', 'other']);
 export const shareStatusEnum = pgEnum('share_status', ['draft', 'posted', 'verified', 'discovered', 'acknowledged']);
 
 // Cards table
@@ -105,9 +107,6 @@ export const behaviorEvents = pgTable('behavior_events', {
   idxEventsCreated: index('idx_events_created').on(table.createdAt),
 }));
 
-// Metrics source enum for Signal Deck
-export const metricsSourceEnum = pgEnum('metrics_source', ['auto', 'manual']);
-
 // Social Shares table (Signal Deck - manual share tracking)
 export const socialShares = pgTable('social_shares', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -135,7 +134,9 @@ export const socialShares = pgTable('social_shares', {
   repostCount: integer('repost_count').default(0),
   replyCount: integer('reply_count').default(0),
   metricsUpdatedAt: timestamp('metrics_updated_at'),
-  metricsSource: metricsSourceEnum('metrics_source').default('auto'), // 'auto' for Bluesky, 'manual' for others
+  // NOTE: metricsSource column requires migration 0007_multi_platform_signal_deck.sql
+  // Uncomment after running migration:
+  // metricsSource: varchar('metrics_source', { length: 20 }).default('auto'),
 
   // Phase 3: Relationship tracking
   followingSpeaker: boolean('following_speaker'),

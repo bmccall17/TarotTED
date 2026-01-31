@@ -66,7 +66,6 @@ export function ManualMetricsModal({
 
   const platformInfo: Record<Platform, string> = {
     x: 'Twitter/X API requires paid tier ($100/mo) for metrics. Enter values manually.',
-    instagram: 'Instagram API only supports your own posts. Enter values manually.',
     linkedin: 'LinkedIn API only supports your own posts. Enter values manually.',
     threads: 'Threads has no public API. Enter values manually.',
     bluesky: 'Bluesky metrics are fetched automatically.',

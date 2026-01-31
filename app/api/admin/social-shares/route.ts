@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
 
     const filters: ShareFilters = {};
 
+    // NOTE: Add 'instagram' after running migration 0007_multi_platform_signal_deck.sql
     const platform = searchParams.get('platform');
     if (platform && ['x', 'bluesky', 'threads', 'linkedin', 'other'].includes(platform)) {
       filters.platform = platform as ShareFilters['platform'];
