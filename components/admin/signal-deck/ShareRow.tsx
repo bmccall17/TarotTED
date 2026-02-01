@@ -205,8 +205,8 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
                   alt={sharedContent || 'Shared content'}
                   className={`rounded-lg border border-gray-600 hover:border-indigo-500 transition-colors cursor-pointer ${
                     isCard
-                      ? 'w-10 h-auto max-h-20' // Card: fixed width, auto height (vertical)
-                      : 'w-20 h-auto max-h-14' // Talk: wider, auto height (horizontal thumbnail)
+                      ? 'w-14 h-auto -my-2' // Card: larger, overflow row vertically
+                      : 'w-20 h-auto max-h-14' // Talk: wider horizontal thumbnail
                   }`}
                 />
               </a>
@@ -216,7 +216,7 @@ export function ShareRow({ share, onEdit, onDeleted, onStatusChanged }: Props) {
                 alt={sharedContent || 'Shared content'}
                 className={`rounded-lg border border-gray-600 ${
                   isCard
-                    ? 'w-10 h-auto max-h-20'
+                    ? 'w-14 h-auto -my-2'
                     : 'w-20 h-auto max-h-14'
                 }`}
               />
